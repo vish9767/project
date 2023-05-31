@@ -25,4 +25,4 @@ class agg_hhc_app_caller_register(models.Model):#113
 	save_this_add=models.CharField(max_length=50,null=True)
 	added_date=models.DateField(null=True)
 #	profile_pic=models.CharField(null=True)# profile picture
-	# status=enum.EnumField(active_inactive_enum)
+	status=enum.EnumField(active_inactive_enum,null=True)
