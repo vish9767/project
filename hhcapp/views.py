@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from hhcapp import models
 from hhcapp import serializer
+
 """
 # Create your views here.
 class CourseListView(APIView):
@@ -17,14 +18,15 @@ class CourseListView(APIView):
 
 class agg_hhc_app_caller_register_api(APIView):
     def post(self,request):
-        register=serializers.agg_hhc_app_caller_register_Serializer(data=request.data)
+        register=serializer.agg_hhc_app_caller_register_Serializer(data=request.data)
         if register.is_valid():
             register.save()
-            return Response(register.data,status=status.HTTP_201_CREATED)
-        return Response(register.errors)
+            return Response(register.data)#,status=status.HTTP_201_CREATED)
+        #return Response(register.errors)
     def get(self,request):
         reg=models.agg_hhc_app_caller_register.objects.all()
-        #ref=serializers.
+        ref=serializer.agg_hhc_app_caller_register_Serializer(reg,many=True)
+        return Response(ref.data)
         
 
 # Create your views here.

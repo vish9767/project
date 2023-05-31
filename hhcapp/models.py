@@ -12,7 +12,7 @@ class agg_hhc_app_caller_register(models.Model):#113
 	otp=models.IntegerField(null=True)
 	otp_expire_time=models.DateTimeField(null=True)
 	fname=models.CharField(max_length=50,null=True)
-	lname=models.CharField(max_length=50)
+	lname=models.CharField(max_length=50,null=True)
 	age=models.IntegerField(null=True)
 	gender=models.CharField(max_length=20,null=True)
 	email=models.EmailField(null=True)
@@ -23,6 +23,6 @@ class agg_hhc_app_caller_register(models.Model):#113
 	town=models.CharField(max_length=50,null=True)
 	state=models.CharField(max_length=50,null=True)
 	save_this_add=models.CharField(max_length=50,null=True)
-	added_date=models.DateField(null=True)
+	added_date=models.DateField(null=True,auto_now=True)
 #	profile_pic=models.CharField(null=True)# profile picture
-	# status=enum.EnumField(active_inactive_enum)
+	status=enum.EnumField(active_inactive_enum,null=True)
