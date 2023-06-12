@@ -31,9 +31,9 @@ class OTPLOGIN(APIView):
         msg = f"Use {otp} as your verification code on Spero Application. The OTP expires within 10 mins, {otp} Team Spero"
         print(da['phone'])
         print(otp)
-        user_available=models.agg_hhc_app_caller_register.objects.filter(phone=da['phone']).first()
+        user_available=webmodel.agg_hhc_app_caller_register.objects.filter(phone=da['phone']).first()
         if(user_available):#(old user data )
-            compl=models.agg_hhc_app_caller_register()
+            compl=webmodel.agg_hhc_app_caller_register()
             compl.phone=da['phone']
             compl.otp=otp
             compl.otp_expire_time=datetime.now()+timedelta(minutes=10)
@@ -46,13 +46,13 @@ class OTPLOGIN(APIView):
             if se.is_valid():
                 return Response(se.data)
         else:#(new user registration)
-            models.agg_hhc_app_caller_register.objects.create(phone=da['phone'],otp=otp,otp_expire_time=datetime.now()+timedelta(minutes=2))
+            webmodel.agg_hhc_app_caller_register.objects.create(phone=da['phone'],otp=otp,otp_expire_time=datetime.now()+timedelta(minutes=2))
             se=serializer.webserializers(data=da)
             if(se.is_valid()):
                 send_otp(da['phone'],msg)
                 return Response(se.data)
     def get(self,request):
-        user=models.agg_hhc_app_caller_register.objects.all()
+        user=webmodel.agg_hhc_app_caller_register.objects.all()
         ser=serializer.webserializers(user,many=True)
         return Response(ser.data)
     
@@ -65,7 +65,7 @@ class OTPCHECK(APIView):
         now_time=datetime.now()
         now_time=now_time.replace(tzinfo=pytz.utc)
         #print(da['mobile_number'])
-        user_available=models.agg_hhc_app_caller_register.objects.filter(phone=da['phone']).first()
+        user_available=webmodel.agg_hhc_app_caller_register.objects.filter(phone=da['phone']).first()
         print(user_available)
         print("user_available.otp",user_available.otp)
         if(user_available.otp==da['otp'] and user_available.otp_expire_time>now_time):
@@ -84,7 +84,7 @@ class agg_hhc_app_caller_register_api(APIView):
             return Response(register.data)#,status=status.HTTP_201_CREATED)
         #return Response(register.errors)
     def get(self,request):
-        reg=models.agg_hhc_app_caller_register.objects.all()
+        reg=webmodel.agg_hhc_app_caller_register.objects.all()
         ref=serializer.agg_hhc_app_caller_register_Serializer(reg,many=True)
         return Response(ref.data)
 

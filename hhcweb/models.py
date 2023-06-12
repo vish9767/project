@@ -1,6 +1,5 @@
 from django.db import models
 from django_enumfield import enum
-
 # Create your models here.
 
 class enquiry_from_enum(enum.Enum):
@@ -227,6 +226,18 @@ class agg_hhc_app_caller_register(models.Model):#113
 	profile_pic=models.ImageField(null=True)# profile picture
 	status=enum.EnumField(active_inactive_enum,null=True)
 
+class agg_hhc_callers(models.Model):#20
+	caller_id = models.AutoField(primary_key = True)
+	fullname = models.CharField(max_length=255,null=True)
+	relation = models.CharField(max_length=255,null=True)
+	phone_no = models.CharField(max_length=20,null=True)
+	# srv_prof_id = models.BigIntegerField(null=True)
+	# doc_cons_presc_id = models.BigIntegerField(null=True)
+	status = enum.EnumField(status_enum,null=True)
+	emp_id = models.BigIntegerField(null=True)
+	added_date = models.DateField(null=True)
+	last_modified_by = models.BigIntegerField(null=True)
+	last_modified_date = models.DateField(null=True)
 
 class agg_hhc_patinet_list_enquiry(models.Model):#1
 	pt_id = models.AutoField(primary_key = True)
@@ -499,6 +510,7 @@ class agg_hhc_assessment_patient_list(models.Model):#4
 class agg_hhc_patients(models.Model):#6
 	agg_sp_pt_id = models.AutoField(primary_key = True)
 	app_user_id=models.ForeignKey(agg_hhc_app_caller_register,on_delete=models.CASCADE,null=True)
+	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
 	hhc_code = models.CharField(max_length=255,null=True)
 	membership_id = models.CharField(max_length=50,null=True)
 	name = models.CharField(max_length=255,null=True)
@@ -737,18 +749,6 @@ class agg_hhc_log_for_event(models.Model):#19
 	logStatement = models.CharField(max_length=200,null=True)
 	Added_date = models.DateField(null=True)
 
-class agg_hhc_callers(models.Model):#20
-	caller_id = models.AutoField(primary_key = True)
-	fullname = models.CharField(max_length=255,null=True)
-	relation = models.CharField(max_length=255,null=True)
-	phone_no = models.CharField(max_length=20,null=True)
-	# srv_prof_id = models.BigIntegerField(null=True)
-	# doc_cons_presc_id = models.BigIntegerField(null=True)
-	status = enum.EnumField(status_enum,null=True)
-	emp_id = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
-	last_modified_by = models.BigIntegerField(null=True)
-	last_modified_date = models.DateField(null=True)
 
 class agg_hhc_caller_relation(models.Model):#21
 	caller_rel_id = models.AutoField(primary_key = True)

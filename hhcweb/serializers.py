@@ -45,3 +45,9 @@ class agg_hhc_patients_serializer(serializers.ModelSerializer):#6
         model=models.agg_hhc_patients
         fields='__all__'
         
+#############______________get patient details from caller id but latest record_______#
+
+class get_latest_patient_record_from_caller_id(serializers.ModelSerializer):
+    class Meta:
+        model=models.agg_hhc_patients
+        fields='__all__'

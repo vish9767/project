@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from hhcweb import serializers
 from hhcweb import models
+from rest_framework import status
 # Create your views here.
     
 class agg_hhc_caller_relation_api(APIView):
@@ -44,8 +45,6 @@ class agg_hhc_gender_api(APIView):
 
 class agg_hhc_patients_api(APIView):
     def post(self,request):
-        name=request.data.get('name')
-        print("my name is ",name)
         serializer=serializers.agg_hhc_patients_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -57,6 +56,19 @@ class agg_hhc_patients_api(APIView):
         return Response(ref.data)
     
 
+#_________________________________________get_latest_patient_record_from_caller_id__________________
+class get_latest_patient_record_from_caller_id_api(APIView):
+    def get_object(self,pk):
+        try:
+            a=models.agg_hhc_patients.objects.filter(caller_id=pk)
+            return a.latest()
+        except models.agg_hhc_patients.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+    def get(self, request, pk, format=None):
+        #print("this is inside get",pk)
+        snippet= self.get_object(pk)
+        serialized =serializers.get_latest_patient_record_from_caller_id(snippet,many=True)
+        return Response(serialized.data)
 
 
 
