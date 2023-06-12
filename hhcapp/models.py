@@ -53,7 +53,3 @@ class agg_hhc_app_add_address(models.Model):
 	address_id = models.AutoField(primary_key=True)
 	address = models.CharField(max_length=500, null=True)
 	app_call_reg_id = models.ForeignKey(agg_hhc_app_caller_register, on_delete=models.SET_NULL,null=True)"""
-
-class agg_hhc_app_add_address(models.Model):
-	address_id = models.AutoField(primary_key=True)
-	address = models.CharField(max_length=500, null=True)
