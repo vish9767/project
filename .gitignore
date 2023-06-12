@@ -178,3 +178,32 @@ cython_debug/
 !**/migrations/__init__.py
 **/**/migrations
 **/migrations/
+
+# Ignore database files
+db.sqlite3
+
+# Ignore static files
+static/
+
+# Ignore media files
+media/
+
+# Ignore environment-specific settings
+.env
+
+# Ignore IDE-specific files
+.idea/
+*.pyc
+
+**/migrations/*.py
+**/migrations/*.pyc
+
+# Ignore IDE-specific files
+.idea/
+*.pyc
+
+# Ignore Django migration files
+**/migrations/*.py
+**/migrations/*.pyc
+# Ignore Python bytecode files
+__pycache__/
