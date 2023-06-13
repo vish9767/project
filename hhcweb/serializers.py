@@ -51,3 +51,10 @@ class get_latest_patient_record_from_caller_id(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_patients
         fields='__all__'
+
+#####_____________________agg_hhc_callers_____________________________________________#######
+
+class agg_hhc_callers_serializer(serializers.ModelSerializer):#20
+    class Meta:
+        model=models.agg_hhc_callers
+        fields="__all__"
