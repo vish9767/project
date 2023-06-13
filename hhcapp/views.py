@@ -29,8 +29,6 @@ class OTPLOGIN(APIView):
         ja=io.BytesIO(number)
         da=JSONParser().parse(ja)#we are converting our data in dictionary
         msg = f"Use {otp} as your verification code on Spero Application. The OTP expires within 10 mins, {otp} Team Spero"
-        print(da['phone'])
-        print(otp)
         user_available=webmodel.agg_hhc_app_caller_register.objects.filter(phone=da['phone']).first()
         if(user_available):#(old user data )
             compl=webmodel.agg_hhc_app_caller_register()
