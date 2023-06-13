@@ -139,7 +139,7 @@ class agg_hhc_app_address_by_caller_api(APIView):
         serialized=serializer.agg_hhc_app_address_by_caller_id(address,many=True) 
         return Response(serialized.data) 
     
-#####_______________________________________________get All Address from caller id_____________####
+###_____________________get All Address from caller id_____________####
 class agg_hhc_app_address_by_caller_api(APIView):
     def get_object(self,pk):
         try:
@@ -149,5 +149,4 @@ class agg_hhc_app_address_by_caller_api(APIView):
     def get(self,request,pk,format=None):
         address=self.get_object(pk)
         serialized=serializer.agg_hhc_app_address_by_caller_id(address,many=True) 
-        return Response(serialized.data)   
-        
+        return Response(serialized.data)

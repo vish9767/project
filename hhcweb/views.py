@@ -60,79 +60,15 @@ class agg_hhc_patients_api(APIView):
 class get_latest_patient_record_from_caller_id_api(APIView):
     def get_object(self,pk):
         try:
-            a=models.agg_hhc_patients.objects.filter(caller_id=pk)
-            return a.latest()
+            a=models.agg_hhc_patients.objects.filter(caller_id=pk).latest('pk')
+            print("this is last patient ",a)
+            return a
         except models.agg_hhc_patients.DoesNotExist:
             raise status.HTTP_404_NOT_FOUND
     def get(self, request, pk, format=None):
-        #print("this is inside get",pk)
         snippet= self.get_object(pk)
-        serialized =serializers.get_latest_patient_record_from_caller_id(snippet,many=True)
+        serialized =serializers.get_latest_patient_record_from_caller_id(snippet)
         return Response(serialized.data)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
