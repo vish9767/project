@@ -79,8 +79,8 @@ class agg_hhc_app_caller_register_api(APIView):
         register=serializer.agg_hhc_app_caller_register_Serializer(data=request.data)
         if register.is_valid():
             register.save()
-            return Response(register.data)#,status=status.HTTP_201_CREATED)
-        #return Response(register.errors)
+            return Response(register.data,status=status.HTTP_201_CREATED)
+        return Response(register.errors,status=status.HTTP_400_BAD_REQUEST)
     def get(self,request):
         reg=webmodel.agg_hhc_app_caller_register.objects.all()
         ref=serializer.agg_hhc_app_caller_register_Serializer(reg,many=True)
@@ -98,7 +98,7 @@ class add_family_member(APIView):
         if serilized.is_valid():
             serilized.save()
             return Response(serilized.data, status=status.HTTP_201_CREATED)
-        return Response(serilized.errors)
+        return Response(serilized.errors,status=status.HTTP_400_BAD_REQUEST)
     
 class add_multiple_address_api(APIView):
     def post(self,request):
@@ -108,7 +108,7 @@ class add_multiple_address_api(APIView):
         if serilized.is_valid():
             serilized.save()
             return Response(serilized.data, status=status.HTTP_201_CREATED)
-        return Response(serilized.errors)
+        return Response(serilized.errors,status=status.HTTP_400_BAD_REQUEST)
 ################################################_______get patients record from caller id____###############    
 class agg_hhc_app_patient_by_caller_api(APIView):
     def get_object(self,pk):
@@ -125,7 +125,7 @@ class agg_hhc_app_patient_by_caller_api(APIView):
         return Response(serialized.data)
     
 
-#####_______________________________________________get All Address from caller id_____________####
+#####____________________get All Address from caller id_____________####
 class agg_hhc_app_address_by_caller_api(APIView):
     def get_object(self,pk):
         try:

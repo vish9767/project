@@ -48,8 +48,8 @@ class agg_hhc_patients_api(APIView):
         serializer=serializers.agg_hhc_patients_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)#,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors)
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     def get(self,request):
         reg=models.agg_hhc_patients.objects.all()
         ref=serializers.agg_hhc_patients_serializer(reg,many=True)
@@ -70,9 +70,12 @@ class get_latest_patient_record_from_caller_id_api(APIView):
         serialized =serializers.get_latest_patient_record_from_caller_id(snippet)
         return Response(serialized.data)
 
+######___________________________agg_hhc_callers_Api__________________#########
 
-
-
-
-
-
+class agg_hhc_callers_api(APIView):
+    def post(self,request):
+        serialized=serializers.agg_hhc_callers_serializer(data=request.data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response(serialized.data,status=status.HTTP_201_CREATED)
+        return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
