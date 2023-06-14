@@ -16,4 +16,5 @@ urlpatterns=[
     path('agg_hhc_app_prefered_consultant',views.agg_hhc_app_prefered_consultant.as_view()),
     path('agg_hhc_app_caller_register_api/<int:pk>/',views.agg_hhc_app_caller_register_put_api.as_view()),
     path('agg_hhc_state_api',views.agg_hhc_state_api.as_view()),
+    path('agg_hhc_app_address_get_put_delete_api/<int:pk>/',views.agg_hhc_app_address_get_put_delete_api.as_view())
 ]

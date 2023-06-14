@@ -23,8 +23,7 @@ class agg_hhc_app_family_details(serializers.ModelSerializer):
 class add_multiple_address_serializer(serializers.ModelSerializer):
     class Meta:
         model=webmodels.agg_hhc_app_add_address
-        fields=['address','app_call_reg_id', 'name']
-
+        fields="__all__"
 class agg_hhc_app_refered_by_serializer(serializers.ModelSerializer):
     class Meta:
         model = webmodels.agg_hhc_hospitals

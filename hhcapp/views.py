@@ -147,7 +147,7 @@ class agg_hhc_app_address_by_caller_api(APIView):
         address=self.get_object(pk)
         serialized=serializer.agg_hhc_app_address_by_caller_id(address,many=True) 
         return Response(serialized.data)
-    
+
 class agg_hhc_app_befered_by(APIView):
     
     def get(self,request):
@@ -190,3 +190,25 @@ class agg_hhc_state_api(APIView):
         serialized=serializer.agg_hhc_state_serializer(state,many=True)
         return Response(serialized.data)
     
+
+class agg_hhc_app_address_get_put_delete_api(APIView):
+    def get_object(self,pk):
+        try:
+            return webmodel.agg_hhc_app_add_address.objects.get(address_id=pk)
+        except webmodel.agg_hhc_app_add_address.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+    def get(self,request,pk,format=None):
+        address=self.get_object(pk)
+        serialized=serializer.add_multiple_address_serializer(address) 
+        return Response(serialized.data)
+    def put(self,request,pk,format=None):
+        record=self.get_object(pk)
+        serialized=serializer.add_multiple_address_serializer(record,data=request.data)
+        if(serialized.is_valid()):
+            serialized.save()
+            return Response(serialized.data)
+        return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+    def delete(self,request,pk,format=None):
+        record = self.get_object(pk)
+        record.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
