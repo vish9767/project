@@ -1315,6 +1315,7 @@ class employee_type_enum(enum.Enum):
     Trainer=5
     Hospital=6
     dashbaord=7
+    caller = 8
 
 class event_by_professional_enum(enum.Enum):
     Started_Route=1
@@ -2102,11 +2103,11 @@ class agg_hhc_app_add_address(models.Model):
 
 class agg_hhc_documents(models.Model):
 	doc_id = models.AutoField(primary_key=True)
-	User_Type = enum.EnumField( null=True)
+	User_Type = enum.EnumField(employee_type_enum,null=True)
 	User_id = models.IntegerField()
 	doc_name = models.CharField(max_length=100, null=True)
 	doucment = models.FileField()
-	verification_status = enum.EnumField( null=True)
+	verification_status = enum.EnumField(Leave_status_enum,null=True)
 	added_at_time = models.DateTimeField(null=True)
 class agg_hhc_state(models.Model):
 	state_id=models.AutoField(primary_key=True)
