@@ -101,9 +101,9 @@ class add_family_member(APIView):
     
 class add_multiple_address_api(APIView):
     def post(self,request):
-        print(request.data)
+        # print(request.data)
         serilized = serializer.add_multiple_address_serializer(data = request.data)
-        print(serilized)
+        # print(serilized)
         if serilized.is_valid():
             serilized.save()
             return Response(serilized.data, status=status.HTTP_201_CREATED)
@@ -190,3 +190,12 @@ class agg_hhc_state_api(APIView):
         serialized=serializer.agg_hhc_state_serializer(state,many=True)
         return Response(serialized.data)
     
+class agg_hhc_patient_doc_detail(APIView):
+    def post(self,request):
+        # print(request.data)
+        serilized = serializer.agg_hhc_patient_doc_details_serializer(data = request.data)
+        # print(serilized)
+        if serilized.is_valid():
+            serilized.save()
+            return Response(serilized.data, status=status.HTTP_201_CREATED)
+        return Response(serilized.errors,status=status.HTTP_400_BAD_REQUEST)

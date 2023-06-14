@@ -2101,14 +2101,14 @@ class agg_hhc_app_add_address(models.Model):
 	address = models.CharField(max_length=500, null=True)
 	app_call_reg_id = models.ForeignKey(agg_hhc_app_caller_register, on_delete=models.SET_NULL,null=True)
 
-class agg_hhc_documents(models.Model):
+class agg_hhc_patient_documents(models.Model):
 	doc_id = models.AutoField(primary_key=True)
-	User_Type = enum.EnumField(employee_type_enum,null=True)
-	User_id = models.IntegerField()
+	agg_sp_pt_id = models.ForeignKey(agg_hhc_patients,null=True, on_delete=models.CASCADE)
 	doc_name = models.CharField(max_length=100, null=True)
-	doucment = models.FileField()
+	doucment = models.FileField(null=True)
 	verification_status = enum.EnumField(Leave_status_enum,null=True)
 	added_at_time = models.DateTimeField(null=True)
+
 class agg_hhc_state(models.Model):
 	state_id=models.AutoField(primary_key=True)
 	state_name=models.CharField(max_length=100,null=True)
