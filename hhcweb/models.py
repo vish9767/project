@@ -2108,3 +2108,7 @@ class agg_hhc_documents(models.Model):
 	doucment = models.FileField()
 	verification_status = enum.EnumField( null=True)
 	added_at_time = models.DateTimeField(null=True)
+class agg_hhc_state(models.Model):
+	state_id=models.AutoField(primary_key=True)
+	state_name=models.CharField(max_length=100,null=True)
+	
