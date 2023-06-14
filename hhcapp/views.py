@@ -72,7 +72,7 @@ class OTPCHECK(APIView):
             return Response({"message":"OTP expired"})
         else:
             return Response({"message":"wrong otp"})
-#-----------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------
 
 class agg_hhc_app_caller_register_api(APIView):
     def post(self,request):
@@ -147,4 +147,23 @@ class agg_hhc_app_address_by_caller_api(APIView):
     def get(self,request,pk,format=None):
         address=self.get_object(pk)
         serialized=serializer.agg_hhc_app_address_by_caller_id(address,many=True) 
+        return Response(serialized.data)
+    
+###____________________________put_request_agg_hhc_app_caller_register_________###
+class agg_hhc_app_caller_register_put_api(APIView):
+    def get_object(self,pk):
+        try:
+            return webmodel.agg_hhc_app_caller_register.objects.get(app_user_id=pk)
+        except webmodel.agg_hhc_app_caller_register.DoesNotExist:
+            return status.HTTP_400_BAD_REQUEST
+    def put(self,request,pk,format=None):
+        record=self.get_object(pk)
+        serialized=serializer.agg_hhc_app_caller_register_Serializer(record,data=request.data)
+        if(serialized.is_valid()):
+            serialized.save()
+            return Response(serialized.data)
+        return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+    def get(self,request,pk):
+        record=self.get_object(pk)
+        serialized=serializer.agg_hhc_app_caller_register_Serializer(record)
         return Response(serialized.data)
