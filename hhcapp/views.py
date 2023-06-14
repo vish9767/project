@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from hhcapp import serializer
 from datetime import datetime, timedelta
 import requests,random,pytz,io
-from hhcapp import models
 from hhcweb import models as webmodels
 from rest_framework.parsers import JSONParser
 from hhcspero.settings import AUTH_KEY
@@ -167,3 +166,12 @@ class agg_hhc_app_caller_register_put_api(APIView):
         record=self.get_object(pk)
         serialized=serializer.agg_hhc_app_caller_register_Serializer(record)
         return Response(serialized.data)
+
+#__________________________________state api________________
+
+class agg_hhc_state_api(APIView):
+    def get(self,request):
+        state=webmodels.agg_hhc_state.objects.all()
+        serialized=serializer.agg_hhc_state_serializer(state,many=True)
+        return Response(serialized.data)
+    

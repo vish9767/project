@@ -55,4 +55,8 @@ class agg_hhc_app_address_by_caller_id(serializers.ModelSerializer):
     class Meta:
         model=webmodels.agg_hhc_app_add_address
         fields="__all__"
-        
+#___________________________________________state______________
+class agg_hhc_state_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=webmodels.agg_hhc_state
+        fields="__all__"
