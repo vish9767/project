@@ -148,3 +148,19 @@ class agg_hhc_app_address_by_caller_api(APIView):
         address=self.get_object(pk)
         serialized=serializer.agg_hhc_app_address_by_caller_id(address,many=True) 
         return Response(serialized.data)
+    
+class agg_hhc_app_befered_by(APIView):
+    
+    def get(self,request):
+        hospitals=webmodels.agg_hhc_hospitals.objects.filter(status=1)
+        serializers=serializer.agg_hhc_app_refered_by_serializer(hospitals,many=True)
+        return Response(serializers.data)
+    
+class agg_hhc_app_prefered_consultant(APIView):
+
+    def get(self, request):
+        consultants = webmodels.agg_hhc_doctors_consultants.objects.filter(status=1)
+        serializers=serializer.agg_hhc_prefered_consultants_serializer(consultants, many=True)
+        return Response(serializers.data)
+
+# class agg_hhc_app_

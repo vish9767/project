@@ -12,4 +12,6 @@ urlpatterns=[
     path('agg_hhc_app_caller_relation_api', webviews.agg_hhc_caller_relation_api.as_view()),
     path('agg_hhc_app_patient_by_caller_api/<int:pk>/', views.agg_hhc_app_patient_by_caller_api.as_view()),
     path('agg_hhc_app_address_by_caller_api/<int:pk>/',views.agg_hhc_app_address_by_caller_api.as_view()),
+    path('agg_hhc_app_befered_by',views.agg_hhc_app_befered_by.as_view()),
+    path('agg_hhc_app_prefered_consultant',views.agg_hhc_app_prefered_consultant.as_view()),
 ]

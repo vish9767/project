@@ -25,10 +25,20 @@ class add_multiple_address_serializer(serializers.ModelSerializer):
         model=webmodels.agg_hhc_app_add_address
         fields=['address','app_call_reg_id', 'name']
 
+class agg_hhc_app_refered_by_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = webmodels.agg_hhc_hospitals
+        fields=['hospital_name', 'hosp_id']
 
+class agg_hhc_prefered_consultants_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = webmodels.agg_hhc_doctors_consultants
+        fields=[ 'doct_cons_id','first_name', 'last_name', 'middle_name']
 
-
-
+          
+# class agg_hhc_patient_doc_details(serializers.ModelSerializer):
+#     class Meta:
+#         model = webmodels.
 
 #-----------------------------------vishal--------------------------------------------------------------------
 

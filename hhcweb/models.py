@@ -1266,6 +1266,7 @@ class documents_enum(enum.Enum):
     need_more_details=2
     Rejected=3
     In_Progress=4
+    
 class truefalse_enum(enum.Enum):
     true=1
     false=2
@@ -2098,3 +2099,12 @@ class agg_hhc_app_add_address(models.Model):
 	address_id = models.AutoField(primary_key=True)
 	address = models.CharField(max_length=500, null=True)
 	app_call_reg_id = models.ForeignKey(agg_hhc_app_caller_register, on_delete=models.SET_NULL,null=True)
+
+class agg_hhc_documents(models.Model):
+	doc_id = models.AutoField(primary_key=True)
+	User_Type = enum.EnumField( null=True)
+	User_id = models.IntegerField()
+	doc_name = models.CharField(max_length=100, null=True)
+	doucment = models.FileField()
+	verification_status = enum.EnumField( null=True)
+	added_at_time = models.DateTimeField(null=True)
