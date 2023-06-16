@@ -41,6 +41,8 @@ class agg_hhc_patient_doc_details_serializer(serializers.ModelSerializer):
         model = webmodels.agg_hhc_patient_documents
         fields = ['agg_sp_pt_id', 'doc_name', 'doucment', 'added_at_time']
 
+
+
 #-----------------------------------vishal--------------------------------------------------------------------
 
 
