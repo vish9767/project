@@ -756,7 +756,7 @@ class agg_hhc_caller_relation(models.Model):#21
 	status = enum.EnumField(status_enum,null=True)
 	def __str__(self):
 		return self.relation
-	
+7
 class agg_hhc_conference_call(models.Model):#22
 	conf_call_id = models.AutoField(primary_key = True)
 	caller_id = models.CharField(max_length=50,null=True)
@@ -2112,4 +2112,27 @@ class agg_hhc_patient_documents(models.Model):
 class agg_hhc_state(models.Model):
 	state_id=models.AutoField(primary_key=True)
 	state_name=models.CharField(max_length=100,null=True)
+	
+class agg_hhc_app_patient_documents(models.Model):
+	pt_id = models.AutoField(primary_key=True)
+	agg_sp_pt_id = models.IntegerField(null=True)
+	doc_type_name = models.CharField(max_length=100, null=True)
+	path = models.CharField(max_length=500, null=True)
+	added_date = models.DateTimeField(null=True)
+	status = enum.EnumField(Tf_enum, null=True)
+
+# class agg_hhc_app_caller_register(models.Model):
+# 	id = models.AutoField(primary_key=True)
+# 	fname = models.CharField(max_length=100, null=True)
+# 	lname = models.CharField(max_length=100, null=True)
+# 	email = models.CharField(max_length=100, null=True)
+# 	gender = models.CharField(max_length=20, null=True)
+# 	phone = models.CharField(max_length=20, null=True)
+# 	addr = models.CharField(max_length=100, null=True)
+# 	password = models.CharField(max_length=50, null=True)
+# 	otp = models.IntegerField(null=True)
+# 	added_date = models.DateTimeField(null=True)
+# 	status = enum.EnumField(Tf_enum, null=True)
+
+
 	
