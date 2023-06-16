@@ -51,7 +51,7 @@ class agg_hhc_patients_api(APIView):
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     def get(self,request):
-        reg=models.agg_hhc_patients.objects.all()
+        reg=models.agg_hhc_patients.objects.filter(status=1)
         ref=serializers.agg_hhc_patients_serializer(reg,many=True)
         return Response(ref.data)
     

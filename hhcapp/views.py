@@ -114,7 +114,7 @@ class agg_hhc_app_patient_by_caller_api(APIView):
         try:
             #print("this is my id ",pk)
             #print("this is my data",webmodel.agg_hhc_patients.objects.filter(app_user_id=pk))
-            return webmodel.agg_hhc_patients.objects.filter(app_user_id=pk)
+            return webmodel.agg_hhc_patients.objects.filter(app_user_id=pk,status=1)
         except webmodel.agg_hhc_patients.DoesNotExist:
             raise status.HTTP_404_NOT_FOUND
     def get(self, request, pk, format=None):
@@ -128,7 +128,7 @@ class agg_hhc_app_patient_by_caller_api(APIView):
 class agg_hhc_app_address_by_caller_api(APIView):
     def get_object(self,pk):
         try:
-            return webmodel.agg_hhc_app_add_address.objects.filter(app_call_reg_id=pk)
+            return  
         except webmodel.agg_hhc_app_add_address.DoesNotExist:
             raise status.HTTP_404_NOT_FOUND
     def get(self,request,pk,format=None):
@@ -212,3 +212,17 @@ class agg_hhc_app_address_get_put_delete_api(APIView):
         record = self.get_object(pk)
         record.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+
+class agg_hhc_sub_services_from_service(APIView):
+    def get_object(self,pk):
+        try:
+            return webmodel.agg_hhc_sub_services.objects.filter(srv_id=pk)
+        except webmodel.agg_hhc_sub_services.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+    def get(self,request,pk,format=None):
+        record=self.get_object(pk)
+        serialized=serializer.agg_hhc_sub_services_serializer(record,many=True)
+        return Response(serialized.data)
+        

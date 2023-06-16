@@ -981,7 +981,7 @@ class agg_hhc_service_professional_details(models.Model):#33
 
 class agg_hhc_sub_services(models.Model):#34
 	sub_srv_id = models.AutoField(primary_key = True)
-	srv_id = models.BigIntegerField(null=True)
+	srv_id = models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True)
 	recommomded_service = models.CharField(max_length=255,null=True)
 	cost = models.FloatField(null=True)
 	tax = models.FloatField(null=True)
@@ -1752,7 +1752,7 @@ class agg_hhc_knowledge_base_documents(models.Model):#85
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
 
-class agg_hhc_locations(models.Model):#86
+class agg_hhc_locations(models.Model):#86 locality
     loc_id=models.AutoField(primary_key=True)
     location=models.CharField(max_length=255,null=True)
     pin_code=models.CharField(max_length=240,null=True)

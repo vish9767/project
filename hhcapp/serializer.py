@@ -69,3 +69,9 @@ class agg_hhc_state_serializer(serializers.ModelSerializer):
     class Meta:
         model=webmodels.agg_hhc_state
         fields="__all__"
+
+#______________________________sub_services_from_service_id__________________________
+class agg_hhc_sub_services_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=webmodels.agg_hhc_sub_services
+        fields="__all__"
