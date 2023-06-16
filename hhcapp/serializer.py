@@ -35,9 +35,10 @@ class agg_hhc_prefered_consultants_serializer(serializers.ModelSerializer):
         fields=[ 'doct_cons_id','first_name', 'last_name', 'middle_name']
 
           
-# class agg_hhc_patient_doc_details(serializers.ModelSerializer):
-#     class Meta:
-#         model = webmodels.
+class agg_hhc_patient_doc_details_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = webmodels.agg_hhc_patient_documents
+        fields = ['agg_sp_pt_id', 'doc_name', 'doucment', 'added_at_time']
 
 #-----------------------------------vishal--------------------------------------------------------------------
 

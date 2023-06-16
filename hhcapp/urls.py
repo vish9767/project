@@ -18,4 +18,5 @@ urlpatterns=[
     path('agg_hhc_state_api',views.agg_hhc_state_api.as_view()),
     path('agg_hhc_app_address_get_put_delete_api/<int:pk>/',views.agg_hhc_app_address_get_put_delete_api.as_view()),
     path('agg_hhc_sub_services_from_service/<int:pk>',views.agg_hhc_sub_services_from_service.as_view()) #this api will de used in web as well as app
+    path('agg_hhc_patient_doc_detail', views.agg_hhc_patient_doc_detail.as_view())
 ]
