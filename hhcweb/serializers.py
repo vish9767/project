@@ -2,7 +2,6 @@ from rest_framework import serializers
 from hhcweb import models
 
 
-
 class agg_hhc_caller_relation_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_caller_relation
