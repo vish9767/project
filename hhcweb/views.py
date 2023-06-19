@@ -93,3 +93,21 @@ class agg_hhc_patinet_list_enquiry_api(APIView):
         record=models.agg_hhc_patinet_list_enquiry.objects.all()
         serialized=serializers.agg_hhc_patinet_list_enquiry_serializer(record,many=True)
         return Response(serialized.data)
+    
+class agg_hhc_patinet_list_enquiry_put(APIView):
+    def get_object(self,request,pk):
+        try:
+            return models.agg_hhc_patinet_list_enquiry.objects.filter(pk=pk)
+        except models.agg_hhc_patinet_list_enquiry.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+    def get(self,request,pk):
+        obj=self.get_object(pk)
+        serialized=serializers.agg_hhc_patinet_list_enquiry_serializer(obj)
+        return Response(serialized.data)
+    def put(self,request,pk):
+        obj=self.get_object(pk)
+        serialized=serializers.agg_hhc_patinet_list_enquiry_serializer(obj,data=request.data)
+        if(serialized.is_valid()):
+            serialized.save()
+            return Response(serialized.data)
+        return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)

@@ -10,4 +10,5 @@ urlpatterns = [
     path('agg_hhc_patients_api',views.agg_hhc_patients_api.as_view()),
     path('get_latest_patient_record_from_caller_id_api/<int:pk>/',views.get_latest_patient_record_from_caller_id_api.as_view()),
     path('agg_hhc_patinet_list_enquiry_api',views.agg_hhc_patinet_list_enquiry_api.as_view()),
+    path('agg_hhc_patinet_list_enquiry_put/<int:pk>',views.agg_hhc_patinet_list_enquiry_put.as_view()),
 ]
