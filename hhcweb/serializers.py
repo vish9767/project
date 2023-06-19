@@ -57,3 +57,10 @@ class agg_hhc_callers_serializer(serializers.ModelSerializer):#20
     class Meta:
         model=models.agg_hhc_callers
         fields="__all__"
+    
+##_______________________________enquiry_list________________##
+
+class agg_hhc_patinet_list_enquiry_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=models.agg_hhc_patinet_list_enquiry
+        fields='__all__'

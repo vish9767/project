@@ -79,3 +79,17 @@ class agg_hhc_callers_api(APIView):
             serialized.save()
             return Response(serialized.data,status=status.HTTP_201_CREATED)
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+####_______________________________agg_hhc_patinet_list_enquiry_______________##
+
+class agg_hhc_patinet_list_enquiry_api(APIView):
+    def post(self,request):
+        serialized=serializers.agg_hhc_patinet_list_enquiry_serializer(data=request.data)
+        if(serialized.is_valid()):
+            serialized.save()
+            return Response(serialized.data,status=status.HTTP_201_CREATED)
+        return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+    def get(self,request):
+        record=models.agg_hhc_patinet_list_enquiry.objects.all()
+        serialized=serializers.agg_hhc_patinet_list_enquiry_serializer(record,many=True)
+        return Response(serialized.data)
