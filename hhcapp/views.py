@@ -235,3 +235,4 @@ class agg_hhc_patient_doc_detail(APIView):
             serilized.save()
             return Response(serilized.data, status=status.HTTP_201_CREATED)
         return Response(serilized.errors,status=status.HTTP_400_BAD_REQUEST)
+
