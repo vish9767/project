@@ -9,4 +9,5 @@ urlpatterns = [
     path('agg_hhc_gender_api',views.agg_hhc_gender_api.as_view()),
     path('agg_hhc_patients_api',views.agg_hhc_patients_api.as_view()),
     path('get_latest_patient_record_from_caller_id_api/<int:pk>/',views.get_latest_patient_record_from_caller_id_api.as_view()),
+    path('agg_hhc_add_')
 ]

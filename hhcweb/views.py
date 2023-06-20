@@ -61,7 +61,7 @@ class get_latest_patient_record_from_caller_id_api(APIView):
     def get_object(self,pk):
         try:
             a=models.agg_hhc_patients.objects.filter(caller_id=pk).latest('pk')
-            print("this is last patient ",a)
+            # print("this is last patient ",a)
             return a
         except models.agg_hhc_patients.DoesNotExist:
             raise status.HTTP_404_NOT_FOUND
@@ -79,3 +79,7 @@ class agg_hhc_callers_api(APIView):
             serialized.save()
             return Response(serialized.data,status=status.HTTP_201_CREATED)
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+class AddPatientOrCheckCallerExist(APIView):
+    def post(self, request):
+        serialized = serializers.AddPatientOrCheckCallerExistSerializer.model1
