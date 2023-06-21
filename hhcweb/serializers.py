@@ -5,23 +5,23 @@ from hhcweb import models
 class agg_hhc_caller_relation_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_caller_relation
-        fields = ['relation']           
+        fields = ['caller_rel_id','relation']           
 
 class agg_hhc_locations_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_locations
-        fields = ['location'] 
+        fields = ['loc_id','location'] 
 
 
 class agg_hhc_services_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_services
-        fields = ['service_title'] 
+        fields = ['srv_id','service_title'] 
 
 class agg_hhc_sub_services_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_sub_services
-        fields = ['recommomded_service'] 
+        fields = ['sub_srv_id','recommomded_service'] 
 
 class Model1Serializer(serializers.ModelSerializer):
     class Meta:
