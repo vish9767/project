@@ -12,5 +12,6 @@ urlpatterns = [
     # path('agg_hhc_add_'),
     path('agg_hhc_patinet_list_enquiry_api',views.agg_hhc_patinet_list_enquiry_api.as_view()),
     path('agg_hhc_patinet_list_enquiry_put/<int:pk>',views.agg_hhc_patinet_list_enquiry_put.as_view()),
-    path('agg_hhc_add_service_details_api', views.agg_hhc_add_service_details_api.as_view())
+    path('agg_hhc_add_service_details_api', views.agg_hhc_add_service_details_api.as_view()),
+    path('agg_hhc_callers_api',views.agg_hhc_callers_api.as_view())
 ]

@@ -10,18 +10,18 @@ class agg_hhc_caller_relation_serializer(serializers.ModelSerializer):
 class agg_hhc_locations_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_locations
-        fields = ['location'] 
+        fields = ['loc_id','location'] 
 
 
 class agg_hhc_services_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_services
-        fields = ['service_title'] 
+        fields = ['srv_id','service_title'] 
 
 class agg_hhc_sub_services_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_sub_services
-        fields = ['recommomded_service'] 
+        fields = ['sub_srv_id','recommomded_service'] 
 
 # class Model1Serializer(serializers.ModelSerializer):
 #     class Meta:
@@ -85,8 +85,21 @@ class agg_hhc_patinet_list_enquiry_serializer(serializers.ModelSerializer):
         fields='__all__'
 
 
-class agg_hhc_service_detail_serializer(serializers.ModelSerializer):
+class agg_hhc_add_service_serializer(serializers.ModelSerializer):
     class Meta:
         models = models.agg_hhc_event_plan_of_care
         fields = ['srv_id', 'sub_srv_id', 'start_date', 'end_date', 'srv_prof_id', 'discount_percentage', 'add_discount']
 
+#_____________________________agg_hhc_service_professional_details____##
+class agg_hhc_service_professional_details_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=models.agg_hhc_service_professional_details
+        fields='__all__'
+
+
+#__________________________agg_hhc_callers_seralizer______
+class agg_hhc_callers_seralizer(serializers.ModelSerializer):
+    class Meta:
+        model=models.agg_hhc_callers
+        fields='__all__'
+        

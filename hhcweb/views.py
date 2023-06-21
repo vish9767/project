@@ -122,3 +122,15 @@ class agg_hhc_add_service_details_api(APIView):
             serialized.save()
             return Response(serialized.data,status=status.HTTP_201_CREATED)
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+class agg_hhc_service_professional_details(APIView):
+    def get(self,request):
+        records=models.agg_hhc_service_professional_details.all()
+        serializer=serializers.agg_hhc_service_professional_details_serializer(records,many=True)
+        return Response(serializer.data)
+
+class agg_hhc_callers_api(APIView):
+    def get(self,request):
+        record=models.agg_hhc_callers.objects.all()
+        serailized=serializers.agg_hhc_callers_seralizer(record,many=True)
+        return Response(serailized.data)
