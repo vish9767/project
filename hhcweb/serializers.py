@@ -37,9 +37,10 @@ class agg_hhc_sub_services_serializer(serializers.ModelSerializer):
 #     model1 = Model1Serializer()
 #     model2 = Model2Serializer()
 
-class Add_service_details(serializers.Serializer):
-    model = models.agg_hhc_event_plan_of_care()
-    fields = ['']  
+class agg_hhc_add_service_serializer(serializers.ModelSerializer):
+    class Meta:
+        models = models.agg_hhc_event_plan_of_care
+        fields = ['srv_id', 'sub_srv_id', 'start_date', 'end_date', 'srv_prof_id', 'discount_percentage', 'add_discount']
 
 
 # ------------------------------------------------------ Vishal -------------------------------------------------------
@@ -85,10 +86,6 @@ class agg_hhc_patinet_list_enquiry_serializer(serializers.ModelSerializer):
         fields='__all__'
 
 
-class agg_hhc_add_service_serializer(serializers.ModelSerializer):
-    class Meta:
-        models = models.agg_hhc_event_plan_of_care
-        fields = ['srv_id', 'sub_srv_id', 'start_date', 'end_date', 'srv_prof_id', 'discount_percentage', 'add_discount']
 
 #_____________________________agg_hhc_service_professional_details____##
 class agg_hhc_service_professional_details_serializer(serializers.ModelSerializer):
