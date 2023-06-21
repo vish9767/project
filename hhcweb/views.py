@@ -120,3 +120,9 @@ class agg_hhc_service_professional_details(APIView):
         records=models.agg_hhc_service_professional_details.all()
         serializer=serializers.agg_hhc_service_professional_details_serializer(records,many=True)
         return Response(serializer.data)
+
+class agg_hhc_callers_api(APIView):
+    def get(self,request):
+        record=models.agg_hhc_callers.objects.all()
+        serailized=serializers.agg_hhc_callers_seralizer(record,many=True)
+        return Response(serailized.data)

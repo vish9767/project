@@ -87,3 +87,11 @@ class agg_hhc_service_professional_details_serializer(serializers.ModelSerialize
     class Meta:
         model=models.agg_hhc_service_professional_details
         fields='__all__'
+
+
+#__________________________agg_hhc_callers_seralizer______
+class agg_hhc_callers_seralizer(serializers.ModelSerializer):
+    class Meta:
+        model=models.agg_hhc_callers
+        fields='__all__'
+        
