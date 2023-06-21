@@ -5,7 +5,7 @@ from hhcweb import models
 class agg_hhc_caller_relation_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_caller_relation
-        fields = ['relation']           
+        fields = ['caller_rel_id','relation']           
 
 class agg_hhc_locations_serializer(serializers.ModelSerializer):
     class Meta:
@@ -23,21 +23,23 @@ class agg_hhc_sub_services_serializer(serializers.ModelSerializer):
         model=models.agg_hhc_sub_services
         fields = ['recommomded_service'] 
 
-class Model1Serializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.agg_hhc_sub_services
-        fields = '__all__'
+# class Model1Serializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.agg_hhc_sub_services
+#         fields = '__all__'
 
-class Model2Serializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.agg_hhc_services
-        fields = '__all__'
+# class Model2Serializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.agg_hhc_services
+#         fields = '__all__'
 
-class AddPatientOrCheckCallerExistSerializer(serializers.Serializer):
-    model1 = Model1Serializer()
-    model2 = Model2Serializer()
+# class AddPatientOrCheckCallerExistSerializer(serializers.Serializer):
+#     model1 = Model1Serializer()
+#     model2 = Model2Serializer()
 
-    
+class Add_service_details(serializers.Serializer):
+    model = models.agg_hhc_event_plan_of_care()
+    fields = ['']  
 
 
 # ------------------------------------------------------ Vishal -------------------------------------------------------
@@ -81,3 +83,10 @@ class agg_hhc_patinet_list_enquiry_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_patinet_list_enquiry
         fields='__all__'
+
+
+class agg_hhc_service_detail_serializer(serializers.ModelSerializer):
+    class Meta:
+        models = models.agg_hhc_event_plan_of_care
+        fields = ['srv_id', 'sub_srv_id', 'start_date', 'end_date', 'srv_prof_id', 'discount_percentage', 'add_discount']
+
