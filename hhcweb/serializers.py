@@ -64,3 +64,9 @@ class agg_hhc_patinet_list_enquiry_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_patinet_list_enquiry
         fields='__all__'
+
+#_____________________________agg_hhc_service_professional_details____##
+class agg_hhc_service_professional_details_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=models.agg_hhc_service_professional_details
+        fields='__all__'

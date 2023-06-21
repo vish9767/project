@@ -111,3 +111,9 @@ class agg_hhc_patinet_list_enquiry_put(APIView):
             serialized.save()
             return Response(serialized.data)
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+class agg_hhc_service_professional_details(APIView):
+    def get(self,request):
+        records=models.agg_hhc_service_professional_details.all()
+        serializer=serializers.agg_hhc_service_professional_details_serializer(records,many=True)
+        return Response(serializer.data)
