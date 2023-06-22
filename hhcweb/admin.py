@@ -17,7 +17,7 @@ admin.site.register(agg_hhc_event_job_summary)#13
 admin.site.register(agg_hhc_event_other_call)#14
 admin.site.register(agg_hhc_event_plan_of_care)#15
 admin.site.register(agg_hhc_event_professional)#16
-admin.site.register(agg_hhc_event_requirements)#17
+# admin.site.register(agg_hhc_event_requirements)#17
 admin.site.register(agg_hhc_event_share_hcm)#18
 admin.site.register(agg_hhc_log_for_event)#19
 admin.site.register(agg_hhc_callers)#20

@@ -208,6 +208,8 @@ class OTP_verifivation_enum(enum.Enum):
 	Not_Verified = 2
 
 
+
+
 class agg_hhc_app_caller_register(models.Model):#113
 	app_user_id=models.AutoField(primary_key=True)
 	phone=models.BigIntegerField(null=True)#this will used to store otp
@@ -696,17 +698,24 @@ class agg_hhc_event_other_call(models.Model):#14
 
 class agg_hhc_event_plan_of_care(models.Model):#15
 	eve_poc_id = models.AutoField(primary_key = True)
-	eve_id = models.BigIntegerField(null=True)
-	eve_req_id = models.BigIntegerField(null=True)
-	srv_prof_id = models.BigIntegerField(null=True)
-	service_date = models.DateField(null=True)
-	service_date_to = models.DateField(null=True)
+	eve_id = models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)# new added
+	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)# new added
+	sub_srv_id = models.ForeignKey('agg_hhc_sub_services', on_delete=models.CASCADE,null=True)
+	hosp_id = models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# new added
+	doct_cons_id = models.ForeignKey('agg_hhc_doctors_consultants',on_delete=models.CASCADE,null=True)# new added
+	# eve_req_id = models.BigIntegerField(null=True)
+	srv_prof_id = models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
+	# service_date = models.DateField(null=True)# this field for fields stor  time
+	# service_date_to = models.DateField(null=True)# this field for fields stor time
 	start_date = models.CharField(max_length=240,null=True)
 	end_date = models.CharField(max_length=240,null=True)
 	service_cost = models.FloatField(null=True)
+	add_discount = enum.EnumField(yes_no_enum, null=True)
+	discount_percentage = models.IntegerField(null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
 	added_date = models.DateField(null=True)
+	remark = models.CharField(max_length=200, null=True)# newly added
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -724,19 +733,19 @@ class agg_hhc_event_professional(models.Model):#16
 	modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
-class agg_hhc_event_requirements(models.Model):#17
-	eve_req_id = models.AutoField(primary_key = True)
-	eve_id = models.BigIntegerField(null=True)
-	srv_id = models.BigIntegerField(null=True)
-	sub_srv_id = models.BigIntegerField(null=True)
-	srv_prof_id = models.BigIntegerField(null=True)
-	status = enum.EnumField(status_enum,null=True)
-	hosp_id = models.BigIntegerField(null=True)
-	Consultant = models.BigIntegerField(null=True)
-	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
-	last_modified_by = models.BigIntegerField(null=True)
-	last_modified_date = models.DateField(null=True)
+# class agg_hhc_event_requirements(models.Model):#17
+# 	# eve_req_id = models.AutoField(primary_key = True)
+# 	# eve_id = models.BigIntegerField(null=True)
+# 	srv_id = models.BigIntegerField(null=True)
+# 	sub_srv_id = models.BigIntegerField(null=True)
+# 	srv_prof_id = models.BigIntegerField(null=True)
+# 	status = enum.EnumField(status_enum,null=True) 
+# 	hosp_id = models.BigIntegerField(null=True)
+# 	Consultant = models.BigIntegerField(null=True)
+# 	added_by = models.BigIntegerField(null=True)
+# 	added_date = models.DateField(null=True)
+# 	last_modified_by = models.BigIntegerField(null=True)
+# 	last_modified_date = models.DateField(null=True)
 
 class agg_hhc_event_share_hcm(models.Model):#18
 	eve_share_hcm_id = models.AutoField(primary_key = True)
