@@ -89,9 +89,19 @@ class agg_hhc_service_professional_details_serializer(serializers.ModelSerialize
         fields='__all__'
 
 
-#__________________________agg_hhc_callers_seralizer______
+#__________________________agg_hhc_callers_seralizer____________________##
 class agg_hhc_callers_seralizer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_callers
         fields='__all__'
-        
+
+class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
+    class Meta:
+        model=models.agg_hhc_patients
+        fields='__all__'
+
+#______________________________________agg_hhc_callers_callers_____________
+class agg_hhc_callers(serializers.ModelSerializer):#20
+    class Meta:
+        model=models.agg_hhc_callers
+        fields='__all__'

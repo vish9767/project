@@ -123,6 +123,37 @@ class agg_hhc_service_professional_details(APIView):
 
 class agg_hhc_callers_api(APIView):
     def get(self,request):
-        record=models.agg_hhc_callers.objects.all()
+        record=models.agg_hhc_callers.objects.filter(status=1)
         serailized=serializers.agg_hhc_callers_seralizer(record,many=True)
         return Response(serailized.data)
+    
+
+class agg_hhc_web_patient_by_caller_phone_no(APIView):
+    def get_object(self,pk):
+        try:
+            #print("this is my id ",pk)
+            #print("this is my data",webmodel.agg_hhc_patients.objects.filter(app_user_id=pk))
+            return models.agg_hhc_patients.objects.filter(caller_id=pk)
+        except models.agg_hhc_patients.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+    def get(self, request, pk, format=None):
+        #print("this is inside get",pk)
+        snippet= self.get_object(pk)
+        serialized =serializers.agg_hhc_app_patient_by_caller_phone_no(snippet,many=True)
+        return Response(serialized.data)
+    
+
+class agg_hhc_callers_phone_no(APIView):
+    def get_object(self,pk):
+        queryset = models.agg_hhc_callers.objects.get(phone_no=pk)#.values_list('caller_id',flat=True)
+        #blogs = queryset.values_list('caller_id', flat=True)
+        print("This is get:",queryset.caller_id)
+        query_id=queryset.caller_id
+        #print('this is query:',list(queryset))
+        return query_id #8888888888
+    def get(self,request,pk,format=None):
+        snippet=self.get_object(pk)
+        record=models.agg_hhc_patients.objects.filter(caller_id=snippet)
+        print("this is snippet",snippet)
+        serialized=serializers.agg_hhc_app_patient_by_caller_phone_no(record,many=True)
+        return Response(serialized.data)

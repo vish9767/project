@@ -11,6 +11,8 @@ urlpatterns = [
     path('get_latest_patient_record_from_caller_id_api/<int:pk>/',views.get_latest_patient_record_from_caller_id_api.as_view()),
     # path('agg_hhc_add_'),
     path('agg_hhc_patinet_list_enquiry_api',views.agg_hhc_patinet_list_enquiry_api.as_view()),
-    path('agg_hhc_patinet_list_enquiry_put/<int:pk>',views.agg_hhc_patinet_list_enquiry_put.as_view()),
-    path('agg_hhc_callers_api',views.agg_hhc_callers_api.as_view())
+    path('agg_hhc_patinet_list_enquiry_put/<int:pk>/',views.agg_hhc_patinet_list_enquiry_put.as_view()),
+    path('agg_hhc_callers_api',views.agg_hhc_callers_api.as_view()),
+    path('agg_hhc_web_patient_by_caller_phone_no/<int:pk>/',views.agg_hhc_web_patient_by_caller_phone_no.as_view()),
+    path('agg_hhc_callers_phone_no/<str:pk>/',views.agg_hhc_callers_phone_no.as_view())
 ]
