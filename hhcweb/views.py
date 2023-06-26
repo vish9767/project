@@ -161,7 +161,10 @@ class agg_hhc_callers_phone_no(APIView):
         return query_id #8888888888
     def get(self,request,pk,format=None):
         snippet=self.get_object(pk)
+        caller_record=models.agg_hhc_callers.objects.get(pk=snippet)
+        print("this is caller info",caller_record)
         record=models.agg_hhc_patients.objects.filter(caller_id=snippet)
         print("this is snippet",snippet)
+        serialized_caller=serializers.agg_hhc_callers(caller_record)
         serialized=serializers.agg_hhc_app_patient_by_caller_phone_no(record,many=True)
-        return Response(serialized.data)
+        return Response({"caller": serialized_caller.data, "patients": serialized.data})
