@@ -140,7 +140,7 @@ class agg_hhc_web_patient_by_caller_phone_no(APIView):
     def get_object(self,pk):
         try:
             #print("this is my id ",pk)
-            #print("this is my data",webmodel.agg_hhc_patients.objects.filter(app_user_id=pk))
+            #print("this is my data",webmodel.agg_hhc_patients.objects.filter(caller_id=pk))
             return models.agg_hhc_patients.objects.filter(caller_id=pk)
         except models.agg_hhc_patients.DoesNotExist:
             raise status.HTTP_404_NOT_FOUND
@@ -153,7 +153,7 @@ class agg_hhc_web_patient_by_caller_phone_no(APIView):
 
 class agg_hhc_callers_phone_no(APIView):
     def get_object(self,pk):
-        queryset = models.agg_hhc_callers.objects.get(phone_no=pk)#.values_list('caller_id',flat=True)
+        queryset = models.agg_hhc_callers.objects.get(phone=pk)#.values_list('caller_id',flat=True)
         #blogs = queryset.values_list('caller_id', flat=True)
         print("This is get:",queryset.caller_id)
         query_id=queryset.caller_id

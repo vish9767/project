@@ -20,7 +20,6 @@ admin.site.register(agg_hhc_event_professional)#16
 # admin.site.register(agg_hhc_event_requirements)#17
 admin.site.register(agg_hhc_event_share_hcm)#18
 admin.site.register(agg_hhc_log_for_event)#19
-admin.site.register(agg_hhc_callers)#20
 admin.site.register(agg_hhc_caller_relation)#21
 admin.site.register(agg_hhc_conference_call)#22
 admin.site.register(agg_hhc_sp_incoming_call)#23

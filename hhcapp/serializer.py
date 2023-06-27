@@ -13,7 +13,7 @@ class webserializers(serializers.ModelSerializer):
         model=webmodels.agg_hhc_app_family_details
         fields=['phone']
     def create(self,validated_data):
-        return webmodels.agg_hhc_app_caller_register.objects.create(**validated_data)
+        return webmodels.agg_hhc_callers.objects.create(**validated_data)
     
 class agg_hhc_app_family_details(serializers.ModelSerializer):
     class Meta:
@@ -46,17 +46,17 @@ class agg_hhc_patient_doc_details_serializer(serializers.ModelSerializer):
 
 
 
-class agg_hhc_app_caller_register_Serializer(serializers.ModelSerializer):
+class agg_hhc_callers_Serializer(serializers.ModelSerializer):
     class Meta:
-        model=webmodels.agg_hhc_app_caller_register
+        model=webmodels.agg_hhc_callers
         fields='__all__'
 
 class webserializers(serializers.ModelSerializer):
     class Meta:
-        model=webmodels.agg_hhc_app_caller_register
+        model=webmodels.agg_hhc_callers
         fields=['phone']
     def create(self,validated_data):
-        return webmodels.agg_hhc_app_caller_register.objects.create(**validated_data)
+        return webmodels.agg_hhc_callers.objects.create(**validated_data)
     
 class agg_hhc_app_patient_by_caller_id(serializers.ModelSerializer):
     class Meta:
