@@ -2090,6 +2090,8 @@ class agg_hhc_gender(models.Model):#112
 	name=models.CharField(max_length=20,null=True)
 	status=enum.EnumField(status_enum,null=True)
 
+	
+
 #_____________________________________Android Application_________________#
 
 
