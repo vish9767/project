@@ -208,26 +208,35 @@ class OTP_verifivation_enum(enum.Enum):
 	Not_Verified = 2
 
 
+class caller_status_enum(enum.Enum):
+	mobile=1
+	website=2
+	walking=3
 
 
-class agg_hhc_app_caller_register(models.Model):#113
-	app_user_id=models.AutoField(primary_key=True)
+class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
+	caller_id=models.AutoField(primary_key=True)
 	phone=models.BigIntegerField(null=True)#this will used to store otp
 	otp=models.IntegerField(null=True)
 	otp_expire_time=models.DateTimeField(null=True)
 	fname=models.CharField(max_length=50,null=True)
 	lname=models.CharField(max_length=50,null=True)
+	relation=models.CharField(max_length=255,null=True)
 	age=models.IntegerField(null=True)
 	gender=models.CharField(max_length=20,null=True)
 	email=models.EmailField(null=True)
-	contact=models.BigIntegerField(null=True)
+	contact_no=models.BigIntegerField(null=True)
 	alter_contact=models.BigIntegerField(null=True)
 	Address=models.CharField(max_length=50,null=True)
 	save_this_add=models.CharField(max_length=50,null=True)
 	added_date=models.DateField(null=True,auto_now=True)
+	emp_id=models.BigIntegerField(null=True)
+	last_modified_by=models.BigIntegerField(null=True)
+	last_modified_date=models.DateField(null=True)
 	profile_pic=models.ImageField(null=True)# profile picture
 	status=enum.EnumField(active_inactive_enum,null=True)
-
+	#caller_status=enum.EnumField(caller_status_enum,null=True)
+"""
 class agg_hhc_callers(models.Model):#20
 	caller_id = models.AutoField(primary_key = True)
 	fullname = models.CharField(max_length=255,null=True)
@@ -239,7 +248,7 @@ class agg_hhc_callers(models.Model):#20
 	emp_id = models.BigIntegerField(null=True)
 	added_date = models.DateField(null=True)
 	last_modified_by = models.BigIntegerField(null=True)
-	last_modified_date = models.DateField(null=True)
+	last_modified_date = models.DateField(null=True)"""
 
 class agg_hhc_patinet_list_enquiry(models.Model):#1
 	pt_id = models.AutoField(primary_key = True)
@@ -519,7 +528,7 @@ class agg_hhc_assessment_patient_list(models.Model):#4
 
 class agg_hhc_patients(models.Model):#6
 	agg_sp_pt_id = models.AutoField(primary_key = True)
-	app_user_id=models.ForeignKey(agg_hhc_app_caller_register,on_delete=models.CASCADE,null=True)
+	#app_user_id=models.ForeignKey(agg_hhc_app_caller_register,on_delete=models.CASCADE,null=True)
 	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
 	hhc_code = models.CharField(max_length=255,null=True)
 	membership_id = models.CharField(max_length=50,null=True)
@@ -2118,7 +2127,8 @@ class agg_hhc_app_family_details(models.Model):
 class agg_hhc_app_add_address(models.Model):
 	address_id = models.AutoField(primary_key=True)
 	address = models.CharField(max_length=500, null=True)
-	app_call_reg_id = models.ForeignKey(agg_hhc_app_caller_register, on_delete=models.SET_NULL,null=True)
+	#app_call_reg_id = models.ForeignKey(agg_hhc_app_caller_register, on_delete=models.SET_NULL,null=True)
+	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.SET_NULL,null=True)
 
 class agg_hhc_patient_documents(models.Model):
 	doc_id = models.AutoField(primary_key=True)

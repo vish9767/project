@@ -28,13 +28,13 @@ class OTPLOGIN(APIView):
         ja=io.BytesIO(number)
         da=JSONParser().parse(ja)#we are converting our data in dictionary
         msg = f"Use {otp} as your verification code on Spero Application. The OTP expires within 10 mins, {otp} Team Spero"
-        user_available=webmodel.agg_hhc_app_caller_register.objects.filter(phone=da['phone']).first()
+        user_available=webmodel.agg_hhc_callers.objects.filter(phone=da['phone']).first()
         if(user_available):#(old user data )
-            compl=webmodel.agg_hhc_app_caller_register()
+            compl=webmodel.agg_hhc_callers()
             compl.phone=da['phone']
             compl.otp=otp
             compl.otp_expire_time=datetime.now()+timedelta(minutes=10)
-            compl.app_user_id=user_available.app_user_id
+            compl.caller_id=user_available.caller_id
             compl.save()
             send_otp(da['phone'],msg)
             da['otp']=otp
@@ -43,13 +43,13 @@ class OTPLOGIN(APIView):
             if se.is_valid():
                 return Response(se.data)
         else:#(new user registration)
-            webmodel.agg_hhc_app_caller_register.objects.create(phone=da['phone'],otp=otp,otp_expire_time=datetime.now()+timedelta(minutes=2))
+            webmodel.agg_hhc_callers.objects.create(phone=da['phone'],otp=otp,otp_expire_time=datetime.now()+timedelta(minutes=2))
             se=serializer.webserializers(data=da)
             if(se.is_valid()):
                 send_otp(da['phone'],msg)
                 return Response(se.data)
     def get(self,request):
-        user=webmodel.agg_hhc_app_caller_register.objects.all()
+        user=webmodel.agg_hhc_callers.objects.all()
         ser=serializer.webserializers(user,many=True)
         return Response(ser.data)
     
@@ -62,7 +62,7 @@ class OTPCHECK(APIView):
         now_time=datetime.now()
         now_time=now_time.replace(tzinfo=pytz.utc)
         #print(da['mobile_number'])
-        user_available=webmodel.agg_hhc_app_caller_register.objects.filter(phone=da['phone']).first()
+        user_available=webmodel.agg_hhc_callers.objects.filter(phone=da['phone']).first()
         print(user_available)
         print("user_available.otp",user_available.otp)
         if(user_available.otp==da['otp'] and user_available.otp_expire_time>now_time):
@@ -73,16 +73,16 @@ class OTPCHECK(APIView):
             return Response({"message":"wrong otp"})
 #---------------------------------------------------------------
 
-class agg_hhc_app_caller_register_api(APIView):
+class agg_hhc_callers_api(APIView):
     def post(self,request):
-        register=serializer.agg_hhc_app_caller_register_Serializer(data=request.data)
+        register=serializer.agg_hhc_callers_Serializer(data=request.data)
         if register.is_valid():
             register.save()
             return Response(register.data,status=status.HTTP_201_CREATED)
         return Response(register.errors,status=status.HTTP_400_BAD_REQUEST)
     def get(self,request):
-        reg=webmodel.agg_hhc_app_caller_register.objects.all()
-        ref=serializer.agg_hhc_app_caller_register_Serializer(reg,many=True)
+        reg=webmodel.agg_hhc_callers.objects.all()
+        ref=serializer.agg_hhc_callers_Serializer(reg,many=True)
         return Response(ref.data)
 
 class agg_hhc_app_services_api(APIView):
@@ -113,8 +113,8 @@ class agg_hhc_app_patient_by_caller_api(APIView):
     def get_object(self,pk):
         try:
             #print("this is my id ",pk)
-            #print("this is my data",webmodel.agg_hhc_patients.objects.filter(app_user_id=pk))
-            return webmodel.agg_hhc_patients.objects.filter(app_user_id=pk,status=1)
+            #print("this is my data",webmodel.agg_hhc_patients.objects.filter(caller_id=pk))
+            return webmodel.agg_hhc_patients.objects.filter(caller_id=pk,status=1)
         except webmodel.agg_hhc_patients.DoesNotExist:
             raise status.HTTP_404_NOT_FOUND
     def get(self, request, pk, format=None):
@@ -163,23 +163,23 @@ class agg_hhc_app_prefered_consultant(APIView):
         return Response(serializers.data)
 
 # class agg_hhc_app_
-###____________________________put_request_agg_hhc_app_caller_register_________###
-class agg_hhc_app_caller_register_put_api(APIView):
+###____________________________put_request_agg_hhc_callers_________###
+class agg_hhc_callers_put_api(APIView):
     def get_object(self,pk):
         try:
-            return webmodel.agg_hhc_app_caller_register.objects.get(app_user_id=pk)
-        except webmodel.agg_hhc_app_caller_register.DoesNotExist:
+            return webmodel.agg_hhc_callers.objects.get(caller_id=pk)
+        except webmodel.agg_hhc_callers.DoesNotExist:
             return status.HTTP_400_BAD_REQUEST
     def put(self,request,pk,format=None):
         record=self.get_object(pk)
-        serialized=serializer.agg_hhc_app_caller_register_Serializer(record,data=request.data)
+        serialized=serializer.agg_hhc_callers_Serializer(record,data=request.data)
         if(serialized.is_valid()):
             serialized.save()
             return Response(serialized.data)
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
     def get(self,request,pk):
         record=self.get_object(pk)
-        serialized=serializer.agg_hhc_app_caller_register_Serializer(record)
+        serialized=serializer.agg_hhc_callers_Serializer(record)
         return Response(serialized.data)
 
 #__________________________________state api________________
