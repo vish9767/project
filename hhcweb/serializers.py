@@ -106,7 +106,7 @@ class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
         model=models.agg_hhc_patients
         fields='__all__'
 
-#______________________________________agg_hhc_callers_callers_____________
+#______________________________________agg_hhc_callers_serializer_____________
 class agg_hhc_callers(serializers.ModelSerializer):#20
     class Meta:
         model=models.agg_hhc_callers
