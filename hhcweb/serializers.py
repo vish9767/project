@@ -42,6 +42,7 @@ class agg_hhc_add_service_serializer(serializers.ModelSerializer):
         models = models.agg_hhc_event_plan_of_care
         fields = ['srv_id', 'sub_srv_id', 'start_date', 'end_date', 'srv_prof_id', 'discount_percentage', 'add_discount']
 
+# class agg_hhc_
 
 # ------------------------------------------------------ Vishal -------------------------------------------------------
 class agg_hhc_purpose_call_serializer(serializers.ModelSerializer):#25
@@ -105,8 +106,13 @@ class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
         model=models.agg_hhc_patients
         fields='__all__'
 
-#______________________________________agg_hhc_callers_callers_____________
+#______________________________________agg_hhc_callers_serializer_____________
 class agg_hhc_callers(serializers.ModelSerializer):#20
     class Meta:
         model=models.agg_hhc_callers
         fields='__all__'
+
+#------------------------------------agg_hhc_hospitals_serializer_____________
+class agg_hhc_hospitals_serializer(serializers.Serializer):
+    class Meta:
+        model=models.agg_hhc_hospitals

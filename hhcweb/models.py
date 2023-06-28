@@ -235,7 +235,7 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	last_modified_date=models.DateField(null=True)
 	profile_pic=models.ImageField(null=True)# profile picture
 	status=enum.EnumField(active_inactive_enum,null=True)
-	#caller_status=enum.EnumField(caller_status_enum,null=True)
+	caller_status=enum.EnumField(caller_status_enum,null=True)
 """
 class agg_hhc_callers(models.Model):#20
 	caller_id = models.AutoField(primary_key = True)
@@ -2099,6 +2099,8 @@ class agg_hhc_gender(models.Model):#112
 	name=models.CharField(max_length=20,null=True)
 	status=enum.EnumField(status_enum,null=True)
 
+	
+
 #_____________________________________Android Application_________________#
 
 
@@ -2160,6 +2162,3 @@ class agg_hhc_app_patient_documents(models.Model):
 # 	otp = models.IntegerField(null=True)
 # 	added_date = models.DateTimeField(null=True)
 # 	status = enum.EnumField(Tf_enum, null=True)
-
-
-	
