@@ -149,3 +149,11 @@ class agg_hhc_callers_phone_no(APIView):
         serialized_caller=serializers.agg_hhc_callers(caller_record)
         serialized=serializers.agg_hhc_app_patient_by_caller_phone_no(record,many=True)
         return Response({"caller": serialized_caller.data, "patients": serialized.data})
+
+#---------------------------get all hospital names-----------------------------------
+
+class agg_hhc_hospitals_api(APIView):
+    def get(self,request):
+        hospital=models.agg_hhc_hospitals.objects.filter(status=1)
+        hospital_names=serializers.agg_hhc_hospitals_serializer(hospital,many=True)
+        return Response(hospital_names.data)

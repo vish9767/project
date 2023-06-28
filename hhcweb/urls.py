@@ -15,4 +15,5 @@ urlpatterns = [
     path('agg_hhc_callers_api',views.agg_hhc_callers_api.as_view()),
     path('agg_hhc_patient_from_callers_phone_no/<str:pk>/',views.agg_hhc_callers_phone_no.as_view()),
     path('agg_hhc_add_service_details_api', views.agg_hhc_add_service_details_api.as_view()),
+    path('agg_hhc_hospitals_api',views.agg_hhc_hospitals_api.as_view())
 ]
