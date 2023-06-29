@@ -150,6 +150,35 @@ class agg_hhc_callers_phone_no(APIView):
         serialized=serializers.agg_hhc_app_patient_by_caller_phone_no(record,many=True)
         return Response({"caller": serialized_caller.data, "patients": serialized.data})
 
+#----------patients from callers_enum status---------------------
+class agg_hhc_callers_phone_no_status_mobile_api(APIView):#staus=1
+    def get(self,request):
+        record=models.agg_hhc_callers.objects.filter(caller_status=1)
+        print(record)
+        serialized=serializers.agg_hhc_patients_serializer(record,many=True)
+        return Response(serialized.data)
+
+class agg_hhc_callers_phone_no_status_web_api(APIView):#staus=2
+    def get(self,request):
+        record=models.agg_hhc_callers.objects.filter(caller_status=2)
+        print(record)
+        serialized=serializers.agg_hhc_patients_serializer(record,many=True)
+        return Response(serialized.data)
+
+class agg_hhc_callers_phone_no_status_walking_api(APIView):#staus=3
+    def get(self,request):
+        record=models.agg_hhc_callers.objects.filter(caller_status=3)
+        print(record)
+        serialized=serializers.agg_hhc_patients_serializer(record,many=True)
+        return Response(serialized.data)
+
+class agg_hhc_callers_phone_no_status_calling_api(APIView):#staus=4
+    def get(self,request):
+        record=models.agg_hhc_callers.objects.filter(caller_status=4)
+        print(record)
+        serialized=serializers.agg_hhc_patients_serializer(record,many=True)
+        return Response(serialized.data)
+
 #---------------------------get all hospital names-----------------------------------
 
 class agg_hhc_hospitals_api(APIView):

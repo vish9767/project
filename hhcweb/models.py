@@ -212,6 +212,7 @@ class caller_status_enum(enum.Enum):
 	mobile=1
 	website=2
 	walking=3
+	calling=4
 
 
 class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
@@ -236,6 +237,7 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	profile_pic=models.ImageField(null=True)# profile picture
 	status=enum.EnumField(active_inactive_enum,null=True)
 	caller_status=enum.EnumField(caller_status_enum,null=True)
+	
 """
 class agg_hhc_callers(models.Model):#20
 	caller_id = models.AutoField(primary_key = True)
