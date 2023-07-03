@@ -12,7 +12,6 @@ from hhcweb import models as webmodel
 
 
 def send_otp(mobile,msg):
-    pass
     url=(f"https://wa.chatmybot.in/gateway/waunofficial/v1/api/v1/sendmessage?access-token={AUTH_KEY}&phone={mobile}&content={msg}&fileName&caption&contentType=1")
     try:
         response = requests.get(url)
