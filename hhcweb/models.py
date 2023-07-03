@@ -545,6 +545,8 @@ class agg_hhc_patients(models.Model):#6
 	city_id = models.BigIntegerField(null=True)
 	sub_location = models.CharField(max_length=50,null=True)
 	loc_id = models.BigIntegerField(null=True)
+	otp=models.IntegerField(null=True)
+	otp_expire_time=models.DateTimeField(null=True)
 	google_location = models.CharField(max_length=240,null=True)
 	Suffered_from=models.CharField(max_length=240,null=True)
 	Hospital_name=models.CharField(max_length=240,null=True)
@@ -2107,7 +2109,7 @@ class agg_hhc_gender(models.Model):#112
 
 #_____________________________________Android Application_________________#
 
-
+"""
 
 class agg_hhc_app_family_details(models.Model):
 	family_member_id = models.AutoField(primary_key=True)
@@ -2127,7 +2129,7 @@ class agg_hhc_app_family_details(models.Model):
 	app_user_id = models.IntegerField(null=True)
 	relation = models.ForeignKey(agg_hhc_caller_relation, on_delete=models.SET_NULL, null=True)
 	status = enum.EnumField(status_enum,null=True)
-
+"""
 class agg_hhc_app_add_address(models.Model):
 	address_id = models.AutoField(primary_key=True)
 	address = models.CharField(max_length=500, null=True)

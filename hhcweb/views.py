@@ -187,11 +187,4 @@ class agg_hhc_hospitals_api(APIView):
         hospital_names=serializers.agg_hhc_hospitals_serializer(hospital,many=True)
         return Response(hospital_names.data)
 
-#-------------------------trying to create callers and patients post api in one api#
-class agg_hhc_record_api(APIView):
-    def post(self,request):
-        record=serializers.agg_hhc_callers_seralizer(data=request.data)
-        if(record.is_valid()):
-            record.save()
-            return Response(record.data)
-        return Response(record.error_messages)
+#-------------------------
