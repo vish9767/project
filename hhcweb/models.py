@@ -547,6 +547,7 @@ class agg_hhc_patients(models.Model):#6
 	loc_id = models.BigIntegerField(null=True)
 	google_location = models.CharField(max_length=240,null=True)
 	Suffered_from=models.CharField(max_length=240,null=True)
+	Hospital_name=models.CharField(max_length=240,null=True)
 	phone_no = models.CharField(max_length=20,null=True)
 	mobile_no = models.CharField(max_length=20,null=True)
 	dob = models.DateField(null=True)
@@ -1746,7 +1747,7 @@ class agg_hhc_enquiry_requirements(models.Model):#82
 
 class agg_hhc_hospitals(models.Model):#83
     hosp_id=models.AutoField(primary_key=True)
-    branch=models.CharField(max_length=10,null=True)
+    branch=models.CharField(max_length=200,null=True)
     hospital_name=models.CharField(max_length=255,null=True)
     hospital_short_code=models.CharField(max_length=5,null=True)
     phone_no=models.IntegerField(null=True)
