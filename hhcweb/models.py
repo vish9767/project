@@ -1747,7 +1747,7 @@ class agg_hhc_enquiry_requirements(models.Model):#82
 
 class agg_hhc_hospitals(models.Model):#83
     hosp_id=models.AutoField(primary_key=True)
-    branch=models.CharField(max_length=200,null=True)
+    branch=models.CharField(max_length=100,null=True)
     hospital_name=models.CharField(max_length=255,null=True)
     hospital_short_code=models.CharField(max_length=5,null=True)
     phone_no=models.IntegerField(null=True)

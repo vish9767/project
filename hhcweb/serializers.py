@@ -113,6 +113,7 @@ class agg_hhc_callers(serializers.ModelSerializer):#20
         fields='__all__'
 
 #------------------------------------agg_hhc_hospitals_serializer_____________
-class agg_hhc_hospitals_serializer(serializers.Serializer):
+class agg_hhc_hospitals_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_hospitals
+        fields='__all__'
