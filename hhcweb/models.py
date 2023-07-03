@@ -212,6 +212,7 @@ class caller_status_enum(enum.Enum):
 	mobile=1
 	website=2
 	walking=3
+	calling=4
 
 
 class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
@@ -236,6 +237,7 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	profile_pic=models.ImageField(null=True)# profile picture
 	status=enum.EnumField(active_inactive_enum,null=True)
 	caller_status=enum.EnumField(caller_status_enum,null=True)
+	
 """
 class agg_hhc_callers(models.Model):#20
 	caller_id = models.AutoField(primary_key = True)
@@ -544,6 +546,8 @@ class agg_hhc_patients(models.Model):#6
 	sub_location = models.CharField(max_length=50,null=True)
 	loc_id = models.BigIntegerField(null=True)
 	google_location = models.CharField(max_length=240,null=True)
+	Suffered_from=models.CharField(max_length=240,null=True)
+	Hospital_name=models.CharField(max_length=240,null=True)
 	phone_no = models.CharField(max_length=20,null=True)
 	mobile_no = models.CharField(max_length=20,null=True)
 	dob = models.DateField(null=True)
@@ -1743,7 +1747,7 @@ class agg_hhc_enquiry_requirements(models.Model):#82
 
 class agg_hhc_hospitals(models.Model):#83
     hosp_id=models.AutoField(primary_key=True)
-    branch=models.CharField(max_length=10,null=True)
+    branch=models.CharField(max_length=200,null=True)
     hospital_name=models.CharField(max_length=255,null=True)
     hospital_short_code=models.CharField(max_length=5,null=True)
     phone_no=models.IntegerField(null=True)
