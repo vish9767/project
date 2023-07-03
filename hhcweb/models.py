@@ -546,6 +546,7 @@ class agg_hhc_patients(models.Model):#6
 	sub_location = models.CharField(max_length=50,null=True)
 	loc_id = models.BigIntegerField(null=True)
 	google_location = models.CharField(max_length=240,null=True)
+	Suffered_from=models.CharField(max_length=240,null=True)
 	phone_no = models.CharField(max_length=20,null=True)
 	mobile_no = models.CharField(max_length=20,null=True)
 	dob = models.DateField(null=True)
