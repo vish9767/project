@@ -42,7 +42,7 @@ class agg_hhc_add_service_serializer(serializers.ModelSerializer):
         models = models.agg_hhc_event_plan_of_care
         fields = ['srv_id', 'sub_srv_id', 'start_date', 'end_date', 'srv_prof_id', 'discount_percentage', 'add_discount']
 
-# class agg_hhc_
+
 
 # ------------------------------------------------------ Vishal -------------------------------------------------------
 class agg_hhc_purpose_call_serializer(serializers.ModelSerializer):#25

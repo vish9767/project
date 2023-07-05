@@ -532,7 +532,7 @@ class agg_hhc_patients(models.Model):#6
 	agg_sp_pt_id = models.AutoField(primary_key = True)
 	#app_user_id=models.ForeignKey(agg_hhc_app_caller_register,on_delete=models.CASCADE,null=True)
 	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
-	hhc_code = models.CharField(max_length=255,null=True)
+	hhc_code = models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)
 	membership_id = models.CharField(max_length=50,null=True)
 	name = models.CharField(max_length=255,null=True)
 	first_name = models.CharField(max_length=50,null=True)
@@ -547,7 +547,7 @@ class agg_hhc_patients(models.Model):#6
 	loc_id = models.BigIntegerField(null=True)
 	google_location = models.CharField(max_length=240,null=True)
 	Suffered_from=models.CharField(max_length=240,null=True)
-	Hospital_name=models.CharField(max_length=240,null=True)
+	hosp_id=models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# updated
 	phone_no = models.CharField(max_length=20,null=True)
 	mobile_no = models.CharField(max_length=20,null=True)
 	dob = models.DateField(null=True)
@@ -562,6 +562,25 @@ class agg_hhc_patients(models.Model):#6
 	lattitude = models.FloatField(null=True)
 	langitude = models.FloatField(null=True)
 	Profile_pic = models.CharField(max_length=200,null=True)
+
+	# def save(self, *args, **kwargs):
+    #     if not self.empid:  
+    #         last_emp = agg_hhc_patients.objects.order_by('-empid').first()
+    #         id = str(self.c_id)
+    #         print(type(id))
+    #         prefix = agg_hhc_hospitals.objects.get(c_id=id)
+    #         prefix = prefix.code
+    #         if not prefix:
+    #             raise status.HTTP_404_NOT_FOUND
+    #         if last_emp:
+    #             # last_code = last_emp.empid[:2]
+    #             last_sequence = int(last_emp.empid[-4:])
+    #             new_sequence = last_sequence + 1
+    #             self.empid = f"{prefix}HC{new_sequence:04d}"
+    #         else:
+    #             self.empid = f"{prefix}HC0001"
+    #     return super(agg_hhc_patients,self).save(*args, **kwargs)
+    
 
 # class agg_hhc_webinar_patient_table(models.Model):#7
 # 	agg_sp_web_pt_li_id = models.AutoField(primary_key = True)

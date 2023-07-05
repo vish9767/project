@@ -181,11 +181,13 @@ class agg_hhc_callers_phone_no_status_calling_api(APIView):#staus=4
 
 #---------------------------get all hospital names-----------------------------------
 
-class agg_hhc_hospitals_api(APIView):
-    def get(self,request):
-        hospital=models.agg_hhc_hospitals.objects.filter(status=1)
-        hospital_names=serializers.agg_hhc_hospitals_serializer(hospital,many=True)
-        return Response(hospital_names.data)
+# class agg_hhc_hospitals_api(APIView):
+#     def get(self,request):
+#         hospital=models.agg_hhc_hospitals.objects.filter(status=1)
+#         hospital_names=serializers.agg_hhc_hospitals_serializer(hospital,many=True)
+#         return Response(hospital_names.data)
+
+
 
 #-------------------------trying to create callers and patients post api in one api#
 class agg_hhc_record_api(APIView):
