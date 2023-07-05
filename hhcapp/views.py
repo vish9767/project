@@ -92,7 +92,7 @@ class agg_hhc_app_services_api(APIView):
 
 class add_family_member(APIView):
     def post(self,request):
-        serilized = serializer.agg_hhc_app_family_details(data = request.data)
+        serilized = serializer.agg_hhc_patients(data = request.data)
         if serilized.is_valid():
             serilized.save()
             return Response(serilized.data, status=status.HTTP_201_CREATED)

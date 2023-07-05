@@ -189,11 +189,4 @@ class agg_hhc_callers_phone_no_status_calling_api(APIView):#staus=4
 
 
 
-#-------------------------trying to create callers and patients post api in one api#
-class agg_hhc_record_api(APIView):
-    def post(self,request):
-        record=serializers.agg_hhc_callers_seralizer(data=request.data)
-        if(record.is_valid()):
-            record.save()
-            return Response(record.data)
-        return Response(record.error_messages)
+#-------------------------

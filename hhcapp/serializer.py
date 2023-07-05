@@ -10,15 +10,15 @@ class agg_hhc_app_services_serializer(serializers.ModelSerializer):
 
 class webserializers(serializers.ModelSerializer):
     class Meta:
-        model=webmodels.agg_hhc_app_family_details
+        model=webmodels.agg_hhc_patients
         fields=['phone']
     def create(self,validated_data):
         return webmodels.agg_hhc_callers.objects.create(**validated_data)
     
-class agg_hhc_app_family_details(serializers.ModelSerializer):
+class agg_hhc_patients(serializers.ModelSerializer):
     class Meta:
-        model=webmodels.agg_hhc_app_family_details
-        fields=['fname','lname','age','gender','email','contact','alter_contact']
+        model=webmodels.agg_hhc_patients
+        fields=['first_name','name','Age','Gender','email_id','phone_no','mobile_no']
 
 class add_multiple_address_serializer(serializers.ModelSerializer):
     class Meta:
