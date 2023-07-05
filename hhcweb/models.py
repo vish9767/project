@@ -532,7 +532,7 @@ class agg_hhc_patients(models.Model):#6
 	agg_sp_pt_id = models.AutoField(primary_key = True)
 	#app_user_id=models.ForeignKey(agg_hhc_app_caller_register,on_delete=models.CASCADE,null=True)
 	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
-	hhc_code = models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)
+	# hhc_code = models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)
 	membership_id = models.CharField(max_length=50,null=True)
 	name = models.CharField(max_length=255,null=True)
 	first_name = models.CharField(max_length=50,null=True)
@@ -549,8 +549,8 @@ class agg_hhc_patients(models.Model):#6
 	otp_expire_time=models.DateTimeField(null=True)
 	google_location = models.CharField(max_length=240,null=True)
 	Suffered_from=models.CharField(max_length=240,null=True)
-	Hospital_name=models.CharField(max_length=240,null=True)
-	# hosp_id=models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# updated
+	# Hospital_name=models.CharField(max_length=240,null=True)
+	hosp_id=models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# updated
 	phone_no = models.CharField(max_length=20,null=True)
 	mobile_no = models.CharField(max_length=20,null=True)
 	dob = models.DateField(null=True)
