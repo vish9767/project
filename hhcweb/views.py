@@ -23,12 +23,15 @@ class agg_hhc_services_api(APIView):
         call=models.agg_hhc_services.objects.filter(status=1)
         serializer=serializers.agg_hhc_services_serializer(call,many=True)
         return Response(serializer.data)
-    
+
 class agg_hhc_sub_services_api(APIView):
-    def get(self,request):
-        call=models.agg_hhc_sub_services.objects.filter(status=1) 
-        serializer=serializers.agg_hhc_sub_services_serializer(call,many=True)
+
+    def get(self,request,pk,format=None):
+        sub_service=models.agg_hhc_sub_services.objects.filter(srv_id=pk)
+        serializer=serializers.agg_hhc_sub_services_serializer(sub_service,many=True)
         return Response(serializer.data)
+    
+
 #------------------------------------------------------------------------------
 class agg_hhc_purpose_call_api(APIView):
     def get(self,request):
@@ -189,4 +192,7 @@ class agg_hhc_hospitals_api(APIView):
 
 
 
-#-------------------------
+#-------------------------get address by pincode-------------------------------------
+
+# class agg_get_state_city_by_pincode(APIView):
+#     def get(self, request)
