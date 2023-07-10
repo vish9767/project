@@ -532,7 +532,7 @@ class agg_hhc_patients(models.Model):#6
 	agg_sp_pt_id = models.AutoField(primary_key = True)
 	#app_user_id=models.ForeignKey(agg_hhc_app_caller_register,on_delete=models.CASCADE,null=True)
 	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
-	hhc_code = models.CharField(max_length=255,null=True)
+	# hhc_code = models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)
 	membership_id = models.CharField(max_length=50,null=True)
 	name = models.CharField(max_length=255,null=True)
 	first_name = models.CharField(max_length=50,null=True)
@@ -549,7 +549,8 @@ class agg_hhc_patients(models.Model):#6
 	otp_expire_time=models.DateTimeField(null=True)
 	google_location = models.CharField(max_length=240,null=True)
 	Suffered_from=models.CharField(max_length=240,null=True)
-	Hospital_name=models.CharField(max_length=240,null=True)
+	# Hospital_name=models.CharField(max_length=240,null=True)
+	hosp_id=models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# updated
 	phone_no = models.CharField(max_length=20,null=True)
 	mobile_no = models.CharField(max_length=20,null=True)
 	dob = models.DateField(null=True)
@@ -564,6 +565,25 @@ class agg_hhc_patients(models.Model):#6
 	lattitude = models.FloatField(null=True)
 	langitude = models.FloatField(null=True)
 	Profile_pic = models.CharField(max_length=200,null=True)
+
+	# def save(self, *args, **kwargs):
+    #     if not self.empid:  
+    #         last_emp = agg_hhc_patients.objects.order_by('-empid').first()
+    #         id = str(self.c_id)
+    #         print(type(id))
+    #         prefix = agg_hhc_hospitals.objects.get(c_id=id)
+    #         prefix = prefix.code
+    #         if not prefix:
+    #             raise status.HTTP_404_NOT_FOUND
+    #         if last_emp:
+    #             # last_code = last_emp.empid[:2]
+    #             last_sequence = int(last_emp.empid[-4:])
+    #             new_sequence = last_sequence + 1
+    #             self.empid = f"{prefix}HC{new_sequence:04d}"
+    #         else:
+    #             self.empid = f"{prefix}HC0001"
+    #     return super(agg_hhc_patients,self).save(*args, **kwargs)
+    
 
 # class agg_hhc_webinar_patient_table(models.Model):#7
 # 	agg_sp_web_pt_li_id = models.AutoField(primary_key = True)
@@ -788,7 +808,7 @@ class agg_hhc_caller_relation(models.Model):#21
 	status = enum.EnumField(status_enum,null=True)
 	def __str__(self):
 		return self.relation
-7
+
 class agg_hhc_conference_call(models.Model):#22
 	conf_call_id = models.AutoField(primary_key = True)
 	caller_id = models.CharField(max_length=50,null=True)
@@ -887,6 +907,7 @@ class agg_hhc_professional_sub_services(models.Model):#29
 	sub_srv_id = models.BigIntegerField(null=True)
 	prof_cost = models.FloatField(null=True)
 
+
 class agg_hhc_services(models.Model):#30
 	srv_id = models.AutoField(primary_key = True)
 	service_title = models.CharField(max_length=255,null=True)
@@ -904,6 +925,32 @@ class agg_hhc_services(models.Model):#30
 	info_image_path = models.CharField(max_length=300,null=True)
 	ser_order = models.CharField(max_length=10,null=True)
 	dash_order = models.CharField(max_length=10,null=True)
+
+	def __str__(self):
+	    return f"{self.srv_id}"
+	
+class agg_hhc_sub_services(models.Model):#34
+	sub_srv_id = models.AutoField(primary_key = True)
+	recommomded_service = models.CharField(max_length=255,null=True)
+	srv_id = models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE, related_name='service', null=True)
+	cost = models.FloatField(null=True)
+	tax = models.FloatField(null=True)
+	deposit = models.CharField(max_length=240,null=True)
+	supplied_by = models.CharField(max_length=240,null=True)
+	UOM = models.CharField(max_length=50,null=True)
+	status = enum.EnumField(status_enum,null=True)
+	added_by = models.BigIntegerField(null=True)
+	added_date = models.DateField(null=True)
+	last_modified_by = models.BigIntegerField(null=True)
+	last_modified_date = models.DateField(null=True)
+	# flag = enum.EnumField(flag_enum,null=True)
+	tf = enum.EnumField(Tf_enum,null=True)
+	Instruction = models.CharField(max_length=500,null=True)
+	Specimen = models.CharField(max_length=100,null=True)
+	
+	def __str__(self):
+	    return f"{self.recommomded_service}"
+	
 
 class agg_hhc_service_membership_registration(models.Model):#31
 	srv_member_reg_id = models.AutoField(primary_key = True)
@@ -1010,25 +1057,6 @@ class agg_hhc_service_professional_details(models.Model):#33
 	reference_2 = models.CharField(max_length=100,null=True)
 	reference_1_contact_num = models.CharField(max_length=11,null=True)
 	reference_2_contact_num = models.CharField(max_length=11,null=True)
-
-class agg_hhc_sub_services(models.Model):#34
-	sub_srv_id = models.AutoField(primary_key = True)
-	srv_id = models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True)
-	recommomded_service = models.CharField(max_length=255,null=True)
-	cost = models.FloatField(null=True)
-	tax = models.FloatField(null=True)
-	deposit = models.CharField(max_length=240,null=True)
-	supplied_by = models.CharField(max_length=240,null=True)
-	UOM = models.CharField(max_length=50,null=True)
-	status = enum.EnumField(status_enum,null=True)
-	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
-	last_modified_by = models.BigIntegerField(null=True)
-	last_modified_date = models.DateField(null=True)
-	# flag = enum.EnumField(flag_enum,null=True)
-	tf = enum.EnumField(Tf_enum,null=True)
-	Instruction = models.CharField(max_length=500,null=True)
-	Specimen = models.CharField(max_length=100,null=True)
 
 class agg_hhc_jobclosure_detail_datewise(models.Model):#35
 	jcolse_dt_d_wise_id = models.AutoField(primary_key = True)
@@ -1794,6 +1822,8 @@ class agg_hhc_locations(models.Model):#86 locality
     added_date=models.DateTimeField(null=True)
     last_modified_by=models.IntegerField(blank=True,null=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
+    
+
 
 class agg_hhc_log_location_for_session(models.Model):#87
     log_loc_for_session_id=models.AutoField(primary_key=True)
@@ -2133,9 +2163,15 @@ class agg_hhc_app_family_details(models.Model):
 class agg_hhc_app_add_address(models.Model):
 	address_id = models.AutoField(primary_key=True)
 	address = models.CharField(max_length=500, null=True)
+	city = models.CharField(max_length=250, null=True)
+	locality = models.CharField(max_length=250, null=True)
+	sate = models.CharField(max_length=250, null=True)
+	pincode = models.CharField(max_length=250, null=True)
+	Address_type = models.CharField(max_length=250, null=True)
 	#app_call_reg_id = models.ForeignKey(agg_hhc_app_caller_register, on_delete=models.SET_NULL,null=True)
 	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.SET_NULL,null=True)
-
+	patient_id=models.ForeignKey(agg_hhc_patients,on_delete=models.CASCADE,null=True)
+	
 class agg_hhc_patient_documents(models.Model):
 	doc_id = models.AutoField(primary_key=True)
 	agg_sp_pt_id = models.ForeignKey(agg_hhc_patients,null=True, on_delete=models.CASCADE)
@@ -2168,3 +2204,26 @@ class agg_hhc_app_patient_documents(models.Model):
 # 	otp = models.IntegerField(null=True)
 # 	added_date = models.DateTimeField(null=True)
 # 	status = enum.EnumField(Tf_enum, null=True)
+
+
+# ['Spero contact centre',
+# 'Deenanath mangeshkar hospital',
+# 'Sancheti hospital',
+# 'Ruby hall clinic',
+# 'Jahangir',
+# 'Inamdar hospital',
+# 'Jahagir Hospital',
+# 'GLOBAL HOSPITAL',
+# 'Bhave hospital',
+# 'Symbiosis university hospital and research centre',
+# 'Satyanand hospital',
+# 'Bhave clinic',
+# 'Kadam clinic',
+# 'Sathya',
+# 'Aashwast services',
+# 'Home Healthcare Community App',
+# 'Gajanan hospital',
+# 'Athashri Pebbles',
+# 'Athashri Condominium',
+# 'Athashri Forest Trails',
+# 'Ashta ALF']

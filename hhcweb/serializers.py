@@ -13,15 +13,30 @@ class agg_hhc_locations_serializer(serializers.ModelSerializer):
         fields = ['loc_id','location'] 
 
 
-class agg_hhc_services_serializer(serializers.ModelSerializer):
-    class Meta:
-        model=models.agg_hhc_services
-        fields = ['srv_id','service_title'] 
+# class agg_hhc_services_serializer(serializers.ModelSerializer):
+#     class Meta:
+#         model=models.agg_hhc_services
+#         fields = ['srv_id','service_title'] 
 
-class agg_hhc_sub_services_serializer(serializers.ModelSerializer):
+# class agg_hhc_sub_services_serializer(serializers.ModelSerializer):
+#     class Meta:
+#         model=models.agg_hhc_sub_services
+#         fields = ['sub_srv_id','srv_id','recommomded_service'] 
+
+class agg_hhc_sub_services_serializer(serializers.ModelSerializer): 
+    
     class Meta:
-        model=models.agg_hhc_sub_services
-        fields = ['sub_srv_id','recommomded_service'] 
+        model = models.agg_hhc_sub_services
+        fields = ['sub_srv_id','recommomded_service','srv_id']
+
+
+class agg_hhc_services_serializer(serializers.ModelSerializer):
+    service = agg_hhc_sub_services_serializer(many=True, read_only=True)
+    class Meta:
+        model = models.agg_hhc_services
+        fields = ['srv_id','service_title', 'service']
+
+
 
 # class Model1Serializer(serializers.ModelSerializer):
 #     class Meta:
