@@ -60,7 +60,7 @@ class agg_hhc_patients_api(APIView):
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         else:
             print(" patient is not available ")
-            print("old patient hhc_no",old_patient.hhc_code)
+            #print("old patient hhc_no",old_patient.hhc_code)
             #models.agg_hhc_patients.objects.create(phonehhc_code=old_patient.hhc_code,name=request.data.get('name'),first_name=request.data.get('first_name'),middle_name=request.data.get('middle_name'),Age=request.data.get('Age'),Gender=request.data.get('Gender'),email_id=request.data.get('email_id')otp_expire_time=datetime.now()+timedelta(minutes=2))
             se=serializers.agg_hhc_patients_serializer(data=request.data)
             if(se.is_valid()):
