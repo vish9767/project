@@ -205,9 +205,6 @@ class agg_hhc_hospitals_api(APIView):
         hospital_names=serializers.agg_hhc_hospitals_serializer(hospital,many=True)
         return Response(hospital_names.data)
 
-
-
 #-------------------------get address by pincode-------------------------------------
-
 # class agg_get_state_city_by_pincode(APIView):
 #     def get(self, request)

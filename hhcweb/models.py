@@ -1812,7 +1812,7 @@ class agg_hhc_knowledge_base_documents(models.Model):#85
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
 
-class agg_hhc_locations(models.Model):#86 locality
+class agg_hhc_locations(models.Model):#86 locality/ zone
     loc_id=models.AutoField(primary_key=True)
     location=models.CharField(max_length=255,null=True)
     pin_code=models.CharField(max_length=240,null=True)
