@@ -1,5 +1,7 @@
 from django.db import models
 from django_enumfield import enum
+from rest_framework import status
+
 # Create your models here.
 
 class enquiry_from_enum(enum.Enum):
@@ -531,8 +533,8 @@ class agg_hhc_assessment_patient_list(models.Model):#4
 class agg_hhc_patients(models.Model):#6
 	agg_sp_pt_id = models.AutoField(primary_key = True)
 	#app_user_id=models.ForeignKey(agg_hhc_app_caller_register,on_delete=models.CASCADE,null=True)
-	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
-	# hhc_code = models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)
+	# caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
+	hhc_code = models.CharField(max_length=50,null=True, blank=True)
 	membership_id = models.CharField(max_length=50,null=True)
 	name = models.CharField(max_length=255,null=True)
 	first_name = models.CharField(max_length=50,null=True)
@@ -566,23 +568,22 @@ class agg_hhc_patients(models.Model):#6
 	langitude = models.FloatField(null=True)
 	Profile_pic = models.CharField(max_length=200,null=True)
 
-	# def save(self, *args, **kwargs):
-    #     if not self.empid:  
-    #         last_emp = agg_hhc_patients.objects.order_by('-empid').first()
-    #         id = str(self.c_id)
-    #         print(type(id))
-    #         prefix = agg_hhc_hospitals.objects.get(c_id=id)
-    #         prefix = prefix.code
-    #         if not prefix:
-    #             raise status.HTTP_404_NOT_FOUND
-    #         if last_emp:
-    #             # last_code = last_emp.empid[:2]
-    #             last_sequence = int(last_emp.empid[-4:])
-    #             new_sequence = last_sequence + 1
-    #             self.empid = f"{prefix}HC{new_sequence:04d}"
-    #         else:
-    #             self.empid = f"{prefix}HC0001"
-    #     return super(agg_hhc_patients,self).save(*args, **kwargs)
+	def save(self, *args, **kwargs):
+		if not self.agg_sp_pt_id:  
+			last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
+			id = str(self.hosp_id)
+			prefix = agg_hhc_hospitals.objects.get(hosp_id=id)
+			prefix = prefix.hospital_short_code
+			if not prefix:
+				raise status.HTTP_404_NOT_FOUND
+			if last_pt:
+                # last_code = last_emp.empid[:2]
+				last_sequence = int(last_pt.hhc_code[-4:])
+				new_sequence = last_sequence + 1
+				self.hhc_code = f"{prefix}HC{new_sequence:04d}"
+			else:
+				self.hhc_code = f"{prefix}HC0001"
+		return super(agg_hhc_patients,self).save(*args, **kwargs)
     
 
 # class agg_hhc_webinar_patient_table(models.Model):#7
@@ -1790,6 +1791,9 @@ class agg_hhc_hospitals(models.Model):#83
     added_date=models.DateTimeField(null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
+    
+    def __str__(self):
+        return f"{self.hosp_id}"
 
 class agg_hhc_hospital_ips(models.Model):#84
     hosp_ips_id=models.AutoField(primary_key=True)

@@ -1,4 +1,4 @@
-# from django.db import models
+from django.db import models
 # from hhcweb.models import active_inactive_enum
 from django_enumfield import enum
 # from hhcweb import models as webmodels
@@ -45,7 +45,7 @@ class agg_hhc_app_family_details(models.Model):
 	save_this_add = models.CharField(max_length=250, null=True)
 	added_date = models.DateField(null=True)
 	app_user_id = models.IntegerField(null=True)
-	relation = models.ForeignKey(webmodels.agg_hhc_caller_relation, on_delete=models.SET_NULL, null=True)
+	#relation = models.ForeignKey(webmodels.agg_hhc_caller_relation, on_delete=models.SET_NULL, null=True)
 	status = enum.EnumField(status_enum,null=True)
 
 class agg_hhc_app_add_address(models.Model):

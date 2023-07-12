@@ -9,6 +9,11 @@ from rest_framework.parsers import JSONParser
 from hhcspero.settings import AUTH_KEY
 from rest_framework import status
 from hhcweb import models as webmodel
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from django.utils import timezone
+from django.core.cache import cache
+
 
 
 def send_otp(mobile,msg):
@@ -235,3 +240,172 @@ class agg_hhc_patient_doc_detail(APIView):
             return Response(serilized.data, status=status.HTTP_201_CREATED)
         return Response(serilized.errors,status=status.HTTP_400_BAD_REQUEST)
 
+#__________________________________OTP API_________________________________________________
+def send_otp(mobile,otp):
+    msg = f"Use {otp} as your verification code on Spero Application. The OTP expires within 10 mins, {otp} Team Spero"
+    url=(f"https://wa.chatmybot.in/gateway/waunofficial/v1/api/v1/sendmessage?access-token={AUTH_KEY}&phone={mobile}&content={msg}&fileName&caption&contentType=1")
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
+        print("URL successfully hit!")
+    except requests.exceptions.RequestException as e:
+        print("Error occurred while hitting the URL:", e)
+
+# class VerifyPhoneNo(APIView):
+#     def post(self, request):
+#         number=request.body
+#         otp=str(random.randint(1000 , 9999))
+#         ja=io.BytesIO(number)
+#         da=JSONParser().parse(ja)
+#         user_available=webmodel.agg_hhc_callers.objects.filter(caller_id=da['caller_id']).first()
+#         if(user_available):
+#             # print(user_available)
+#             send_otp(da['caller_id'], otp)
+#             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+#         else:
+#             webmodel.agg_hhc_callers.objects.create(caller_id=da['caller_id'],otp=otp)
+#             se=serializer.CreatePhoneNo(data=da)
+#             send_otp(da['caller_id'], otp)
+#             return Response(status=status.HTTP_201_CREATED)
+        
+# class VerifyOTPAPIView(APIView):
+#     def get_object(self, pk):
+#         try:
+#             return webmodel.agg_hhc_callers.objects.get(caller_id=pk)
+#         except webmodel.agg_hhc_callers.DoesNotExist:
+#             return None
+        
+#     def put(self, request, pk):
+#         caller = self.get_object(pk)
+#         otp = request.data.get('otp')
+#         if not caller or not webmodel.agg_hhc_callers.check_password(caller,otp):
+#             return Response(status=status.HTTP_200_OK)
+#         else:
+#             return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+class VerifyPhoneNo(APIView):
+    def post(self, request):
+        number=request.body
+        otp=str(random.randint(1000 , 9999))
+        ja=io.BytesIO(number)
+        da=JSONParser().parse(ja)
+        user_available=webmodel.agg_hhc_callers.objects.filter(caller_id=da['caller_id']).first()
+        if(user_available):
+            send_otp(da['caller_id'], otp)
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            webmodel.agg_hhc_callers.objects.create(caller_id=da['caller_id'],otp=otp)
+            se=serializer.CreatePhoneNo(data=da)
+            send_otp(da['caller_id'], otp)
+            return Response(status=status.HTTP_201_CREATED)
+
+class ResendOTP(APIView):
+    def post(self, request, format=None):
+        caller_id = request.data.get('caller_id')
+        user = webmodel.agg_hhc_callers.objects.filter(caller_id=caller_id).first()
+        if user:
+            otp=str(random.randint(1000 , 9999))
+            user.otp = otp
+            user.save()
+            send_otp(caller_id,otp)
+            print(user.otp)
+            # user
+            # user.save()
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        else:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+class RegisterAPIView(APIView):
+    def get_object(self, pk):
+        try:
+            return webmodel.agg_hhc_callers.objects.get(caller_id=pk)
+        except webmodel.agg_hhc_callers.DoesNotExist:
+            return None
+        
+    def put(self, request, pk):
+        caller = self.get_object(pk)
+        otp = request.data.get('otp')
+        if not caller or not webmodel.agg_hhc_callers.check_password(caller,otp): 
+            return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)  
+        if caller is not None:
+            serializers = serializer.colleagueRegistersSerializer(caller, data=request.data)  
+            if serializers.is_valid():
+                serializers.save()
+                return Response(serializers.data)
+            return Response(serializers.errors, status=400)
+        return Response({'error': 'Calleague not found.'}, status=404)
+
+    # def put(self, request, pk):
+    #     caller = self.get_object(pk)
+    #     otp = request.data.get('otp')
+    #     if caller is not None:
+    #         serializers = serializer.colleagueRegistersSerializer(caller, data=request.data)
+    #         if serializers.is_valid():
+    #             serializers.save()
+    #             return Response(serializers.data)
+    #         return Response(serializers.errors, status=400)
+    #     return Response({'error': 'Caller not found.'}, status=404)
+    
+class LoginAPIView(APIView):
+    def post(self, request, format=None):
+
+        caller_id = request.data.get('caller_id')
+        # password = request.data.get('password')
+        otp = request.data.get('otp')
+        user = webmodel.agg_hhc_callers.objects.filter(caller_id=caller_id).first()
+
+        if caller_id:
+            if cache.get(f'user:{caller_id}:token') is not None:
+                return Response({'error': 'You are already logged in'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not user or not user.check_password(otp):
+                return Response({'error': 'user does not exist'}, status=status.HTTP_401_UNAUTHORIZED)
+            
+            
+            user.last_login = timezone.now()  # set last_login field
+            user.save()
+            
+            refresh = RefreshToken.for_user(user)
+            response_data = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'ref_id':str(caller_id),
+                'colleague': {
+                    'id': user.id,
+                    'first_name': user.fname,
+                    'last_name': user.lname,
+                    'email': user.email,
+                }
+            }
+            token = str(refresh.access_token)
+            cache.set(f'user:{caller_id}:token', token)
+            return Response(response_data,status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
+class LogoutAPIView(APIView):
+    def post(self, request):
+        try:
+            refresh_token = request.data.get('refresh_token')
+            token = RefreshToken(refresh_token)
+            
+            # Get the user associated with the refresh token
+            user_id = token.payload['user_id']
+            user = webmodel.agg_hhc_callers.objects.get(id=user_id)
+            
+            # Update the last logout time
+            user.last_logout = timezone.now()
+            user.save()
+            
+            token.blacklist()
+            return Response(status=status.HTTP_200_OK)
+        except KeyError:
+            return Response({'error': 'No "refresh" token provided in the request body.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except TokenError:
+            return Response({'error': 'The provided token is invalid or expired.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            return Response({'error': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        

@@ -15,6 +15,48 @@ class webserializers(serializers.ModelSerializer):
     def create(self,validated_data):
         return webmodels.agg_hhc_callers.objects.create(**validated_data)
     
+#-------------------------------------------------------------------------------------------------
+class colleagueRegistersSerializer(serializers.ModelSerializer):
+    # otp = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = webmodels.agg_hhc_callers
+        fields = ('id', 'caller_id', 'email', 'fname', 'lname','otp')
+
+class colleagueVerifyPhoneOTPSerializer(serializers.ModelSerializer):
+    model = webmodels.agg_hhc_callers
+    fields = ('id', 'caller_id','otp')
+    
+class colleagueRegistersSerializer(serializers.ModelSerializer):
+    # otp = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = webmodels.agg_hhc_callers
+        fields = ('caller_id', 'email', 'fname', 'lname','otp')
+
+class verifyPhoneSerializer(serializers.ModelSerializer):
+    otp = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = webmodels.agg_hhc_callers
+        fields = ('id', 'caller_id')
+        # extra_kwargs = {'otp': {'write_only': True}}
+
+    def create(self, validated_data):
+        otp = validated_data['otp']
+        # otp = validated_data['otp']
+        user = webmodels.agg_hhc_callers.objects.create_user(password=otp, **validated_data)
+        return user
+    
+class CreatePhoneNo(serializers.ModelSerializer):
+    class Meta:
+        model=webmodels.agg_hhc_callers
+        fields=['caller_id', 'otp']
+    def create(self,validated_data):
+        return webmodels.agg_hhc_callers.objects.create(**validated_data)
+    
+
+#========================================================================================================
 class agg_hhc_patients(serializers.ModelSerializer):
     class Meta:
         model=webmodels.agg_hhc_patients
