@@ -1605,6 +1605,7 @@ class agg_hhc_cheque_images(models.Model):#69
 class agg_hhc_city(models.Model):#70
     city_id=models.AutoField(primary_key=True)
     City_name=models.CharField(max_length=100,null=True)
+    state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
     Added_by=models.IntegerField(null=True)
     Added_date=models.DateTimeField(null=True)
 
@@ -2191,6 +2192,17 @@ class agg_hhc_app_patient_documents(models.Model):
 	path = models.CharField(max_length=500, null=True)
 	added_date = models.DateTimeField(null=True)
 	status = enum.EnumField(Tf_enum, null=True)
+
+#class agg_hhc_city(models.Model):
+#	city_id=models.AutoField(primary_key=True)
+#	city_name=models.CharField(max_length=255,null=True)
+	
+
+class agg_hhc_pincode(models.Model):
+	pincode_id=models.AutoField(primary_key=True)
+	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
+	city_name=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)
+	
 
 # class agg_hhc_app_caller_register(models.Model):
 # 	id = models.AutoField(primary_key=True)
