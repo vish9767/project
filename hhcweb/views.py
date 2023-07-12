@@ -48,11 +48,26 @@ class agg_hhc_gender_api(APIView):
 
 class agg_hhc_patients_api(APIView):
     def post(self,request):
-        serializer=serializers.agg_hhc_patients_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        phone = request.data.get('phone_no')
+        print("this is my phone_no",phone)
+        old_patient=models.agg_hhc_patients.objects.filter(phone_no=phone).first()
+        print("this is old patients",old_patient)
+        if(old_patient is None):
+            serializer=serializers.agg_hhc_patients_serializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data,status=status.HTTP_201_CREATED)
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print(" patient is not available ")
+            #print("old patient hhc_no",old_patient.hhc_code)
+            #models.agg_hhc_patients.objects.create(phonehhc_code=old_patient.hhc_code,name=request.data.get('name'),first_name=request.data.get('first_name'),middle_name=request.data.get('middle_name'),Age=request.data.get('Age'),Gender=request.data.get('Gender'),email_id=request.data.get('email_id')otp_expire_time=datetime.now()+timedelta(minutes=2))
+            se=serializers.agg_hhc_patients_serializer(data=request.data)
+            if(se.is_valid()):
+                se.validated_data['hhc_code'] =old_patient.hhc_code #old_patient.hhc_code
+                se.save()
+                return Response(se.data)
+            return Response({'patient available with that number':phone})
     def get(self,request):
         reg=models.agg_hhc_patients.objects.filter(status=1)
         ref=serializers.agg_hhc_patients_serializer(reg,many=True)
@@ -190,9 +205,6 @@ class agg_hhc_hospitals_api(APIView):
         hospital_names=serializers.agg_hhc_hospitals_serializer(hospital,many=True)
         return Response(hospital_names.data)
 
-
-
 #-------------------------get address by pincode-------------------------------------
-
 # class agg_get_state_city_by_pincode(APIView):
 #     def get(self, request)
