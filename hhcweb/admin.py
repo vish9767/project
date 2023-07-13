@@ -114,3 +114,4 @@ admin.site.register(agg_hhc_vc_med_his)#109
 admin.site.register(sp_vc_prescription)#110
 admin.site.register(agg_hhc_video_consulting)#111
 admin.site.register(agg_hhc_gender)#112
+admin.site.register(agg_hhc_pincode)

@@ -206,5 +206,42 @@ class agg_hhc_hospitals_api(APIView):
         return Response(hospital_names.data)
 
 #-------------------------get address by pincode-------------------------------------
-# class agg_get_state_city_by_pincode(APIView):
-#     def get(self, request)
+class agg_hhc_pincode_api(APIView):
+    def get(self,request):
+        pincode=models.agg_hhc_pincode.objects.all()
+        serialized=serializers.agg_hhc_pincode_serializer(pincode,many=True)
+        return Response(serialized.data)
+
+class agg_hhc_pincode_number_api(APIView):
+    def get_object(self,pin):
+        try:
+            return models.agg_hhc_pincode.objects.get(pincode_number=pin)
+        except models.agg_hhc_pincode.DoesNotExist:
+            raise Response(status.HTTP_404_NOT_FOUND)
+    def get(self,request,pin):
+        obj=self.get_object(pin)
+        serialized=serializers.agg_hhc_pincode_serializer(obj)
+        return Response(serialized.data)
+
+class agg_hhc_city_from_state_api(APIView):
+    def get_object(self,state,formate=None):
+        try:
+            return models.agg_hhc_city.objects.filter(state_name=state)
+        except models.agg_hhc_city.DoesNotExist:
+            raise Response(status.HTTP_404_NOT_FOUND)
+    def get(self,request,state):
+        state_obj=self.get_object(state)
+        serialized=serializers.agg_hhc_city(state_obj,many=True)
+        return Response(serialized.data)
+
+class agg_hhc_pincode_from_city_api(APIView):
+    def get_object(self,city,formate=None):
+        try:
+            a=models.agg_hhc_pincode.objects.filter(city_name=city)
+            return models.agg_hhc_pincode.objects.filter(city_name=city)
+        except models.agg_hhc_pincode.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+    def get(self,request,city):
+        pincode_obj=self.get_object(city)
+        serialized=serializers.agg_hhc_pincode_serializer(pincode_obj,many=True)
+        return Response(serialized.data)
