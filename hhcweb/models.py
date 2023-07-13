@@ -224,7 +224,7 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	otp_expire_time=models.DateTimeField(null=True)
 	fname=models.CharField(max_length=50,null=True)
 	lname=models.CharField(max_length=50,null=True)
-	relation=models.CharField(max_length=255,null=True)
+	caller_rel_id=models.ForeignKey('agg_hhc_caller_relation',on_delete=models.CASCADE,null=True)
 	age=models.IntegerField(null=True)
 	gender=models.CharField(max_length=20,null=True)
 	email=models.EmailField(null=True)
@@ -239,6 +239,10 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	profile_pic=models.ImageField(null=True)# profile picture
 	status=enum.EnumField(active_inactive_enum,null=True)
 	caller_status=enum.EnumField(caller_status_enum,null=True)
+
+	def __str__(self):
+		return f"{self.caller_id}"
+	
 	
 """
 class agg_hhc_callers(models.Model):#20
@@ -598,6 +602,7 @@ class agg_hhc_patients(models.Model):#6
 
 class agg_hhc_detailed_event_plan_of_care(models.Model):#8
 	agg_sp_dt_eve_poc_id = models.AutoField(primary_key = True)
+	# pt_id = models.ForeignKey(agg_hhc_patinet_list_enquiry, on_delete=models.CASCADE, null=True)
 	eve_poc_id = models.BigIntegerField(null=True)
 	eve_id = models.BigIntegerField(null=True)
 	eve_req_id = models.BigIntegerField(null=True)
@@ -633,7 +638,7 @@ class agg_hhc_events(models.Model):#9
 	event_code = models.CharField(max_length=640,null=True)
 	caller_id = models.BigIntegerField(null=True)
 	relation = models.CharField(max_length=64,null=True)
-	pt_id = models.BigIntegerField(null=True)
+	pt_id = models.ForeignKey(agg_hhc_patinet_list_enquiry, on_delete=models.CASCADE, null=True)
 	purp_call_id = models.BigIntegerField(null=True)
 	bill_no_ref_no = models.BigIntegerField(null=True)
 	event_date = models.DateField(null=True)
