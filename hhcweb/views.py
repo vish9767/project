@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -208,11 +209,8 @@ class agg_hhc_hospitals_api(APIView):
 
 class Caller_details_api(APIView):
     def get_object(self,pk):
-        data = models.agg_hhc_callers.objects.get(caller_id=pk)
-        if data:
-            return data
-        return Response({'error':'no data'})
-    
+        return models.agg_hhc_callers.objects.get(caller_id=pk)
+            
     def get_relation(self,pk):
         return models.agg_hhc_caller_relation.objects.filter(pk=pk)
              
@@ -234,3 +232,27 @@ class Caller_details_api(APIView):
             return Response(callerSerializer.data)
         return Response(callerSerializer.errors)
     
+class patient_detail_info_api(APIView):
+    def get_patient(self,pk):
+        return models.agg_hhc_patients.objects.get(agg_sp_pt_id=pk)
+    
+    def get_hospital(self, pk):
+        return models.agg_hhc_hospitals.objects.get(hosp_id=pk)
+    
+    def get(self, request, pk):
+        patient = self.get_patient(pk)
+        if patient:
+            serializer = serializers.patient_detail_serializer(patient)
+            hospital = self.get_hospital(serializer.data['hosp_id'])
+            if hospital:
+                hospitals = serializers.hospital_serializer(hospital)
+                return Response({"patient": serializer.data, "hospital": hospitals.data})
+
+        return HttpResponse(status=status.HTTP_404_NOT_FOUND)
+        
+    def put(self, request, pk):
+        patient = self.get_patient(pk)
+        serializer = serializers.patient_detail_serializer(patient, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
