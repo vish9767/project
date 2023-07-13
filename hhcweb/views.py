@@ -138,7 +138,8 @@ class agg_hhc_patinet_list_enquiry_put(APIView):
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class agg_hhc_add_service_details_api(APIView):
-    def post(self,request):
+    def post(self,request,pk):
+
         serialized=serializers.agg_hhc_add_service_serializer(data=request.data)
         if(serialized.is_valid()):
             serialized.save()
@@ -245,3 +246,31 @@ class agg_hhc_pincode_from_city_api(APIView):
         pincode_obj=self.get_object(city)
         serialized=serializers.agg_hhc_pincode_serializer(pincode_obj,many=True)
         return Response(serialized.data)
+class Caller_details_api(APIView):
+    def get_object(self,pk):
+        data = models.agg_hhc_callers.objects.get(caller_id=pk)
+        if data:
+            return data
+        return Response({'error':'no data'})
+    
+    def get_relation(self,pk):
+        return models.agg_hhc_caller_relation.objects.filter(pk=pk)
+             
+    def get(self,request,pk):   
+        caller = self.get_object(pk)
+        if caller:
+            serializer = serializers.Caller_details_serializer(caller)
+            relation=(self.get_relation(serializer.data['caller_rel_id']))[0]
+            relations=serializers.relation_serializer(relation)
+            return Response({"caller":serializer.data,"relation":relations.data})
+        else:
+            return Response({"error": 'user not found'})
+        
+    def put(self,request,pk):
+        caller = self.get_object(pk)
+        callerSerializer = serializers.Caller_details_serializer(caller,data = request.data)
+        if callerSerializer.is_valid():
+            callerSerializer.save()
+            return Response(callerSerializer.data)
+        return Response(callerSerializer.errors)
+    

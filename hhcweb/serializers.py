@@ -54,10 +54,38 @@ class agg_hhc_services_serializer(serializers.ModelSerializer):
 
 class agg_hhc_add_service_serializer(serializers.ModelSerializer):
     class Meta:
-        models = models.agg_hhc_event_plan_of_care
-        fields = ['srv_id', 'sub_srv_id', 'start_date', 'end_date', 'srv_prof_id', 'discount_percentage', 'add_discount']
+        model = models.agg_hhc_events
+        fields = ['srv_id','pt_id', 'sub_srv_id', 'start_date', 'end_date', 'srv_prof_id', 'discount_percentage', 'add_discount']
 
-# class agg_hhc_
+class Caller_details_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_callers
+        fields = ['phone', 'fname', 'lname', 'caller_rel_id' ]
+
+class relation_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_caller_relation
+        fields = ['caller_rel_id', 'relation']
+
+# class CallerRelationSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.agg_hhc_caller_relation
+#         fields = '__all__'
+
+# class CallerDetailsSerializer(serializers.ModelSerializer):
+#     relation = serializers.SerializerMethodField()
+
+#     def get_relation(self, obj):
+#         # Retrieve the related caller relation data
+#         relations = models.agg_hhc_caller_relation.objects.filter(pk=obj.caller_rel_id)
+#         if relations:
+#             relation_serializer = CallerRelationSerializer(relations[0])
+#             return relation_serializer.data
+#         return None
+
+#     class Meta:
+#         model = models.agg_hhc_callers
+#         fields = '__all__'
 
 # ------------------------------------------------------ Vishal -------------------------------------------------------
 class agg_hhc_purpose_call_serializer(serializers.ModelSerializer):#25
