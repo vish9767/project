@@ -27,14 +27,14 @@ class agg_hhc_sub_services_serializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.agg_hhc_sub_services
-        fields = ['sub_srv_id','recommomded_service','srv_id']
+        fields = ['sub_srv_id','recommomded_service','srv_id','cost']
 
 
 class agg_hhc_services_serializer(serializers.ModelSerializer):
     service = agg_hhc_sub_services_serializer(many=True, read_only=True)
     class Meta:
         model = models.agg_hhc_services
-        fields = ['srv_id','service_title', 'service']
+        fields = ['srv_id','service_title', 'service', ]
 
 
 
@@ -54,8 +54,8 @@ class agg_hhc_services_serializer(serializers.ModelSerializer):
 
 class agg_hhc_add_service_serializer(serializers.ModelSerializer):
     class Meta:
-        model = models.agg_hhc_events
-        fields = ['srv_id','pt_id', 'sub_srv_id', 'start_date', 'end_date', 'srv_prof_id', 'discount_percentage', 'add_discount']
+        model = models.agg_hhc_event_plan_of_care
+        fields = ['srv_id','pt_id', 'sub_srv_id', 'start_date', 'end_date','prof_prefered', 'srv_prof_id', 'discount_type', 'discount','total_cost','final_cost']
 
 class Caller_details_serializer(serializers.ModelSerializer):
     class Meta:
@@ -77,6 +77,15 @@ class hospital_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_hospitals
         fields = ['hosp_id', 'hospital_name']
 
+class DateSerializer(serializers.Serializer):
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['start_date'] = instance.start_date.strftime('%Y-%m-%d')
+        representation['end_date'] = instance.end_date.strftime('%Y-%m-%d')
+        return representation
 # ------------------------------------------------------ Vishal -------------------------------------------------------
 class agg_hhc_purpose_call_serializer(serializers.ModelSerializer):#25
     class Meta:

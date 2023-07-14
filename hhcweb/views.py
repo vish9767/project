@@ -1,3 +1,4 @@
+import datetime
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -140,7 +141,6 @@ class agg_hhc_patinet_list_enquiry_put(APIView):
 
 class agg_hhc_add_service_details_api(APIView):
     def post(self,request,pk):
-
         serialized=serializers.agg_hhc_add_service_serializer(data=request.data)
         if(serialized.is_valid()):
             serialized.save()
@@ -256,3 +256,34 @@ class patient_detail_info_api(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+class calculate_discount_api(APIView):
+    def get(self, request):#dtype,amount,total_amt
+        dtype=request.data['dtype']
+        amount=request.data['amount']
+        total_amt=request.data['total_amt']
+        if dtype == 1:
+            final= ((total_amt*amount)/100)-total_amt
+            return Response({"final_amount":final})
+        elif dtype == 2:
+            final = (total_amt-amount)
+            return Response({"final_amount":final})
+        else: return Response({"final_amount":total_amt})
+
+
+
+class calculate_total_amount(APIView):
+    def get(self, request):
+        print(request.data)
+        start_date_string = request.data['start_date']
+        end_date_string = request.data['end_date']  
+        print(start_date_string)     
+        try:
+            start_date = datetime.datetime.strptime(str(start_date_string), '%Y-%m-%d').date()
+            end_date = datetime.datetime.strptime(str(end_date_string), '%Y-%m-%d').date()            
+            diff = (end_date - start_date).days 
+            total = (diff+1) * request.data['srv_cost']           
+            return Response({'days_difference': total})
+        except ValueError:
+            return Response({'error': 'Invalid date format'}, status=400)
+        
