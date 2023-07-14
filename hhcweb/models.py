@@ -541,11 +541,11 @@ class agg_hhc_patients(models.Model):#6
 	hhc_code = models.CharField(max_length=50,null=True, blank=True)
 	membership_id = models.CharField(max_length=50,null=True)
 	name = models.CharField(max_length=255,null=True)
-	first_name = models.CharField(max_length=50,null=True)
-	middle_name = models.CharField(max_length=50,null=True)
+	# first_name = models.CharField(max_length=50,null=True)
+	# middle_name = models.CharField(max_length=50,null=True)
 	Age = models.BigIntegerField(null=True)
 	Gender = models.CharField(max_length=10,null=True)
-	email_id = models.CharField(max_length=255,null=True)
+	email_id = models.EmailField(null=True)
 	residential_address = models.CharField(max_length=500,null=True)
 	permanant_address = models.CharField(max_length=500,null=True)
 	city_id = models.BigIntegerField(null=True)
@@ -573,22 +573,14 @@ class agg_hhc_patients(models.Model):#6
 	Profile_pic = models.CharField(max_length=200,null=True)
 
 	def save(self, *args, **kwargs):
-		if not self.agg_sp_pt_id:  
+		if not self.agg_sp_pt_id:
 			last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
-			id = str(self.hosp_id)
-			prefix = agg_hhc_hospitals.objects.get(hosp_id=id)
-			prefix = prefix.hospital_short_code
+			prefix = self.hosp_id.hospital_short_code if self.hosp_id else None
 			if not prefix:
 				raise status.HTTP_404_NOT_FOUND
-			if last_pt:
-                # last_code = last_emp.empid[:2]
-				last_sequence = int(last_pt.hhc_code[-4:])
-				new_sequence = last_sequence + 1
-				self.hhc_code = f"{prefix}HC{new_sequence:04d}"
-			else:
-				self.hhc_code = f"{prefix}HC0001"
-		return super(agg_hhc_patients,self).save(*args, **kwargs)
-    
+			last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
+			self.hhc_code = f"{prefix}HC{last_sequence:05d}"
+		return super().save(*args, **kwargs)
 
 # class agg_hhc_webinar_patient_table(models.Model):#7
 # 	agg_sp_web_pt_li_id = models.AutoField(primary_key = True)
@@ -1800,8 +1792,8 @@ class agg_hhc_hospitals(models.Model):#83
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
     
-    def __str__(self):
-        return f"{self.hosp_id}"
+    # def __str__(self):
+    #     return f"{self.hosp_id}"
 
 class agg_hhc_hospital_ips(models.Model):#84
     hosp_ips_id=models.AutoField(primary_key=True)

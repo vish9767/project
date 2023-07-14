@@ -24,6 +24,8 @@ urlpatterns = [
     path('agg_hhc_pincode_api/<str:pin>',views.agg_hhc_pincode_number_api.as_view()),#find state and city from pincode number
     path('agg_hhc_city_from_state_api/<str:state>',views.agg_hhc_city_from_state_api.as_view()),#find all city from state name
     path('agg_hhc_pincode_from_city_api/<str:city>',views.agg_hhc_pincode_from_city_api.as_view()),#find all findcode from city name 
-    path('Caller_details_api/<int:pk>', views.Caller_details_api.as_view())
+    path('Caller_details_api/<int:pk>', views.Caller_details_api.as_view()),
+    path('Caller_details_api/<int:pk>', views.Caller_details_api.as_view()),
+    path('patient_detail_info_api/<int:pk>', views.patient_detail_info_api.as_view()),
 
 ]
