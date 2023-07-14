@@ -159,3 +159,15 @@ class agg_hhc_hospitals_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_hospitals
         fields='__all__'
+    
+#-----------------------------------agg_hhc_agg_hhc_pincode-----------------------
+class agg_hhc_pincode_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=models.agg_hhc_pincode
+        fields="__all__"
+
+#--------------------------------------agg_hhc_city--------------------------
+class agg_hhc_city(serializers.ModelSerializer):
+    class Meta:
+        model=models.agg_hhc_city
+        fields='__all__'

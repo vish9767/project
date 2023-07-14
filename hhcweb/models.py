@@ -1609,10 +1609,12 @@ class agg_hhc_cheque_images(models.Model):#69
 
 class agg_hhc_city(models.Model):#70
     city_id=models.AutoField(primary_key=True)
-    City_name=models.CharField(max_length=100,null=True)
-    state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
+    city_name=models.CharField(max_length=100,null=True,unique=True)
+    state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True,to_field='state_name')
     Added_by=models.IntegerField(null=True)
     Added_date=models.DateTimeField(null=True)
+    def __str__(self):
+	    return self.city_name
 
 class agg_hhc_consent_agree_form(models.Model):#71
     consent_agree_form_id=models.AutoField(primary_key=True)
@@ -2191,8 +2193,10 @@ class agg_hhc_patient_documents(models.Model):
 
 class agg_hhc_state(models.Model):
 	state_id=models.AutoField(primary_key=True)
-	state_name=models.CharField(max_length=100,null=True)
-	
+	state_name=models.CharField(max_length=100,null=True,unique=True)
+	def __str__(self):
+		return f"{self.state_name}"
+
 class agg_hhc_app_patient_documents(models.Model):
 	pt_id = models.AutoField(primary_key=True)
 	agg_sp_pt_id = models.IntegerField(null=True)
@@ -2208,9 +2212,9 @@ class agg_hhc_app_patient_documents(models.Model):
 
 class agg_hhc_pincode(models.Model):
 	pincode_id=models.AutoField(primary_key=True)
-	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
-	city_name=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)
-	
+	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True,to_field='state_name')
+	city_name=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True,to_field='city_name')
+	pincode_number=models.PositiveIntegerField(null=True)
 
 # class agg_hhc_app_caller_register(models.Model):
 # 	id = models.AutoField(primary_key=True)
