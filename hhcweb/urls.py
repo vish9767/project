@@ -1,5 +1,6 @@
 from django.urls import path
 from hhcweb import views
+
 urlpatterns = [
     path('agg_hhc_purpose_call_api',views.agg_hhc_purpose_call_api.as_view()),#done
     path('agg_hhc_caller_relation_api',views.agg_hhc_caller_relation_api.as_view()),#done
@@ -27,6 +28,8 @@ urlpatterns = [
     path('Caller_details_api/<int:pk>', views.Caller_details_api.as_view()),
     path('Caller_details_api/<int:pk>', views.Caller_details_api.as_view()),
     path('patient_detail_info_api/<int:pk>', views.patient_detail_info_api.as_view()),
-    path('agg_hhc_service_professionals_api',views.agg_hhc_service_professionals_api.as_view())#this display professional name and skills
+    path('agg_hhc_service_professionals_api',views.agg_hhc_service_professionals_api.as_view()),#this display professional name and skills
+    path('calculate_total_amount',views.calculate_total_amount.as_view()),
+    path('calculate_discount_api',views.calculate_discount_api.as_view())
 
 ]

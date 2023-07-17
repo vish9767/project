@@ -58,6 +58,9 @@ class enquiry_status_enum(enum.Enum):
 class discount_type_enum(enum.Enum):
 	In_Percentage = 1
 	In_amount = 2
+	No_discount = 3
+	__default__ = No_discount
+
    
 class estimate_cost_enum(enum.Enum):
 	not_set = 1
@@ -110,6 +113,7 @@ class package_status_enum(enum.Enum):
 class pt_gender_enum(enum.Enum):
 	Male = 1
 	Female = 2
+	Trans_gender = 3
 
 class reg_status_enum(enum.Enum):
 	registration = 1
@@ -743,8 +747,11 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 	start_date = models.CharField(max_length=240,null=True)
 	end_date = models.CharField(max_length=240,null=True)
 	service_cost = models.FloatField(null=True)
-	add_discount = enum.EnumField(yes_no_enum, null=True)
-	discount_percentage = models.IntegerField(null=True)
+	prof_prefered = enum.EnumField(pt_gender_enum,null=True) # updated
+	discount_type = enum.EnumField(discount_type_enum,null=True) # new added
+	discount = models.IntegerField(null=True,default=0) #updated
+	total_cost = models.IntegerField(null=True)
+	final_cost = models.IntegerField(null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
 	added_date = models.DateField(null=True)
