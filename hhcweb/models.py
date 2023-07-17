@@ -992,9 +992,10 @@ class agg_hhc_service_professionals(models.Model):#32
 	professional_code = models.CharField(max_length=255,null=True)
 	reference_type = enum.EnumField(reference_type_enum,null=True)
 	title = models.CharField(max_length=500,null=True)
+	skill_set=models.CharField(max_length=200,null=True)#BHMS
 	Job_type = models.CharField(max_length=10,null=True)
-	name = models.CharField(max_length=255,null=True)
-	first_name = models.CharField(max_length=50,null=True)
+	first_name = models.CharField(max_length=255,null=True)
+	last_name = models.CharField(max_length=50,null=True)
 	middle_name = models.CharField(max_length=50,null=True)
 	email_id = models.CharField(max_length=255,null=True)
 	phone_no = models.CharField(max_length=20,null=True)
@@ -1005,7 +1006,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	work_email_id = models.CharField(max_length=255,null=True)
 	work_phone_no = models.CharField(max_length=20,null=True)
 	work_address = models.CharField(max_length=500,null=True)
-	loc_id = models.CharField(max_length=240,null=True)
+	prof_zone_id= models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
 	loc_id = models.CharField(max_length=240,null=True)
 	set_location = enum.EnumField(set_location_enum,null=True)
 	status = enum.EnumField(status_enum,null=True)
@@ -1283,7 +1284,7 @@ class agg_hhc_payments_received_by_professional(models.Model):#48
 
 class agg_hhc_professional_availability(models.Model):#49
 	professional_avaibility_id = models.AutoField(primary_key = True)
-	prof_srv_id = models.IntegerField(null=True)
+	prof_srv_id = models.IntegerField(null=True) #agg_hhc_professional_services
 	day = models.CharField(max_length=8,null=True)
 
 # ------------------------------------------------------------------------------------------------------------------
@@ -1413,7 +1414,7 @@ class agg_hhc_professional_availability_detail(models.Model):#50
     #prof_avaib_id=models.ForeignKey(agg_hhc_professional_availability,on_delete=models.CASCADE,null=True)
     start_time=models.TimeField(null=True)
     end_time=models.TimeField(null=True)
-    #professional_location_id=models.ForeignKey(agg_hhc_professional_location,on_delete=models.CASCADE,null=True)
+    #professional_zone_id=models.ForeignKey(agg_hhc_professional_zone,on_delete=models.CASCADE,null=True)
 
 class agg_hhc_professional_device_info(models.Model):#51
     prof_devi_info_id=models.AutoField(primary_key=True)
@@ -1436,22 +1437,24 @@ class agg_hhc_professional_documents(models.Model):#52
     status=enum.EnumField(documents_enum,null=True)
     isVerified=enum.EnumField(truefalse_enum,null=True)
 
-class agg_hhc_professional_location(models.Model):#53
-    prof_loc_id=models.AutoField(primary_key=True)
+class agg_hhc_professional_zone(models.Model):#53 Zone
+    prof_zone_id=models.AutoField(primary_key=True)
     #prof_srv_id=models.ForeignKey(agg_hhc_professional_services,on_delete=models.CASCADE,null=True)
     Name=models.CharField(max_length=50,null=True)
+    def __str__(self):
+	    return f'{self.Name}'
 
 class agg_hhc_professional_location_details(models.Model):#54
     prof_loc_dt_id=models.AutoField(primary_key=True)
     lattitude=models.FloatField(null=True)
     longitude=models.FloatField(null=True)
     location_name=models.TextField(null=True)
-    #prof_loc_id=models.ForeignKey(agg_hhc_professional_location,on_delete=models.CASCADE,null=True)
+    prof_zone_id=models.ForeignKey(agg_hhc_professional_zone,on_delete=models.CASCADE,null=True)
 
 class agg_hhc_professional_location_preferences(models.Model):#55
     prof_loc_pref_id=models.AutoField(primary_key=True)
     #srv_prof_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
-    prof_loc_id=models.ForeignKey(agg_hhc_professional_location,on_delete=models.CASCADE,null=True)
+    prof_zone_id=models.ForeignKey(agg_hhc_professional_zone,on_delete=models.CASCADE,null=True)
     max_latitude=models.FloatField(null=True)
     min_latitude=models.FloatField(null=True)
     max_longitude=models.FloatField(null=True)
@@ -1816,7 +1819,7 @@ class agg_hhc_knowledge_base_documents(models.Model):#85
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
 
-class agg_hhc_locations(models.Model):#86 locality/ zone
+class agg_hhc_locations(models.Model):#86 locality
     loc_id=models.AutoField(primary_key=True)
     location=models.CharField(max_length=255,null=True)
     pin_code=models.CharField(max_length=240,null=True)
@@ -2208,39 +2211,3 @@ class agg_hhc_pincode(models.Model):
 	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True,to_field='state_name')
 	city_name=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True,to_field='city_name')
 	pincode_number=models.PositiveIntegerField(null=True)
-
-# class agg_hhc_app_caller_register(models.Model):
-# 	id = models.AutoField(primary_key=True)
-# 	fname = models.CharField(max_length=100, null=True)
-# 	lname = models.CharField(max_length=100, null=True)
-# 	email = models.CharField(max_length=100, null=True)
-# 	gender = models.CharField(max_length=20, null=True)
-# 	phone = models.CharField(max_length=20, null=True)
-# 	addr = models.CharField(max_length=100, null=True)
-# 	password = models.CharField(max_length=50, null=True)
-# 	otp = models.IntegerField(null=True)
-# 	added_date = models.DateTimeField(null=True)
-# 	status = enum.EnumField(Tf_enum, null=True)
-
-
-# ['Spero contact centre',
-# 'Deenanath mangeshkar hospital',
-# 'Sancheti hospital',
-# 'Ruby hall clinic',
-# 'Jahangir',
-# 'Inamdar hospital',
-# 'Jahagir Hospital',
-# 'GLOBAL HOSPITAL',
-# 'Bhave hospital',
-# 'Symbiosis university hospital and research centre',
-# 'Satyanand hospital',
-# 'Bhave clinic',
-# 'Kadam clinic',
-# 'Sathya',
-# 'Aashwast services',
-# 'Home Healthcare Community App',
-# 'Gajanan hospital',
-# 'Athashri Pebbles',
-# 'Athashri Condominium',
-# 'Athashri Forest Trails',
-# 'Ashta ALF']

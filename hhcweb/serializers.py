@@ -162,3 +162,11 @@ class agg_hhc_city(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_city
         fields='__all__'
+
+#------------------------------------agg_hhc_service_professionals------------
+
+class agg_hhc_service_professionals_serializer(serializers.ModelSerializer): #professional availablity details with professional name and professional skill 
+    class Meta:
+        model=models.agg_hhc_service_professionals
+        fields=('first_name','last_name','skill_set')
+    

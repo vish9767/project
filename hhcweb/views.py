@@ -296,3 +296,9 @@ class patient_detail_info_api(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+class agg_hhc_service_professionals_api(APIView):
+    def get(self,request,formate=None):
+        professional=models.agg_hhc_service_professionals.objects.filter(status=1)
+        serialized=serializers.agg_hhc_service_professionals_serializer(professional,many=True)
+        return Response(serialized.data)

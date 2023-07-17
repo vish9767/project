@@ -42,7 +42,7 @@ admin.site.register(agg_hhc_job_closure)#37
 admin.site.register(agg_hhc_job_closure_consumption_mapping)#38
 admin.site.register(agg_hhc_feedbackform1)#39
 admin.site.register(agg_hhc_feedback_answers)#40
-admin.site.register(agg_hhc_feedback_form)#41
+admin.site.register(agg_hhc_feedback_form)#41                              
 admin.site.register(agg_hhc_feedback_for_app)#42
 admin.site.register(agg_hhc_feedback_options)#43
 admin.site.register(agg_hhc_assisted_living_schedule)#44
@@ -54,7 +54,7 @@ admin.site.register(agg_hhc_professional_availability)#49
 admin.site.register(agg_hhc_professional_availability_detail)#50
 admin.site.register(agg_hhc_professional_device_info)#51
 admin.site.register(agg_hhc_professional_documents)#52
-admin.site.register(agg_hhc_professional_location)#53
+admin.site.register(agg_hhc_professional_zone)#53
 admin.site.register(agg_hhc_professional_location_details)#54
 admin.site.register(agg_hhc_professional_location_preferences)#55
 admin.site.register(agg_hhc_professional_media)#56
