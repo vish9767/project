@@ -1445,7 +1445,7 @@ class agg_hhc_professional_documents(models.Model):#52
     status=enum.EnumField(documents_enum,null=True)
     isVerified=enum.EnumField(truefalse_enum,null=True)
 
-class agg_hhc_professional_zone(models.Model):#53 Zone
+class agg_hhc_professional_zone(models.Model):#53 Zones 
     prof_zone_id=models.AutoField(primary_key=True)
     #prof_srv_id=models.ForeignKey(agg_hhc_professional_services,on_delete=models.CASCADE,null=True)
     Name=models.CharField(max_length=50,null=True)
