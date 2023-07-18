@@ -1,7 +1,8 @@
 from django.db import models
 from django_enumfield import enum
 from rest_framework import status
-
+from django.utils import timezone
+import datetime
 # Create your models here.
 
 class enquiry_from_enum(enum.Enum):
@@ -1033,7 +1034,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	APP_password = models.CharField(max_length=50,null=True)
 	OTP = models.CharField(max_length=4,null=True)
 	OTP_count = models.BigIntegerField(null=True)
-	otp_expire_time = models.DateField(null=True)
+	otp_expire_time = models.DateTimeField(null=True)
 	Profile_pic = models.CharField(max_length=100,null=True)
 	Ratings = models.FloatField(null=True)
 	Reviews = models.IntegerField(null=True)
@@ -1223,12 +1224,12 @@ class agg_hhc_membership_schedule_detail(models.Model):#45
 	modify_date = models.DateField(null=True)
 	status = enum.EnumField(status_enum,null=True)
 
-class agg_hhc_professional_scheduled(models.Model):#46
+class agg_hhc_professional_scheduled(models.Model):#46  THIS WILL WE USED TO STORE DATA IN CALENDAR
 	prof_sche_id = models.AutoField(primary_key = True)
-	professiona_id = models.BigIntegerField(null=True)
+	srv_prof_id = models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
 	scheduled_date = models.DateField(null=True)
-	from_time = models.CharField(max_length=240,null=True)
-	to_time = models.CharField(max_length=240,null=True)
+	from_time = models.DateTimeField(max_length=240,null=True)
+	to_time = models.DateTimeField(max_length=240,null=True)
 	is_night_shift = enum.EnumField(yes_no_enum,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)

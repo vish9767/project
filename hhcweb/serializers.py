@@ -179,3 +179,9 @@ class agg_hhc_service_professionals_serializer(serializers.ModelSerializer): #pr
         model=models.agg_hhc_service_professionals
         fields=('first_name','last_name','skill_set')
     
+#-------------------------------------agg_hhc_professional_scheduled-----------
+
+class agg_hhc_professional_scheduled_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=models.agg_hhc_professional_scheduled
+        fields=('srv_prof_id','scheduled_date','from_time','to_time')

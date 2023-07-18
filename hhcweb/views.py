@@ -297,11 +297,14 @@ class patient_detail_info_api(APIView):
         serializer.save()
         return Response(serializer.data)
 
-class agg_hhc_service_professionals_api(APIView):
+# ----------------------------------------------professional availability details name and skills -----
+class  agg_hhc_service_professionals_api(APIView):
     def get(self,request,formate=None):
         professional=models.agg_hhc_service_professionals.objects.filter(status=1)
         serialized=serializers.agg_hhc_service_professionals_serializer(professional,many=True)
         return Response(serialized.data)
+    
+
 class calculate_discount_api(APIView):
     def get(self, request):#dtype,amount,total_amt
         dtype=request.data['dtype']
@@ -332,3 +335,16 @@ class calculate_total_amount(APIView):
         except ValueError:
             return Response({'error': 'Invalid date format'}, status=400)
         
+
+#------------------------------agg_hhc_professional_scheduled---used to display professional booked services 
+
+class agg_hhc_professional_scheduled_api(APIView):
+    def get_object(self,prof_sche_id,formate=None):
+        try:
+            return models.agg_hhc_professional_scheduled.objects.filter(srv_prof_id=prof_sche_id,status=1)
+        except models.agg_hhc_professional_scheduled.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+    def get(self,request,prof_sche_id):
+        timeobject=self.get_object(prof_sche_id)
+        serialized=serializers.agg_hhc_professional_scheduled_serializer(timeobject,many=True)
+        return Response(serialized.data)
