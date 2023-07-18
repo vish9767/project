@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from hhcweb import serializers
 from hhcweb import models
 from rest_framework import status
+from django.utils import timezone
 # Create your views here.
     
 class agg_hhc_caller_relation_api(APIView):
@@ -336,7 +337,7 @@ class calculate_total_amount(APIView):
             return Response({'error': 'Invalid date format'}, status=400)
         
 
-#------------------------------agg_hhc_professional_scheduled---used to display professional booked services 
+#------------------------------agg_hhc_professional_scheduled---used to display professional booked services --this will be used to display professiona record in calander
 
 class agg_hhc_professional_scheduled_api(APIView):
     def get_object(self,prof_sche_id,formate=None):
@@ -347,4 +348,17 @@ class agg_hhc_professional_scheduled_api(APIView):
     def get(self,request,prof_sche_id):
         timeobject=self.get_object(prof_sche_id)
         serialized=serializers.agg_hhc_professional_scheduled_serializer(timeobject,many=True)
+        return Response(serialized.data)
+
+#--------------------------agg_hhc_professional_scheduled_api---used to display professional booked services in professional Avalibility
+
+class agg_hhc_professional_time_availability_api(APIView):
+    def get_object(self,prof_sche_id,formate=None):
+        try:
+            return models.agg_hhc_professional_scheduled.objects.filter(srv_prof_id=prof_sche_id,status=1,scheduled_date=timezone.now())
+        except models.agg_hhc_professional_scheduled.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+    def get(self,request,prof_sche_id):
+        dateobject=self.get_object(prof_sche_id)
+        serialized=serializers.agg_hhc_professional_scheduled_serializer(dateobject,many=True)
         return Response(serialized.data)
