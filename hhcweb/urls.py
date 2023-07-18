@@ -31,6 +31,6 @@ urlpatterns = [
     path('agg_hhc_service_professionals_api',views.agg_hhc_service_professionals_api.as_view()),#this display professional name and skills
     path('calculate_total_amount',views.calculate_total_amount.as_view()),
     path('calculate_discount_api',views.calculate_discount_api.as_view()),
-    path('agg_hhc_professional_scheduled_api/<int:prof_sche_id>',views.agg_hhc_professional_scheduled_api.as_view()),#To display professional time in calander as well as in availability
+    path('agg_hhc_professional_scheduled_api/<int:prof_sche_id>',views.agg_hhc_professional_scheduled_api.as_view()),#To display professional time in calander as well as in professional availability
 
 ]
