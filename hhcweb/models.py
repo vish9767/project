@@ -3,6 +3,11 @@ from django_enumfield import enum
 from rest_framework import status
 from datetime import date
 
+from django.utils import timezone
+import datetime
+from django.contrib.auth.models import(
+	BaseUserManager,AbstractBaseUser
+)
 # Create your models here.
 
 class enquiry_from_enum(enum.Enum):
@@ -24,6 +29,10 @@ class status_enum(enum.Enum):
 	Active = 1
 	Inactive = 2
 	Delete = 3
+
+class level(enum.Enum):
+    Primary = 0
+    Secondary = 1
 	
 class yes_no_enum(enum.Enum):
 	yes = 1
@@ -289,7 +298,7 @@ class agg_hhc_patinet_list_enquiry(models.Model):#1
 	# Professional_Preferred=models.CharField(max_length=100,null=True)
 	# note = models.CharField(max_length=50,null=True)
 	status = models.CharField(max_length=2,null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	enquiry_from = enum.EnumField(enquiry_from_enum,null=True)
 	
 class agg_hhc_assessment_patient(models.Model):#2
@@ -335,7 +344,7 @@ class agg_hhc_assessment_patient(models.Model):#2
 	hosp_id = models.CharField(max_length=1,null=True)
 	emp_id = models.CharField(max_length=1,null=True)
 	# status = enum.EnumField(status_enum,null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modify_date = models.DateField(null=True)
 	
 
@@ -494,7 +503,7 @@ class agg_hhc_assessment_patient_details(models.Model):#3
 	hosp_id = models.BigIntegerField(null=True)
 	emp_id = models.BigIntegerField(null=True)
 	# status = enum.EnumField(status_enum,null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	
 class agg_hhc_assessment_patient_list(models.Model):#4
 	agg_sp_ass_pt_li_id = models.AutoField(primary_key = True)
@@ -537,7 +546,7 @@ class agg_hhc_assessment_patient_list(models.Model):#4
 	TimeofDischarge = models.CharField(max_length=50,null=True)
 	DateofDeath = models.CharField(max_length=50,null=True)
 	status = models.CharField(max_length=2,null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 
 class agg_hhc_patients(models.Model):#6
 	agg_sp_pt_id = models.AutoField(primary_key = True)
@@ -570,22 +579,22 @@ class agg_hhc_patients(models.Model):#6
 	isDelStatus = models.BigIntegerField(null=True)
 	isVIP = enum.EnumField(yes_no_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 	lattitude = models.FloatField(null=True)
 	langitude = models.FloatField(null=True)
 	Profile_pic = models.CharField(max_length=200,null=True)
 
-	def save(self, *args, **kwargs):
-		if not self.agg_sp_pt_id:
-			last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
-			prefix = self.hosp_id.hospital_short_code if self.hosp_id else None
-			if not prefix:
-				raise status.HTTP_404_NOT_FOUND
-			last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
-			self.hhc_code = f"{prefix}HC{last_sequence:05d}"
-		return super().save(*args, **kwargs)
+	# def save(self, *args, **kwargs):
+	# 	if not self.agg_sp_pt_id:
+	# 		last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
+	# 		prefix = self.hosp_id.hospital_short_code if self.hosp_id else None
+	# 		if not prefix:
+	# 			raise status.HTTP_404_NOT_FOUND
+	# 		last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
+	# 		self.hhc_code = f"{prefix}HC{last_sequence:05d}"
+	# 	return super().save(*args, **kwargs)
 
 # class agg_hhc_webinar_patient_table(models.Model):#7
 # 	agg_sp_web_pt_li_id = models.AutoField(primary_key = True)
@@ -617,7 +626,7 @@ class agg_hhc_detailed_event_plan_of_care(models.Model):#8
 	amount_received = models.CharField(max_length=11,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	emp_id = models.BigIntegerField(null=True)
 	last_modified_by = enum.EnumField(last_modified_by_enum,null=True)
 	last_modified_date = models.DateField(null=True)
@@ -641,7 +650,7 @@ class agg_hhc_events(models.Model):#9
 	event_date = models.DateTimeField(auto_now_add=True,null=True)
 	note = models.CharField(max_length=500,null=True)
 	service_date_of_Enquiry = models.DateField(null=True)
-	enquiry_added_date = models.DateField(null=True)
+	enquiry_added_date = models.DateField(default=timezone.now,null=True)
 	enquiry_status = enum.EnumField(enquiry_status_enum,null=True)
 	enquiry_cancel_from = models.BigIntegerField(null=True)
 	enquiry_cancellation_reason = models.CharField(max_length=500,null=True)
@@ -662,7 +671,7 @@ class agg_hhc_events(models.Model):#9
 	# Added_through = enum.EnumField(Added_through_enum,null=True)
 	Invoice_narration = models.CharField(max_length=100,null=True)
 	invoice_narration_desc = models.CharField(max_length=500,null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 	# purpose_event_id = models.BigIntegerField(null=True)
@@ -712,7 +721,7 @@ class agg_hhc_event_consultant_call(models.Model):#10
 	consultant_event_id = models.BigIntegerField(null=True)
 	consultant_caller_id = models.BigIntegerField(null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 
 class agg_hhc_event_doctor_mapping(models.Model):#11
 	eve_doct_map_id = models.AutoField(primary_key = True)
@@ -722,7 +731,7 @@ class agg_hhc_event_doctor_mapping(models.Model):#11
 	types = enum.EnumField(types_enum,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -733,7 +742,7 @@ class agg_hhc_event_follow_up(models.Model):#12
 	enq_follow_up_id = models.BigIntegerField(null=True)
 	date = models.DateField(null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 
 class agg_hhc_event_job_summary(models.Model):#13
 	eve_job_summ_id = models.AutoField(primary_key = True)
@@ -747,7 +756,7 @@ class agg_hhc_event_job_summary(models.Model):#13
 	status = enum.EnumField(status_enum,null=True)
 	isDelStatus = models.BigIntegerField(null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -758,7 +767,7 @@ class agg_hhc_event_other_call(models.Model):#14
 	description = models.CharField(max_length=500,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -779,12 +788,12 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 	prof_prefered = enum.EnumField(pt_gender_enum,null=True) # updated
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	remark = models.CharField(max_length=200, null=True)# newly added
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
-class agg_hhc_event_professional(models.Model):#16
+class agg_hhc_event_professional(models.Model):#16 To store professional available details
 	eve_prof_id = models.AutoField(primary_key = True)
 	eve_id = models.BigIntegerField(null=True)
 	eve_req_id = models.BigIntegerField(null=True)
@@ -794,7 +803,7 @@ class agg_hhc_event_professional(models.Model):#16
 	service_closed = enum.EnumField(yes_no_enum,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -819,7 +828,7 @@ class agg_hhc_event_share_hcm(models.Model):#18
 	assigned_by = models.BigIntegerField(null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -829,7 +838,7 @@ class agg_hhc_log_for_event(models.Model):#19
 	srv_prof_id = models.BigIntegerField(null=True)
 	logged_from = models.CharField(max_length=50,null=True)
 	logStatement = models.CharField(max_length=200,null=True)
-	Added_date = models.DateField(null=True)
+	Added_date = models.DateField(default=timezone.now,null=True)
 
 
 class agg_hhc_caller_relation(models.Model):#21
@@ -885,7 +894,7 @@ class agg_hhc_purpose_call(models.Model):#25
 	name = models.CharField(max_length=255,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_by = models.BigIntegerField(null=True)
 	modified_date = models.DateField(null=True)
 	def __str__(self):
@@ -902,7 +911,7 @@ class agg_hhc_extend_service(models.Model):#26
 	estimate_cost = models.BigIntegerField(null=True)
 	OTP = models.CharField(max_length=11,null=True)
 	status = enum.EnumField(srv_status_enum,null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	OTP_count = models.IntegerField(null=True)
 	otp_expire_time = models.DateField(null=True)
 
@@ -911,7 +920,7 @@ class agg_hhc_no_reason_for_service(models.Model):#27
 	reason_title = models.CharField(max_length=255,null=True)
 	is_deleted = enum.EnumField(yes_no_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -926,7 +935,7 @@ class agg_hhc_professional_services(models.Model):#28
 	availability = models.CharField(max_length=255,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -944,7 +953,7 @@ class agg_hhc_services(models.Model):#30
 	is_hd_access = enum.EnumField(yes_no_enum,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 	# flag = enum.EnumField(flag_enum,null=True)##########################################
@@ -957,7 +966,7 @@ class agg_hhc_services(models.Model):#30
 	dash_order = models.CharField(max_length=10,null=True)
 
 	def __str__(self):
-	    return f"{self.srv_id}"
+	    return f"{self.srv_id},{self.service_title}"
 	
 class agg_hhc_sub_services(models.Model):#34
 	sub_srv_id = models.AutoField(primary_key = True)
@@ -970,7 +979,7 @@ class agg_hhc_sub_services(models.Model):#34
 	UOM = models.CharField(max_length=50,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 	# flag = enum.EnumField(flag_enum,null=True)
@@ -1010,7 +1019,7 @@ class agg_hhc_service_membership_registration(models.Model):#31
 	pt_consultant_hos = models.CharField(max_length=50,null=True)
 	pt_consultant_contact = models.CharField(max_length=20,null=True)
 	reg_status = enum.EnumField(reg_status_enum,null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	last_modified_date = models.DateField(null=True)
 	status = enum.EnumField(status_enum,null=True)
 	# membership_approval = enum.EnumField(membership_approval_enum,null=True)
@@ -1024,9 +1033,10 @@ class agg_hhc_service_professionals(models.Model):#32
 	professional_code = models.CharField(max_length=255,null=True)
 	reference_type = enum.EnumField(reference_type_enum,null=True)
 	title = models.CharField(max_length=500,null=True)
+	skill_set=models.CharField(max_length=200,null=True)#BHMS
 	Job_type = models.CharField(max_length=10,null=True)
-	name = models.CharField(max_length=255,null=True)
-	first_name = models.CharField(max_length=50,null=True)
+	first_name = models.CharField(max_length=255,null=True)
+	last_name = models.CharField(max_length=50,null=True)
 	middle_name = models.CharField(max_length=50,null=True)
 	email_id = models.CharField(max_length=255,null=True)
 	phone_no = models.CharField(max_length=20,null=True)
@@ -1037,13 +1047,13 @@ class agg_hhc_service_professionals(models.Model):#32
 	work_email_id = models.CharField(max_length=255,null=True)
 	work_phone_no = models.CharField(max_length=20,null=True)
 	work_address = models.CharField(max_length=500,null=True)
-	loc_id = models.CharField(max_length=240,null=True)
+	prof_zone_id= models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
 	loc_id = models.CharField(max_length=240,null=True)
 	set_location = enum.EnumField(set_location_enum,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	isDelStatus = models.BigIntegerField(null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 	lattitude = models.CharField(max_length=240,null=True)
@@ -1057,7 +1067,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	APP_password = models.CharField(max_length=50,null=True)
 	OTP = models.CharField(max_length=4,null=True)
 	OTP_count = models.BigIntegerField(null=True)
-	otp_expire_time = models.DateField(null=True)
+	otp_expire_time = models.DateTimeField(null=True)
 	Profile_pic = models.CharField(max_length=100,null=True)
 	Ratings = models.FloatField(null=True)
 	Reviews = models.IntegerField(null=True)
@@ -1079,7 +1089,7 @@ class agg_hhc_service_professional_details(models.Model):#33
 	service_tax = models.FloatField(null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 	designation = models.CharField(max_length=50,null=True)
@@ -1101,7 +1111,7 @@ class agg_hhc_jobclosure_detail_datewise(models.Model):#35
 	added_by = models.BigIntegerField(null=True)
 	added_by_type = enum.EnumField(reg_source_enum,null=True)
 	status = enum.EnumField(status_enum,null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 
 # class agg_hhc_jobclosure_detail_datewise_old(models.Model):#36
 # 	jclose_dt_d_wise_old_id = models.AutoField(primary_key = True)
@@ -1115,7 +1125,7 @@ class agg_hhc_jobclosure_detail_datewise(models.Model):#35
 # 	Endtime = models.CharField(max_length=240,null=True)
 # 	added_by = models.BigIntegerField(null=True)
 # 	status = enum.EnumField(status_enum,null=True)
-# 	added_date = models.DateField(null=True)
+# 	added_date = models.DateField(default=timezone.now,null=True)
 
 class agg_hhc_job_closure(models.Model):#37
 	jclose_id = models.AutoField(primary_key = True)
@@ -1143,7 +1153,7 @@ class agg_hhc_job_closure(models.Model):#37
 	job_closure_file = models.CharField(max_length=255,null=True)
 	# status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -1155,7 +1165,7 @@ class agg_hhc_job_closure_consumption_mapping(models.Model):#38
 	unit_quantity = models.CharField(max_length=255,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -1183,7 +1193,7 @@ class agg_hhc_feedback_answers(models.Model):#40
 	user_type = enum.EnumField(user_type_enum,null=True)
 	service_date = models.DateField(null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -1194,7 +1204,7 @@ class agg_hhc_feedback_form(models.Model):#41
 	status = enum.EnumField(status_enum,null=True)
 	isDelStatus = models.BigIntegerField(null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -1202,7 +1212,7 @@ class agg_hhc_feedback_for_app(models.Model):#42
 	fb_for_app_id = models.AutoField(primary_key = True)
 	feedback = models.CharField(max_length=200,null=True)
 	professional_id = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 
 class agg_hhc_feedback_options(models.Model):#43
 	fb_opt_id = models.AutoField(primary_key = True)
@@ -1210,7 +1220,7 @@ class agg_hhc_feedback_options(models.Model):#43
 	option_value = models.CharField(max_length=20,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 
@@ -1242,21 +1252,21 @@ class agg_hhc_membership_schedule_detail(models.Model):#45
 	membership_card = models.CharField(max_length=50,null=True)
 	document = models.CharField(max_length=200,null=True)
 	added_by = models.CharField(max_length=10,null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modify_by = models.CharField(max_length=10,null=True)
 	modify_date = models.DateField(null=True)
 	status = enum.EnumField(status_enum,null=True)
 
-class agg_hhc_professional_scheduled(models.Model):#46
+class agg_hhc_professional_scheduled(models.Model):#46  THIS WILL WE USED TO STORE DATA IN CALENDAR
 	prof_sche_id = models.AutoField(primary_key = True)
-	professiona_id = models.BigIntegerField(null=True)
+	srv_prof_id = models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
 	scheduled_date = models.DateField(null=True)
-	from_time = models.CharField(max_length=240,null=True)
-	to_time = models.CharField(max_length=240,null=True)
+	from_time = models.DateTimeField(max_length=240,null=True)
+	to_time = models.DateTimeField(max_length=240,null=True)
 	is_night_shift = enum.EnumField(yes_no_enum,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_by = models.BigIntegerField(null=True)
 	modified_date = models.DateField(null=True)
 
@@ -1279,7 +1289,7 @@ class agg_hhc_reschedule_session(models.Model):#47
 	patient_acceptance_narration = models.CharField(max_length=255,null=True)
 	added_user_id = models.BigIntegerField(null=True)
 	added_user_type = enum.EnumField(user_types_enum,null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	modified_user_id = models.BigIntegerField(null=True)
 	modified_user_type = enum.EnumField(user_types_enum,null=True)
 	modified_date = models.DateField(null=True)
@@ -1315,7 +1325,7 @@ class agg_hhc_payments_received_by_professional(models.Model):#48
 
 class agg_hhc_professional_availability(models.Model):#49
 	professional_avaibility_id = models.AutoField(primary_key = True)
-	prof_srv_id = models.IntegerField(null=True)
+	prof_srv_id = models.IntegerField(null=True) #agg_hhc_professional_services
 	day = models.CharField(max_length=8,null=True)
 
 # ------------------------------------------------------------------------------------------------------------------
@@ -1445,7 +1455,7 @@ class agg_hhc_professional_availability_detail(models.Model):#50
     #prof_avaib_id=models.ForeignKey(agg_hhc_professional_availability,on_delete=models.CASCADE,null=True)
     start_time=models.TimeField(null=True)
     end_time=models.TimeField(null=True)
-    #professional_location_id=models.ForeignKey(agg_hhc_professional_location,on_delete=models.CASCADE,null=True)
+    #professional_zone_id=models.ForeignKey(agg_hhc_professional_zone,on_delete=models.CASCADE,null=True)
 
 class agg_hhc_professional_device_info(models.Model):#51
     prof_devi_info_id=models.AutoField(primary_key=True)
@@ -1457,7 +1467,7 @@ class agg_hhc_professional_device_info(models.Model):#51
     DeviceCurrentTimestamp=models.DateTimeField(null=True)
     Token=models.CharField(max_length=1000,null=True)
     ModelName=models.CharField(max_length=100,null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
 
 class agg_hhc_professional_documents(models.Model):#52
     prof_doc_id=models.AutoField(primary_key=True)
@@ -1468,22 +1478,24 @@ class agg_hhc_professional_documents(models.Model):#52
     status=enum.EnumField(documents_enum,null=True)
     isVerified=enum.EnumField(truefalse_enum,null=True)
 
-class agg_hhc_professional_location(models.Model):#53
-    prof_loc_id=models.AutoField(primary_key=True)
+class agg_hhc_professional_zone(models.Model):#53 Zones 
+    prof_zone_id=models.AutoField(primary_key=True)
     #prof_srv_id=models.ForeignKey(agg_hhc_professional_services,on_delete=models.CASCADE,null=True)
     Name=models.CharField(max_length=50,null=True)
+    def __str__(self):
+	    return f'{self.Name}'
 
 class agg_hhc_professional_location_details(models.Model):#54
     prof_loc_dt_id=models.AutoField(primary_key=True)
     lattitude=models.FloatField(null=True)
     longitude=models.FloatField(null=True)
     location_name=models.TextField(null=True)
-    #prof_loc_id=models.ForeignKey(agg_hhc_professional_location,on_delete=models.CASCADE,null=True)
+    prof_zone_id=models.ForeignKey(agg_hhc_professional_zone,on_delete=models.CASCADE,null=True)
 
 class agg_hhc_professional_location_preferences(models.Model):#55
     prof_loc_pref_id=models.AutoField(primary_key=True)
     #srv_prof_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
-    prof_loc_id=models.ForeignKey(agg_hhc_professional_location,on_delete=models.CASCADE,null=True)
+    prof_zone_id=models.ForeignKey(agg_hhc_professional_zone,on_delete=models.CASCADE,null=True)
     max_latitude=models.FloatField(null=True)
     min_latitude=models.FloatField(null=True)
     max_longitude=models.FloatField(null=True)
@@ -1497,7 +1509,7 @@ class agg_hhc_professional_media(models.Model):#56
     types=enum.EnumField(pic_enum,null=True)
     path=models.CharField(max_length=200,null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     thumbnail_path=models.CharField(max_length=200,null=True)
 
 class agg_hhc_professional_notification(models.Model):#57
@@ -1510,7 +1522,7 @@ class agg_hhc_professional_notification(models.Model):#57
     Acknowledged=enum.EnumField(prof_enum,null=True)
     added_date=models.DateTimeField(null=True)
     added_by=models.IntegerField(null=True)
-    last_modify_date=models.DateTimeField(null=True,blank=True)
+    last_modify_date=models.DateTimeField(default=timezone.now,null=True,blank=True)
     last_modify_by=models.IntegerField(null=True,blank=True)
 
 class agg_hhc_professional_password(models.Model):#58
@@ -1546,7 +1558,7 @@ class agg_hhc_admin_users(models.Model):#60
     status=enum.EnumField(status_enum,null=True)
     isDelStatus=models.IntegerField(null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
     last_login_time=models.DateTimeField(null=True,blank=True)
@@ -1557,7 +1569,7 @@ class agg_hhc_admin_users_modules(models.Model):#61
     #module_id=models.ForeignKey(agg_hhc_modules,on_delete=models.CASCADE,null=True)
     status=enum.EnumField(status_enum,null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
 
@@ -1566,7 +1578,7 @@ class agg_hhc_admin_user_hospital_mapping(models.Model):#62
     #ad_usr_id=models.ForeignKey(agg_hhc_admin_users,on_delete=models.CASCADE,null=True)
     #hosp_id=models.ForeignKey(agg_hhc_hospitals,on_delete=models.CASCADE,null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
 
@@ -1630,14 +1642,14 @@ class agg_hhc_cheque_images(models.Model):#69
     cq_img_id=models.AutoField(primary_key=True)
     #agg_sp_dt_eve_poc_id=models.ForeignKey(agg_hhc_detailed_event_plan_of_care,on_delete=models.CASCADE,null=True)
     Url_path=models.CharField(max_length=200,null=True)
-    Added_date=models.DateTimeField(null=True)
+    Added_date=models.DateTimeField(default=timezone.now,null=True)
 
 class agg_hhc_city(models.Model):#70
     city_id=models.AutoField(primary_key=True)
     city_name=models.CharField(max_length=100,null=True,unique=True)
     state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True,to_field='state_name')
     Added_by=models.IntegerField(null=True)
-    Added_date=models.DateTimeField(null=True)
+    Added_date=models.DateTimeField(default=timezone.now,null=True)
     def __str__(self):
 	    return self.city_name
 
@@ -1647,7 +1659,7 @@ class agg_hhc_consent_agree_form(models.Model):#71
     p_name=models.CharField(max_length=100,null=True)
     que=models.CharField(max_length=50,null=True)
     note=models.CharField(max_length=100,null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     status=enum.EnumField(is_delet_enum,null=True)
 
 class agg_hhc_consumables(models.Model):#72
@@ -1660,7 +1672,7 @@ class agg_hhc_consumables(models.Model):#72
     sale_price=models.FloatField(null=True)
     status=enum.EnumField(status_enum,null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
 
@@ -1670,7 +1682,7 @@ class agg_hhc_content(models.Model):#73
     content_type=enum.EnumField(content_type_enum,null=True)
     content_value=models.CharField(max_length=500,null=True)
     status=enum.EnumField(status_enum,null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     added_user_id=models.IntegerField(null=True)
     modified_date=models.DateTimeField(null=True,blank=True)
     modified_user_id=models.IntegerField(null=True,blank=True)
@@ -1684,7 +1696,7 @@ class agg_hhc_dash_count_details(models.Model):#74
     till_dia_count=models.CharField(max_length=50,null=True)
     till_month_org_count=models.CharField(max_length=50,null=True)
     till_month_dia_count=models.CharField(max_length=50,null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     status=enum.EnumField(active_inactive_enum,null=True)
 
 class agg_hhc_device_version_info(models.Model):#75
@@ -1694,7 +1706,7 @@ class agg_hhc_device_version_info(models.Model):#75
     location_path=models.CharField(max_length=200,null=True)
     compulsory_version=models.CharField(max_length=20,null=True)
     status=enum.EnumField(active_inactive_enum,null=True)
-    Added_date=models.DateTimeField(null=True)
+    Added_date=models.DateTimeField(default=timezone.now,null=True)
 
 class agg_hhc_doctors_consultants(models.Model):#76
     doct_cons_id=models.AutoField(primary_key=True)
@@ -1719,7 +1731,7 @@ class agg_hhc_doctors_consultants(models.Model):#76
     status=enum.EnumField(consultant_status_enum,null=True)
     #isDelStatus=models.IntegerField(null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
 
@@ -1727,7 +1739,7 @@ class agg_hhc_documetns_list(models.Model):#77
     doc_li_id=models.AutoField(primary_key=True)
     professional_type=models.IntegerField(null=True)
     Documents_name=models.CharField(max_length=50,null=True)
-    Added_date=models.DateTimeField(null=True)
+    Added_date=models.DateTimeField(default=timezone.now,null=True)
     isManadatory=enum.EnumField(truefalse_enum,null=True)
     gracePeriod=models.IntegerField(null=True)
 
@@ -1740,7 +1752,7 @@ class agg_hhc_doc_con(models.Model):#78
     sug=models.CharField(max_length=100,null=True)
     note=models.CharField(max_length=100,null=True)
     complaints=models.CharField(max_length=100,null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     status=enum.EnumField(is_delet_enum,null=True)
 
 class agg_hhc_employees(models.Model):#79
@@ -1768,7 +1780,7 @@ class agg_hhc_employees(models.Model):#79
     is_login=enum.EnumField(is_delet_enum,null=True)
     isDelStatus=models.IntegerField(null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
     last_login=models.DateTimeField(null=True,blank=True)
@@ -1784,7 +1796,7 @@ class agg_hhc_emp_spero(models.Model):#80
     added_by=models.CharField(max_length=10,null=True)
     last_modified_by=models.CharField(max_length=10,null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
-    added_date=models.DateField(null=True)
+    added_date=models.DateField(default=timezone.now,null=True)
     bitrthday_greeting=models.CharField(max_length=200,null=True)
     anniversary_greeting=models.CharField(max_length=200,null=True)
 
@@ -1797,7 +1809,7 @@ class agg_hhc_enquiry_follow_up(models.Model):#81
     follow_up_status=enum.EnumField(status_enum,null=True)
     follow_up_next_date=models.DateField(null=True,blank=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
     is_read_status=enum.EnumField(is_delet_enum,null=True)
@@ -1820,7 +1832,7 @@ class agg_hhc_hospitals(models.Model):#83
     status=enum.EnumField(status_enum,null=True)
     #isDelStatus=
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
     
@@ -1833,7 +1845,7 @@ class agg_hhc_hospital_ips(models.Model):#84
     hospital_ip=models.CharField(max_length=240)
     status=enum.EnumField(status_enum,null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
 
@@ -1844,18 +1856,18 @@ class agg_hhc_knowledge_base_documents(models.Model):#85
     status=enum.EnumField(status_enum,null=True)
     isDelStatus=models.IntegerField(null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
 
-class agg_hhc_locations(models.Model):#86 locality/ zone
+class agg_hhc_locations(models.Model):#86 locality
     loc_id=models.AutoField(primary_key=True)
     location=models.CharField(max_length=255,null=True)
     pin_code=models.CharField(max_length=240,null=True)
     status=enum.EnumField(status_enum,null=True)
     #isDelStatus=
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(blank=True,null=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
     
@@ -1868,7 +1880,7 @@ class agg_hhc_log_location_for_session(models.Model):#87
     #professional_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
     latitude=models.FloatField(null=True)
     longitude=models.FloatField(null=True)
-    Added_date=models.DateTimeField(null=True)
+    Added_date=models.DateTimeField(default=timezone.now,null=True)
 
 class agg_hhc_manager_spero(models.Model):#88
     man_sp_id=models.AutoField(primary_key=True)
@@ -1921,7 +1933,7 @@ class agg_hhc_modules(models.Model):#91
     module_name=models.CharField(max_length=255,null=True)
     status=enum.EnumField(status_enum,null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
 
@@ -1931,7 +1943,7 @@ class agg_hhc_ongoing_remark_history(models.Model):#92
     pat_nm=models.CharField(max_length=100,null=True)
     mobile=models.IntegerField(null=True)
     remark=models.CharField(max_length=100,null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     added_by=models.CharField(max_length=100,null=True)
     status=enum.EnumField(is_delet_enum,null=True)
 
@@ -2012,14 +2024,14 @@ class agg_hhc_restriction_for_session_complete(models.Model):#98
     #distance=models.IntegerField(null=True)
     duration=models.IntegerField(null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     status=enum.EnumField(active_inactive_enum,null=True)
 
 class agg_hhc_session(models.Model):#99
     session_id=models.AutoField(primary_key=True)
     #prof_devi_info_id=models.ForeignKey(agg_hhc_professional_device_info,on_delete=models.CASCADE,null=True)
     #srv_prof_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
-    added_date=models.DateField(null=True)
+    added_date=models.DateField(default=timezone.now,null=True)
     last_modify_date=models.DateField(null=True,blank=True)
     status=enum.EnumField(session_status_enum,null=True)
 
@@ -2036,7 +2048,7 @@ class agg_hhc_source_of_enquiry(models.Model):#101
     name=models.CharField(max_length=255,null=True)
     status=enum.EnumField(status_enum,null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     modified_by=models.IntegerField(null=True,blank=True)
     modified_date=models.DateTimeField(null=True,blank=True)
 
@@ -2046,7 +2058,7 @@ class agg_hhc_specialty(models.Model):#102
     abbreviation=models.CharField(max_length=255,null=True)
     description=models.CharField(max_length=500,null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.DateField(null=True)
+    added_date=models.DateField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
     status=enum.EnumField(status_enum,null=True)
@@ -2070,7 +2082,7 @@ class agg_hhc_tc_examination(models.Model):#103
     phy_note=models.CharField(max_length=100,null=True)
     sys_note=models.CharField(max_length=100,null=True)
     psy_note=models.CharField(max_length=100,null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     mod_date=models.DateField(null=True,blank=True)
     status=enum.EnumField(is_delet_enum,null=True)
 
@@ -2082,7 +2094,7 @@ class agg_hhc_teleconsultation_enquiry(models.Model):#104
     receiver=enum.EnumField(reciver_enum,null=True)
     new_event=models.IntegerField(null=True)
     added_by=models.IntegerField(null=True)
-    added_date=models.IntegerField(null=True)
+    added_date=models.IntegerField(default=timezone.now,null=True)
     status=enum.EnumField(is_delet_enum,null=True)
 
 class agg_hhc_user_activity(models.Model):#105
@@ -2103,7 +2115,7 @@ class agg_hhc_vc_diagnosis(models.Model):#106
     agg_sp_pt_id=models.ForeignKey(agg_hhc_patients,on_delete=models.CASCADE,null=True)
     diagno=models.CharField(max_length=500,null=True)
     phy_assessment=models.CharField(max_length=100,null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     mod_date=models.DateTimeField(null=True,blank=True)
     status=enum.EnumField(is_delet_enum,null=True)
 
@@ -2114,7 +2126,7 @@ class agg_hhc_vc_fam_his(models.Model):#107
     PH_mother=models.CharField(max_length=50,null=True)
     PH_father=models.CharField(max_length=50,null=True)
     note=models.CharField(max_length=100,null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     mod_date=models.DateTimeField(null=True,blank=True)
     status=enum.EnumField(is_delet_enum,null=True)
 
@@ -2128,7 +2140,7 @@ class agg_hhc_vc_investigation(models.Model):#108
     USG=models.CharField(max_length=100,null=True)
     Xray=models.CharField(max_length=100,null=True)
     ECG=models.CharField(max_length=100,null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     mod_date=models.DateTimeField(null=True,blank=True)
     status=enum.EnumField(is_delet_enum,null=True)
 
@@ -2142,7 +2154,7 @@ class agg_hhc_vc_med_his(models.Model):#109
     que4=models.CharField(max_length=100,null=True)
     que5=models.CharField(max_length=100,null=True)
     que6=models.CharField(max_length=100,null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     mod_date=models.DateTimeField(null=True,blank=True)
     status=enum.EnumField(is_delet_enum,null=True)
 
@@ -2152,7 +2164,7 @@ class sp_vc_prescription(models.Model):#110
     #agg_sp_pt_id=models.ForeignKey(agg_hhc_patients,on_delete=models.CASCADE,null=True)
     medicine=models.CharField(max_length=500,null=True)
     remark=models.CharField(max_length=100,null=True)
-    added_date=models.DateTimeField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
     mod_date=models.DateTimeField(null=True,blank=True)
     status=enum.EnumField(is_delet_enum,null=True)
 
@@ -2191,7 +2203,7 @@ class agg_hhc_app_family_details(models.Model):
 	alter_contact = models.BigIntegerField(null=True)
 	Address = models.CharField(max_length=250, null=True)
 	save_this_add = models.CharField(max_length=250, null=True)
-	added_date = models.DateField(null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
 	app_user_id = models.IntegerField(null=True)
 	relation = models.ForeignKey(agg_hhc_caller_relation, on_delete=models.SET_NULL, null=True)
 	status = enum.EnumField(status_enum,null=True)
@@ -2227,7 +2239,7 @@ class agg_hhc_app_patient_documents(models.Model):
 	agg_sp_pt_id = models.IntegerField(null=True)
 	doc_type_name = models.CharField(max_length=100, null=True)
 	path = models.CharField(max_length=500, null=True)
-	added_date = models.DateTimeField(null=True)
+	added_date = models.DateTimeField(default=timezone.now,null=True)
 	status = enum.EnumField(Tf_enum, null=True)
 
 #class agg_hhc_city(models.Model):
@@ -2241,38 +2253,191 @@ class agg_hhc_pincode(models.Model):
 	city_name=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True,to_field='city_name')
 	pincode_number=models.PositiveIntegerField(null=True)
 
-# class agg_hhc_app_caller_register(models.Model):
-# 	id = models.AutoField(primary_key=True)
-# 	fname = models.CharField(max_length=100, null=True)
-# 	lname = models.CharField(max_length=100, null=True)
-# 	email = models.CharField(max_length=100, null=True)
-# 	gender = models.CharField(max_length=20, null=True)
-# 	phone = models.CharField(max_length=20, null=True)
-# 	addr = models.CharField(max_length=100, null=True)
-# 	password = models.CharField(max_length=50, null=True)
-# 	otp = models.IntegerField(null=True)
-# 	added_date = models.DateTimeField(null=True)
-# 	status = enum.EnumField(Tf_enum, null=True)
 
 
-# ['Spero contact centre',
-# 'Deenanath mangeshkar hospital',
-# 'Sancheti hospital',
-# 'Ruby hall clinic',
-# 'Jahangir',
-# 'Inamdar hospital',
-# 'Jahagir Hospital',
-# 'GLOBAL HOSPITAL',
-# 'Bhave hospital',
-# 'Symbiosis university hospital and research centre',
-# 'Satyanand hospital',
-# 'Bhave clinic',
-# 'Kadam clinic',
-# 'Sathya',
-# 'Aashwast services',
-# 'Home Healthcare Community App',
-# 'Gajanan hospital',
-# 'Athashri Pebbles',
-# 'Athashri Condominium',
-# 'Athashri Forest Trails',
-# 'Ashta ALF']
+
+class agg_mas_group(models.Model):
+    grp_id = models.AutoField(primary_key=True, auto_created=True)
+    grp_name = models.CharField(max_length=30, null=True)
+    grp_code = models.CharField(max_length=15, null=True)
+    grp_level = enum.EnumField(level, null=True)
+    grp_parent = models.CharField(max_length=15, null=True)
+    grp_status = enum.EnumField(status_enum, null=True)
+    grp_added_by = models.IntegerField(null=True)
+    grp_added_date = models.DateField(null=True)
+    grp_modify_by = models.IntegerField(null=True)
+    grp_modify_date = models.DateField(null=True)
+
+    def __str__(self):
+        return '%s' %(self.grp_id)
+
+
+
+
+# Custom User Manager
+class agg_colleague_manager(BaseUserManager):
+
+    def create_user(self, clg_ref_id, clg_first_name, clg_mid_name ,clg_last_name ,grp_id , clg_email ,clg_mobile_no ,clg_gender ,clg_address ,clg_is_login ,clg_designation ,clg_state ,clg_division ,clg_district ,clg_break_type ,clg_senior ,clg_hos_id ,clg_agency_id ,clg_status ,clg_added_by ,clg_modify_by ,clg_Date_of_birth ,clg_Work_phone_number ,clg_work_email_id ,clg_Emplyee_code ,clg_qualification,clg_avaya_agentid ,clg_Aadhar_no,clg_specialization ,clg_profile_photo_path ,clg_joining_date ,clg_marital_status, password=None, password2=None):
+        """
+        Creates and saves a User with the given email, name, tc and password.
+        """
+        if not clg_ref_id:
+            raise ValueError('User must have an user id')
+
+        user = self.model(
+            clg_email=self.normalize_email(clg_email),
+            clg_ref_id = clg_ref_id,
+            clg_Emplyee_code = clg_Emplyee_code,
+            clg_hos_id = clg_hos_id,
+            clg_avaya_agentid = clg_avaya_agentid,
+            clg_agency_id = clg_agency_id,
+            clg_first_name = clg_first_name,
+            clg_mid_name = clg_mid_name, 
+            clg_last_name = clg_last_name,
+            grp_id = grp_id,
+            clg_mobile_no = clg_mobile_no,
+            clg_Work_phone_number = clg_Work_phone_number,
+            clg_work_email_id = clg_work_email_id,
+            clg_gender = clg_gender,
+            clg_Date_of_birth = clg_Date_of_birth,
+            clg_designation = clg_designation,
+            clg_qualification = clg_qualification,
+            clg_specialization = clg_specialization,
+            clg_senior = clg_senior,
+            clg_address = clg_address,
+            clg_state = clg_state,
+            clg_division = clg_division,
+            clg_district = clg_district,
+            clg_is_login = clg_is_login,
+            clg_break_type = clg_break_type,
+            clg_Aadhar_no = clg_Aadhar_no,
+            clg_profile_photo_path = clg_profile_photo_path,
+            clg_joining_date = clg_joining_date,
+            clg_status = clg_status,
+            clg_marital_status = clg_marital_status,
+            clg_added_by = clg_added_by ,
+            clg_modify_by = clg_modify_by
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, clg_ref_id, clg_first_name, clg_mid_name ,clg_last_name, grp_id ,clg_email ,clg_mobile_no ,clg_gender ,clg_address ,clg_is_login ,clg_designation ,clg_state ,clg_division ,clg_district ,clg_break_type ,clg_senior ,clg_hos_id ,clg_agency_id ,clg_status ,clg_added_by ,clg_modify_by ,clg_Date_of_birth ,clg_Work_phone_number ,clg_work_email_id ,clg_Emplyee_code ,clg_qualification,clg_avaya_agentid ,clg_Aadhar_no,clg_specialization, clg_profile_photo_path ,clg_joining_date ,clg_marital_status, password=None):
+        """Creates and saves a superuser with the given email, name, tc and password."""
+        user = self.create_user(
+            clg_email=clg_email,
+            password=password,
+            clg_ref_id = clg_ref_id,
+            clg_Emplyee_code = clg_Emplyee_code,
+            clg_hos_id = clg_hos_id,
+            clg_avaya_agentid = clg_avaya_agentid,
+            clg_agency_id = clg_agency_id,
+            clg_first_name = clg_first_name,
+            clg_mid_name = clg_mid_name, 
+            clg_last_name = clg_last_name,
+            grp_id = grp_id,
+            clg_mobile_no = clg_mobile_no,
+            clg_Work_phone_number = clg_Work_phone_number,
+            clg_work_email_id = clg_work_email_id,
+            clg_gender = clg_gender,
+            clg_Date_of_birth = clg_Date_of_birth,
+            clg_designation = clg_designation,
+            clg_qualification = clg_qualification,
+            clg_specialization = clg_specialization,
+            clg_senior = clg_senior,
+            clg_address = clg_address,
+            clg_state = clg_state,
+            clg_division = clg_division,
+            clg_district = clg_district,
+            clg_is_login = clg_is_login,
+            clg_break_type = clg_break_type,
+            clg_Aadhar_no = clg_Aadhar_no,
+            clg_profile_photo_path = clg_profile_photo_path,
+            clg_joining_date = clg_joining_date,
+            clg_status = clg_status,
+            clg_marital_status = clg_marital_status,
+            clg_added_by = clg_added_by ,
+            clg_modify_by = clg_modify_by
+        )
+        user.is_admin = True
+        user.save(using=self._db)
+        return user
+
+
+class agg_com_colleague(AbstractBaseUser):
+    # clg_id = models.AutoField(primary_key=True, auto_created=True)
+    clg_ref_id = models.CharField(max_length=15,unique=True, null=True)
+    clg_email = models.EmailField(
+        verbose_name='email address',
+        max_length=255,
+        unique=True,
+        null= True
+    )
+    clg_work_email_id =	models.EmailField(max_length=100, null=True)
+    clg_hos_id = models.IntegerField(null=True)
+    clg_agency_id =	models.IntegerField(null=True)
+    clg_Emplyee_code =	models.CharField(max_length=15, null=True)
+    clg_avaya_agentid =	models.IntegerField(null=True)
+    clg_first_name = models.CharField(max_length=15, null=True)
+    clg_mid_name =	models.CharField(max_length=15, null=True)
+    clg_last_name =	models.CharField(max_length=15, null=True)
+    # grp_id = models.IntegerField(null=True)
+    grp_id = models.ForeignKey(agg_mas_group,related_name='clg_group', on_delete=models.CASCADE, null=True, default=None)
+    clg_gender = models.CharField(max_length=15, null=True)
+    clg_mobile_no =	models.IntegerField(null=True)
+    clg_Work_phone_number =	models.IntegerField(null=True)
+    clg_Date_of_birth =	models.DateField(null=True)
+    clg_Aadhar_no =	models.BigIntegerField(null=True)
+    clg_designation = models.CharField(max_length=15, null=True)
+    clg_qualification =	models.CharField(max_length=15, null=True)
+    clg_specialization = models.CharField(max_length=15, null=True)
+    clg_address = models.CharField(max_length=100, null=True)
+    clg_state =	models.IntegerField(null=True)
+    clg_division =	models.IntegerField(null=True)
+    clg_district =	models.IntegerField(null=True)
+    clg_senior = models.CharField(max_length=15, null=True)
+    clg_break_type = models.IntegerField(null=True)
+    clg_status = models.CharField(max_length=15, default=True, null=True)    
+    clg_profile_photo_path = models.CharField(max_length=100, null=True)
+    clg_joining_date =	models.CharField(max_length=30, null=True)
+    clg_marital_status = models.CharField(max_length=15, null=True)
+    is_active = models.BooleanField(default=True)
+    clg_is_login =	models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    clg_added_by =	models.IntegerField(null=True)
+    clg_added_date = models.DateField(auto_now_add=True)
+    clg_modify_by =	models.IntegerField(null=True)
+    clg_modify_date = models.DateField(auto_now=True, null=True)
+
+    username = None
+    email = None
+
+    objects = agg_colleague_manager()
+
+    EMAIL_FIELD = 'clg_email'
+    GROUP_FIELD = 'grp_id'
+    USERNAME_FIELD = 'clg_ref_id'
+
+    REQUIRED_FIELDS = ['grp_id','clg_first_name', 'clg_mid_name' ,'clg_last_name' ,'clg_email' ,'clg_mobile_no', 'clg_gender' ,'clg_address' ,'clg_is_login' ,'clg_designation' ,'clg_state' ,'clg_division' ,'clg_district' ,'clg_break_type' ,'clg_senior' ,'clg_hos_id' ,'clg_agency_id' ,'clg_status' ,'clg_added_by' ,'clg_modify_by' ,'clg_Date_of_birth' ,'clg_Work_phone_number' ,'clg_work_email_id' ,'clg_Emplyee_code' ,'clg_qualification','clg_avaya_agentid' ,'clg_Aadhar_no','clg_specialization', 'clg_profile_photo_path' ,'clg_joining_date' ,'clg_marital_status',]
+
+    def __str__(self):
+        return self.clg_ref_id
+
+    def has_perm(self, perm, obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
+        return self.is_admin
+
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        # Simplest possible answer: Yes, always
+        return True
+
+    @property
+    def is_staff(self):
+        "Is the user a member of staff?"
+        # Simplest possible answer: All admins are staff
+        return self.is_admin

@@ -161,3 +161,6 @@ dmypy.json
 cython_debug/
 
 # PyCharm
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
