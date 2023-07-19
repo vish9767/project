@@ -12,8 +12,8 @@ class agg_hhc_caller_relation_api(APIView):
     def get(self,request):
         courses = models.agg_hhc_caller_relation.objects.filter(status=1)
         serializer = serializers.agg_hhc_caller_relation_serializer(courses, many=True)
-        return Response(serializer.data)
-    
+        return Response(serializer.data)    
+
 class agg_hhc_locations_api(APIView):
     def get(self,request):
         courses = models.agg_hhc_locations.objects.filter(status=1)
@@ -140,13 +140,31 @@ class agg_hhc_patinet_list_enquiry_put(APIView):
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class agg_hhc_add_service_details_api(APIView):
-    def post(self,request,pk):
-        serialized=serializers.agg_hhc_add_service_serializer(data=request.data)
-        if(serialized.is_valid()):
-            serialized.save()
-            return Response(serialized.data,status=status.HTTP_201_CREATED)
-        return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
-    
+    def post(self,request):
+        event = models.agg_hhc_events(purp_call_id=request.data['purp_call_id'])
+        event.save()
+        print(event,'lLlllllllllllllllllll')
+        # if(event.is_valid()):
+        #     serialized=serializers.agg_hhc_add_service_serializer(data=request.data['srv_id','pt_id', 'sub_srv_id', 'start_date', 'end_date','prof_prefered', 'srv_prof_id'])
+        #     finalcost=serializers.agg_hhc_add_discount_serializer(data=request.data['discount_type', 'discount','total_cost','final_cost'])
+        #     if(serialized.is_valid() and finalcost.is_valid()):
+        #         serialized.save()
+        #         finalcost.save()
+        #     return Response(serialized.data,finalcost.data,status=status.HTTP_201_CREATED)
+        # return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+        # else:
+        #     return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+        # if(finalcost.is_valid()):
+        #     finalcost.save()
+        return Response({"event":event},)
+        
+        #     return Response(serialized.data,finalcost.data,status=status.HTTP_201_CREATED)
+        # return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+
+    # def add_detail_event(self, request):
+
+        
+
 class agg_hhc_service_professional_details(APIView):
     def get(self,request):
         records=models.agg_hhc_service_professional_details.all()
@@ -311,7 +329,6 @@ class calculate_discount_api(APIView):
         else: return Response({"final_amount":total_amt})
 
 
-
 class calculate_total_amount(APIView):
     def get(self, request):
         print(request.data)
@@ -327,3 +344,20 @@ class calculate_total_amount(APIView):
         except ValueError:
             return Response({'error': 'Invalid date format'}, status=400)
         
+class Service_requirment_api(APIView):
+    def get_service(self,pk):
+        return models.agg_hhc_event_plan_of_care.objects.filter(pk)
+    def get(self,pk):
+        service = self.get_service(pk)
+        if service:
+            services = serializers.agg_hhc_add_service_serializer(service)
+            return Response({"services":services.data})
+        else:
+            return Response({"error":"user service not found"})
+        
+    def put(self, request, pk):
+        service = self.get_service(pk)
+        serializer = serializers.agg_hhc_add_service_serializer(service, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

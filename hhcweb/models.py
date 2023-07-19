@@ -1,6 +1,7 @@
 from django.db import models
 from django_enumfield import enum
 from rest_framework import status
+from datetime import date
 
 # Create your models here.
 
@@ -281,12 +282,12 @@ class agg_hhc_patinet_list_enquiry(models.Model):#1
 	google_location = models.CharField(max_length=200,null=True)
 	patient_contact = models.CharField(max_length=10,null=True)
 	patient_email=models.EmailField(null=True)
-	mainService = models.CharField(max_length=11,null=True)
-	sub_service = models.CharField(max_length=11,null=True)
-	Start_Date_and_Time=models.DateTimeField(null=True)
-	End_Date_and_Time=models.DateTimeField(null=True)
-	Professional_Preferred=models.CharField(max_length=100,null=True)
-	note = models.CharField(max_length=50,null=True)
+	# mainService = models.CharField(max_length=11,null=True)
+	# sub_service = models.CharField(max_length=11,null=True)
+	# Start_Date_and_Time=models.DateTimeField(null=True)
+	# End_Date_and_Time=models.DateTimeField(null=True)
+	# Professional_Preferred=models.CharField(max_length=100,null=True)
+	# note = models.CharField(max_length=50,null=True)
 	status = models.CharField(max_length=2,null=True)
 	added_date = models.DateField(null=True)
 	enquiry_from = enum.EnumField(enquiry_from_enum,null=True)
@@ -631,13 +632,13 @@ class agg_hhc_detailed_event_plan_of_care(models.Model):#8
 
 class agg_hhc_events(models.Model):#9
 	eve_id = models.AutoField(primary_key = True)
-	event_code = models.CharField(max_length=640,null=True)
+	event_code = models.CharField(max_length=640,null=True,blank=True)
 	caller_id = models.BigIntegerField(null=True)
-	relation = models.CharField(max_length=64,null=True)
-	pt_id = models.ForeignKey(agg_hhc_patinet_list_enquiry, on_delete=models.CASCADE, null=True)
+	# relation = models.CharField(max_length=64,null=True)
+	# pt_id = models.ForeignKey(agg_hhc_patinet_list_enquiry, on_delete=models.CASCADE, null=True)
 	purp_call_id = models.BigIntegerField(null=True)
 	bill_no_ref_no = models.BigIntegerField(null=True)
-	event_date = models.DateField(null=True)
+	event_date = models.DateTimeField(auto_now_add=True,null=True)
 	note = models.CharField(max_length=500,null=True)
 	service_date_of_Enquiry = models.DateField(null=True)
 	enquiry_added_date = models.DateField(null=True)
@@ -651,9 +652,9 @@ class agg_hhc_events(models.Model):#9
 	discount_value = models.FloatField(null=True)
 	discount_amount = models.FloatField(null=True)
 	status = enum.EnumField(status_enum,null=True)
-	inc_call_id = models.CharField(max_length=100,null=True)
+	# inc_call_id = models.CharField(max_length=100,null=True)
 	# event_status = enum.EnumField(event_status_enum,null=True)
-	estimate_cost = enum.EnumField(estimate_cost_enum,null=True)
+	# estimate_cost = enum.EnumField(estimate_cost_enum,null=True)
 	isArchive = enum.EnumField(yes_no_enum,null=True)
 	isConvertedService = enum.EnumField(yes_no_enum,null=True)
 	isDelStatus = models.BigIntegerField(null=True)
@@ -664,18 +665,46 @@ class agg_hhc_events(models.Model):#9
 	added_date = models.DateField(null=True)
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
-	purpose_event_id = models.BigIntegerField(null=True)
+	# purpose_event_id = models.BigIntegerField(null=True)
 	branch_code = models.CharField(max_length=50,null=True)
 	hosp_id = models.BigIntegerField(null=True)
 	suffer_from = models.CharField(max_length=200,null=True)
 	hosp_id = models.CharField(max_length=30,null=True)
 	ref_hos_nm = models.CharField(max_length=50,null=True)
-	Tally_Remark = models.BigIntegerField(null=True)
-	Payment_type = enum.EnumField(Payment_type_enum,null=True)
+	# Tally_Remark = models.BigIntegerField(null=True)
+	# Payment_type = enum.EnumField(Payment_type_enum,null=True)
 	OTP = models.CharField(max_length=11,null=True)
 	OTP_count = models.IntegerField(null=True)
 	otp_expire_time = models.DateField(null=True)
 	sor_of_enq_id = models.BigIntegerField(null=True)
+
+	def save(self, *args, **kwargs):
+		if not self.eve_id:
+			last_pt = agg_hhc_events.objects.order_by('-eve_id').first()
+			prefix=str(date.today()).replace('-','')
+			if last_pt and last_pt.event_code[:-4]==prefix:
+				last_sequence = int(last_pt.event_code[-4:]) + 1  
+			else:last_sequence= 1
+			self.event_code = f"{prefix}{last_sequence:04d}"
+			return super().save(*args, **kwargs)
+	# def save(self, *args, **kwargs):
+	# 	if not self.eve_id:
+	# 		last_pt = agg_hhc_events.objects.order_by('-eve_id').first()
+	# 		prefix = str(date.today()).replace('-', '')
+	# 		if last_pt and last_pt.event_code[:-4] == prefix:
+	# 			last_sequence = int(last_pt.event_code[-4:]) + 1
+	# 		else:
+	# 			last_sequence = 1
+	# 			self.event_code = f"{prefix}{last_sequence:04d}"
+
+    #     # Format the datetime to "yyyy-mm-dd hh:min"
+	# 	if self.event_date:
+	# 		formatted_date = self.event_date.strftime('%Y-%m-%d %H:%M')
+	# 		self.event_date = formatted_date
+	# 	return super(agg_hhc_events, self).save(*args, **kwargs)
+
+
+
 
 class agg_hhc_event_consultant_call(models.Model):#10
 	eve_cons_call_id = models.AutoField(primary_key = True)
@@ -748,10 +777,6 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 	end_date = models.CharField(max_length=240,null=True)
 	service_cost = models.FloatField(null=True)
 	prof_prefered = enum.EnumField(pt_gender_enum,null=True) # updated
-	discount_type = enum.EnumField(discount_type_enum,null=True) # new added
-	discount = models.IntegerField(null=True,default=0) #updated
-	total_cost = models.IntegerField(null=True)
-	final_cost = models.IntegerField(null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
 	added_date = models.DateField(null=True)
@@ -1912,7 +1937,7 @@ class agg_hhc_ongoing_remark_history(models.Model):#92
 
 class agg_hhc_payments(models.Model):#93
     pay_id=models.AutoField(primary_key=True)
-    #event_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
+    event_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
     cheque_DD_NEFT_no=models.CharField(max_length=50,null=True)
     cheque_DD_NEFT_date=models.DateField(null=True)
     party_bank_name=models.CharField(max_length=50,null=True)

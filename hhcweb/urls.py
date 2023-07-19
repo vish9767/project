@@ -29,6 +29,7 @@ urlpatterns = [
     path('Caller_details_api/<int:pk>', views.Caller_details_api.as_view()),
     path('patient_detail_info_api/<int:pk>', views.patient_detail_info_api.as_view()),
     path('calculate_total_amount',views.calculate_total_amount.as_view()),
-    path('calculate_discount_api',views.calculate_discount_api.as_view())
+    path('calculate_discount_api',views.calculate_discount_api.as_view()),
+    path('Service_requirment_api', views.Service_requirment_api.as_view())
 
 ]
