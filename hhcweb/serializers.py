@@ -1,5 +1,52 @@
 from rest_framework import serializers
 from hhcweb import models
+from hhcweb.models import agg_com_colleague
+
+
+# We are writing this because we need confirm password field in our Registration Request
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    password2 = serializers.CharField(style={'input_type':'password'}, write_only=True)
+    # grp_id = serializers.PrimaryKeyRelatedField(queryset=agg_mas_group.objects.all(),many=False)
+    
+    class Meta:
+        model  = agg_com_colleague
+        fields = ['pk','clg_ref_id', 'clg_first_name', 'clg_mid_name' ,'clg_last_name' ,'grp_id' ,'clg_email' ,'clg_mobile_no' ,'clg_gender' ,'clg_address' ,'clg_is_login' ,'clg_designation' ,'clg_state' ,'clg_division' ,'clg_district' ,'clg_break_type' ,'clg_senior' ,'clg_hos_id' ,'clg_agency_id' ,'clg_status' ,'clg_added_by' ,'clg_modify_by' ,'clg_Date_of_birth' ,'clg_Work_phone_number' ,'clg_work_email_id' ,'clg_Emplyee_code' ,'clg_qualification','clg_avaya_agentid' ,'clg_Aadhar_no','clg_specialization', 'clg_profile_photo_path' ,'clg_joining_date' ,'clg_marital_status', 'password','password2']
+
+        extra_kwargs = {
+            'password':{'write_only':True}
+        }
+        
+    def validate(self, data):
+        password = data.get('password')
+        password2 = data.get('password2')
+        if password != password2:
+            raise serializers.ValidationError('Password and Confirm Password does not match')
+
+        return data
+    
+    def create(self, validated_data):
+        group_data = validated_data.pop('grp_id')
+        validated_data['grp_id'] = group_data
+        user = agg_com_colleague.objects.create_user(**validated_data)
+        user.save()
+        return user
+
+
+class UserLoginSerializer(serializers.ModelSerializer):
+    clg_ref_id = serializers.CharField(required=False, allow_blank=True)
+    password = serializers.CharField(style={'input_type': 'password'})
+    class Meta:
+        model = agg_com_colleague
+        fields = ['clg_ref_id', 'password']
+
+
+
+
+
+
+
+
+
 
 #---------------------------------------------- Sandip ----------------------------------------------------------
 class agg_hhc_caller_relation_serializer(serializers.ModelSerializer):
@@ -185,3 +232,10 @@ class agg_hhc_professional_scheduled_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_professional_scheduled
         fields=('srv_prof_id','scheduled_date','from_time','to_time')
+
+#------------------------------------agg_hhc_event_professional---------------------
+
+class agg_hhc_event_professional_serializer(serializers.ModelSerializer):
+    class Meta:
+        models=models.agg_hhc_event_professional
+        fields=('eve_prof_id','eve_id','eve_req_id','srv_prof_id','eve_poc_id','srv_id')
