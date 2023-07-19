@@ -5,16 +5,81 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from hhcweb import serializers
 from hhcweb import models
-from rest_framework import status
+import json
+from rest_framework import status,permissions
 from django.utils import timezone
+from hhcweb.serializers import UserRegistrationSerializer,UserLoginSerializer
+from django.contrib.auth import authenticate
+from hhcweb.renders import UserRenderer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
+
+
+
+
+
+
+
+# Generate Token Manually
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    group = str(user.grp_id)
+    if group:
+            incs=models.agg_mas_group.objects.get(grp_id=group)
+            group = incs.grp_name
+    return {
+        "refresh" : str(refresh),
+        "access" : str(refresh.access_token),
+        "colleague": {
+                'id': user.id,
+                'first_name': user.clg_first_name,
+                'last_name': user.clg_last_name,
+                'email': user.clg_email,
+                'clg_group': group
+            },
+        "user_group" :group,
+    } 
+
+class UserRegistrationView(APIView):
+    renderer_classes = [UserRenderer]
+    def post(self, request, format=None):
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.save()
+            token = get_tokens_for_user(user)
+            print(token)
+            return Response({'token':token,'msg':'Registration Successful'},status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class UserLoginView(APIView):
+    renderer_classes = [UserRenderer]
+    def post(self, request, format=None):
+        serializer = UserLoginSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            clg_ref_id = serializer.data.get('clg_ref_id')
+            password = serializer.data.get('password')
+            print(clg_ref_id, password)
+            user = authenticate(clg_ref_id=clg_ref_id, password=password)
+            if user is not None:
+                token = get_tokens_for_user(user)
+                return Response({'token':token,'msg':'Logged in Successfully'},status=status.HTTP_200_OK)
+            else:
+                return Response({'errors':{'non_field_errors':['UserId or Password is not valid']}},status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
     
 class agg_hhc_caller_relation_api(APIView):
     def get(self,request):
         courses = models.agg_hhc_caller_relation.objects.filter(status=1)
         serializer = serializers.agg_hhc_caller_relation_serializer(courses, many=True)
-        return Response(serializer.data)
-    
+        return Response(serializer.data)    
+
 class agg_hhc_locations_api(APIView):
     def get(self,request):
         courses = models.agg_hhc_locations.objects.filter(status=1)
@@ -28,7 +93,6 @@ class agg_hhc_services_api(APIView):
         return Response(serializer.data)
 
 class agg_hhc_sub_services_api(APIView):
-
     def get(self,request,pk,format=None):
         sub_service=models.agg_hhc_sub_services.objects.filter(srv_id=pk)
         serializer=serializers.agg_hhc_sub_services_serializer(sub_service,many=True)
@@ -58,6 +122,7 @@ class agg_hhc_patients_api(APIView):
         if(old_patient is None):
             serializer=serializers.agg_hhc_patients_serializer(data=request.data)
             if serializer.is_valid():
+                
                 serializer.save()
                 return Response(serializer.data,status=status.HTTP_201_CREATED)
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
@@ -141,13 +206,31 @@ class agg_hhc_patinet_list_enquiry_put(APIView):
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class agg_hhc_add_service_details_api(APIView):
-    def post(self,request,pk):
-        serialized=serializers.agg_hhc_add_service_serializer(data=request.data)
-        if(serialized.is_valid()):
-            serialized.save()
-            return Response(serialized.data,status=status.HTTP_201_CREATED)
-        return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
-    
+    def post(self,request):
+        event = models.agg_hhc_events(purp_call_id=request.data['purp_call_id'])
+        event.save()
+        print(event,'lLlllllllllllllllllll')
+        # if(event.is_valid()):
+        #     serialized=serializers.agg_hhc_add_service_serializer(data=request.data['srv_id','pt_id', 'sub_srv_id', 'start_date', 'end_date','prof_prefered', 'srv_prof_id'])
+        #     finalcost=serializers.agg_hhc_add_discount_serializer(data=request.data['discount_type', 'discount','total_cost','final_cost'])
+        #     if(serialized.is_valid() and finalcost.is_valid()):
+        #         serialized.save()
+        #         finalcost.save()
+        #     return Response(serialized.data,finalcost.data,status=status.HTTP_201_CREATED)
+        # return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+        # else:
+        #     return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+        # if(finalcost.is_valid()):
+        #     finalcost.save()
+        return Response({"event":event},)
+        
+        #     return Response(serialized.data,finalcost.data,status=status.HTTP_201_CREATED)
+        # return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+
+    # def add_detail_event(self, request):
+
+        
+
 class agg_hhc_service_professional_details(APIView):
     def get(self,request):
         records=models.agg_hhc_service_professional_details.all()
@@ -269,6 +352,7 @@ class Caller_details_api(APIView):
         caller = self.get_object(pk)
         callerSerializer = serializers.Caller_details_serializer(caller,data = request.data)
         if callerSerializer.is_valid():
+            callerSerializer.validated_data['last_modified_date']=timezone.now()
             callerSerializer.save()
             return Response(callerSerializer.data)
         return Response(callerSerializer.errors)
@@ -295,6 +379,7 @@ class patient_detail_info_api(APIView):
         patient = self.get_patient(pk)
         serializer = serializers.patient_detail_serializer(patient, data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.validated_data['last_modified_date'] = timezone.now() #old_patient.hhc_code
         serializer.save()
         return Response(serializer.data)
 
@@ -320,7 +405,6 @@ class calculate_discount_api(APIView):
         else: return Response({"final_amount":total_amt})
 
 
-
 class calculate_total_amount(APIView):
     def get(self, request):
         print(request.data)
@@ -336,6 +420,23 @@ class calculate_total_amount(APIView):
         except ValueError:
             return Response({'error': 'Invalid date format'}, status=400)
         
+class Service_requirment_api(APIView):
+    def get_service(self,pk):
+        return models.agg_hhc_event_plan_of_care.objects.filter(pk)
+    def get(self,pk):
+        service = self.get_service(pk)
+        if service:
+            services = serializers.agg_hhc_add_service_serializer(service)
+            return Response({"services":services.data})
+        else:
+            return Response({"error":"user service not found"})
+        
+    def put(self, request, pk):
+        service = self.get_service(pk)
+        serializer = serializers.agg_hhc_add_service_serializer(service, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 #------------------------------agg_hhc_professional_scheduled---used to display professional booked services --this will be used to display professiona record in calander
 
@@ -362,3 +463,29 @@ class agg_hhc_professional_time_availability_api(APIView):
         dateobject=self.get_object(prof_sche_id)
         serialized=serializers.agg_hhc_professional_scheduled_serializer(dateobject,many=True)
         return Response(serialized.data)
+    
+#-------------------------agg_hhc_event_professional_serializer-------------------
+
+#class agg_hhc_event_professional_serializer(APIView):
+#    def post(self,request):
+#        try:
+
+
+
+
+
+
+
+
+
+class LogoutView(APIView):
+    
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({'msg':'Token is blacklisted successfully.'},status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response({'msg':'Bad Request'},status=status.HTTP_400_BAD_REQUEST)

@@ -1,7 +1,11 @@
 from django.urls import path
 from hhcweb import views
+from hhcweb.views import UserRegistrationView, UserLoginView, LogoutView
 
 urlpatterns = [
+    path('register/', UserRegistrationView.as_view(), name='register'),
+    path('login/', UserLoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='auth-logout'),
     path('agg_hhc_purpose_call_api',views.agg_hhc_purpose_call_api.as_view()),#done
     path('agg_hhc_caller_relation_api',views.agg_hhc_caller_relation_api.as_view()),#done
     path('agg_hhc_locations_api',views.agg_hhc_locations_api.as_view()),
@@ -26,12 +30,13 @@ urlpatterns = [
     path('agg_hhc_city_from_state_api/<str:state>',views.agg_hhc_city_from_state_api.as_view()),#find all city from state name
     path('agg_hhc_pincode_from_city_api/<str:city>',views.agg_hhc_pincode_from_city_api.as_view()),#find all findcode from city name 
     path('Caller_details_api/<int:pk>', views.Caller_details_api.as_view()),
-    path('Caller_details_api/<int:pk>', views.Caller_details_api.as_view()),
     path('patient_detail_info_api/<int:pk>', views.patient_detail_info_api.as_view()),
     path('agg_hhc_service_professionals_api',views.agg_hhc_service_professionals_api.as_view()),#this display professional name and skills
     path('calculate_total_amount',views.calculate_total_amount.as_view()),
     path('calculate_discount_api',views.calculate_discount_api.as_view()),
+    path('Service_requirment_api', views.Service_requirment_api.as_view()),
+
     path('agg_hhc_professional_scheduled_api/<int:prof_sche_id>',views.agg_hhc_professional_scheduled_api.as_view()),#To display professional time in calander as well as in professional availability
     path('agg_hhc_professional_time_availability_api/<int:prof_sche_id>',views.agg_hhc_professional_time_availability_api.as_view()),#used to display professional booked services in professional Avalibility
-
+    
 ]
