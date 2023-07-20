@@ -19,7 +19,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 
-
+#-----------------------------------------------jwt login and register api---------------------------
 
 # Generate Token Manually
 def get_tokens_for_user(user):
@@ -73,7 +73,7 @@ class UserLoginView(APIView):
 
 
 
-    
+#---------------------------------------------------Api's Starts------------------------------     
 class agg_hhc_caller_relation_api(APIView):
     def get(self,request):
         courses = models.agg_hhc_caller_relation.objects.filter(status=1)
@@ -466,9 +466,6 @@ class agg_hhc_professional_time_availability_api(APIView):
     
 #-------------------------agg_hhc_event_professional_serializer-------------------
 
-#class agg_hhc_event_professional_serializer(APIView):
-#    def post(self,request):
-#        try:
 
 
 
@@ -478,6 +475,12 @@ class agg_hhc_professional_time_availability_api(APIView):
 
 
 
+
+
+
+
+
+#####--------------------------------------logout------------------------------------------#
 class LogoutView(APIView):
     
     def post(self, request):

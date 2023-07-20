@@ -216,3 +216,18 @@ class agg_hhc_event_professional_serializer(serializers.ModelSerializer):
     class Meta:
         models=models.agg_hhc_event_professional
         fields=('eve_prof_id','eve_id','eve_req_id','srv_prof_id','eve_poc_id','srv_id')
+
+#--------------------------------agg_hhc_recived_hospitals------------------
+
+class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
+    class Meta:
+        models=models.agg_hhc_recived_hospitals
+        fields=('')
+
+
+#--------------------------------------agg_hhc_event_plan_of_care------------------
+
+class agg_hhc_event_plan_of_care(serializers.Serializer):
+    class Meta:
+        models=models.agg_hhc_event_plan_of_care
+        fields=('srv_prof_id')
