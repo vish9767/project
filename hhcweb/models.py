@@ -551,7 +551,7 @@ class agg_hhc_assessment_patient_list(models.Model):#4
 class agg_hhc_patients(models.Model):#6
 	agg_sp_pt_id = models.AutoField(primary_key = True)
 	#app_user_id=models.ForeignKey(agg_hhc_app_caller_register,on_delete=models.CASCADE,null=True)
-	# caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
+	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
 	hhc_code = models.CharField(max_length=50,null=True, blank=True)
 	membership_id = models.CharField(max_length=50,null=True)
 	name = models.CharField(max_length=255,null=True)
@@ -586,15 +586,15 @@ class agg_hhc_patients(models.Model):#6
 	langitude = models.FloatField(null=True)
 	Profile_pic = models.CharField(max_length=200,null=True)
 
-	# def save(self, *args, **kwargs):
-	# 	if not self.agg_sp_pt_id:
-	# 		last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
-	# 		prefix = self.hosp_id.hospital_short_code if self.hosp_id else None
-	# 		if not prefix:
-	# 			raise status.HTTP_404_NOT_FOUND
-	# 		last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
-	# 		self.hhc_code = f"{prefix}HC{last_sequence:05d}"
-	# 	return super().save(*args, **kwargs)
+	def save(self, *args, **kwargs):
+		if not self.agg_sp_pt_id:
+			last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
+			prefix = self.hosp_id.hospital_short_code if self.hosp_id else None
+			if not prefix:
+				raise status.HTTP_404_NOT_FOUND
+			last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
+			self.hhc_code = f"{prefix}HC{last_sequence:05d}"
+		return super().save(*args, **kwargs)
 
 # class agg_hhc_webinar_patient_table(models.Model):#7
 # 	agg_sp_web_pt_li_id = models.AutoField(primary_key = True)
@@ -782,8 +782,8 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 	srv_prof_id = models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
 	# service_date = models.DateField(null=True)# this field for fields stor  time
 	# service_date_to = models.DateField(null=True)# this field for fields stor time
-	start_date = models.CharField(max_length=240,null=True)
-	end_date = models.CharField(max_length=240,null=True)
+	start_date = models.DateTimeField(null=True)
+	end_date = models.DateTimeField(null=True)
 	service_cost = models.FloatField(null=True)
 	prof_prefered = enum.EnumField(pt_gender_enum,null=True) # updated
 	status = enum.EnumField(status_enum,null=True)
@@ -1855,6 +1855,20 @@ class agg_hhc_knowledge_base_documents(models.Model):#85
     document_file=models.CharField(max_length=255,null=True)
     status=enum.EnumField(status_enum,null=True)
     isDelStatus=models.IntegerField(null=True)
+    added_by=models.IntegerField(null=True)
+    added_date=models.DateTimeField(default=timezone.now,null=True)
+    last_modified_by=models.IntegerField(null=True,blank=True)
+    last_modified_date=models.DateTimeField(null=True,blank=True)
+
+class agg_hhc_recived_hospitals(models.Model):#83
+    recived_hosp_id=models.AutoField(primary_key=True)
+    branch=models.CharField(max_length=100,null=True)
+    hospital_name=models.CharField(max_length=255,null=True)
+    hospital_short_code=models.CharField(max_length=5,null=True)
+    phone_no=models.IntegerField(null=True)
+    website_url=models.CharField(max_length=70,null=True)
+    address=models.TextField(null=True)
+    status=enum.EnumField(status_enum,null=True)
     added_by=models.IntegerField(null=True)
     added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
