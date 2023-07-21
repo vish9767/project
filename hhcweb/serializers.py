@@ -234,10 +234,6 @@ class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_professional_zone
         fields='__all__'
-<<<<<<< HEAD
-=======
-
->>>>>>> b8886cdfe70a0bc86ea340486c3803f43754d9da
 
 #--------------------------------------agg_hhc_service_professionals------------------
 
