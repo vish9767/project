@@ -255,7 +255,7 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	caller_status=enum.EnumField(caller_status_enum,null=True)
 
 	def __str__(self):
-		return f"{self.caller_id}"
+		return f"{self.caller_id},{self.fname}"
 	
 	
 """
