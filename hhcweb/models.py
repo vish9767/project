@@ -949,6 +949,9 @@ class agg_hhc_professional_sub_services(models.Model):#29
 	sub_srv_id = models.BigIntegerField(null=True)
 	prof_cost = models.FloatField(null=True)
 
+	def __str__(self):
+		return f'{self.srv_id}'
+
 
 class agg_hhc_services(models.Model):#30
 	srv_id = models.AutoField(primary_key = True)
@@ -1081,6 +1084,9 @@ class agg_hhc_service_professionals(models.Model):#32
 	reg_source = enum.EnumField(reg_source_enum,null=True)
 	availability_status = enum.EnumField(yes_no_enum,null=True)
 	location_status = enum.EnumField(yes_no_enum,null=True)
+	Services = models.ForeignKey('agg_hhc_professional_sub_services',on_delete=models.CASCADE,null=True)
+	Experience = models.IntegerField(null=True)
+	Calendar = models.DateField(auto_now=False, auto_now_add=False, null=True)
 
 class agg_hhc_service_professional_details(models.Model):#33
 	srv_prof_dt_id = models.AutoField(primary_key = True)
@@ -1648,6 +1654,7 @@ class agg_hhc_city(models.Model):#70
     city_id=models.AutoField(primary_key=True)
     city_name=models.CharField(max_length=100,null=True,unique=True)
     state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True,to_field='state_name')
+    status=enum.EnumField(status_enum,null=True)
     Added_by=models.IntegerField(null=True)
     Added_date=models.DateTimeField(default=timezone.now,null=True)
     def __str__(self):
@@ -2269,7 +2276,8 @@ class agg_hhc_pincode(models.Model):
 
 class agg_hhc_professional_zone(models.Model):#53 Zones 
     prof_zone_id=models.AutoField(primary_key=True)
-    #prof_srv_id=models.ForeignKey(agg_hhc_professional_services,on_delete=models.CASCADE,null=True)
+    city=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)
+	#prof_srv_id=models.ForeignKey(agg_hhc_professional_services,on_delete=models.CASCADE,null=True)
     Name=models.CharField(max_length=50,null=True)
     def __str__(self):
 	    return f'{self.Name}'
