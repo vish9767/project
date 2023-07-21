@@ -225,6 +225,17 @@ class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
         fields=('')
 
 
+
+
+
+#----------------------------------------agg_hhc_professional_zone------------------------#
+
+class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
+    class Meta:
+        models=models.agg_hhc_professional_zone
+        fiels='__all__'
+
+
 #--------------------------------------agg_hhc_service_professionals------------------
 
 class agg_hhc_service_professionals_zone_serializer(serializers.ModelSerializer):
