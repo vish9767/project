@@ -2276,7 +2276,7 @@ class agg_hhc_pincode(models.Model):
 
 class agg_hhc_professional_zone(models.Model):#53 Zones 
     prof_zone_id=models.AutoField(primary_key=True)
-    city=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)
+    city_id=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)
 	#prof_srv_id=models.ForeignKey(agg_hhc_professional_services,on_delete=models.CASCADE,null=True)
     Name=models.CharField(max_length=50,null=True)
     def __str__(self):
