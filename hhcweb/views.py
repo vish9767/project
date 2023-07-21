@@ -13,6 +13,12 @@ from django.contrib.auth import authenticate
 from hhcweb.renders import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics
+from .models import agg_hhc_service_professionals
+from .serializers import AggHHCServiceProfessionalSerializer
+from rest_framework.decorators import api_view
+
+
 # Create your views here.
 
 
@@ -464,7 +470,7 @@ class agg_hhc_professional_time_availability_api(APIView):
         serialized=serializers.agg_hhc_professional_scheduled_serializer(dateobject,many=True)
         return Response(serialized.data)
     
-#-------------------------agg_hhc_service_professionals-------------------
+#-------------------------agg_hhc_service_professional_zone_api-------------------
 
 class agg_hhc_professional_zone_api(APIView):
     def get(self,request):
@@ -472,7 +478,31 @@ class agg_hhc_professional_zone_api(APIView):
         serialized= serializers.agg_hhc_professional_zone_serializer(zones, many=True)
         return Response(serialized.data)
 
+#------------------------agg_hhc_state_and_city from zone id----------------------
 
+class agg_hhc_city_state_from_zone_api(APIView):
+    def get_object(self,city_id):
+        return models.agg_hhc_city.objects.filter(status=1,city_id=city_id)
+    def get(self,request,city_id):
+        city_state=self.get_object(city_id)
+        serialized=serializers.agg_hhc_city(city_state,many=True)
+        return Response(serialized.data)
+
+
+
+#------------------------------mayank---------------------------------------
+
+@api_view(['GET'])
+def total_services(request, service_professional_id):  # Adjust the parameter name here
+    try:
+        total_services = models.agg_hhc_event_plan_of_care.objects.filter(srv_prof_id=service_professional_id).count()  # Adjust the field name here
+        return Response({"total_services": total_services}, status=status.HTTP_200_OK)
+    except models.agg_hhc_event_plan_of_care.DoesNotExist:
+        return Response({"error": "Service Professional not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+class AggHHCServiceProfessionalListAPIView(generics.ListAPIView):
+    queryset = agg_hhc_service_professionals.objects.all()
+    serializer_class = AggHHCServiceProfessionalSerializer
 
 
 

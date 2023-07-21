@@ -235,6 +235,22 @@ class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
         model=models.agg_hhc_professional_zone
         fields='__all__'
 
+
+
+
+#--------------------------------------mayank--------------------------------------------
+
+class AggHHCServiceProfessionalSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.agg_hhc_service_professionals
+        fields = ('full_name', 'Services', 'phone_no','Ratings','Experience','Calendar')
+
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.middle_name} {obj.last_name}".strip()
+
+
 #--------------------------------------agg_hhc_service_professionals------------------
 
 class agg_hhc_service_professionals_zone_serializer(serializers.ModelSerializer):
