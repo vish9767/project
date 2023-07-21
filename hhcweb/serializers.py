@@ -214,14 +214,14 @@ class agg_hhc_professional_scheduled_serializer(serializers.ModelSerializer):
 
 class agg_hhc_event_professional_serializer(serializers.ModelSerializer):
     class Meta:
-        models=models.agg_hhc_event_professional
+        model=models.agg_hhc_event_professional
         fields=('eve_prof_id','eve_id','eve_req_id','srv_prof_id','eve_poc_id','srv_id')
 
 #--------------------------------agg_hhc_recived_hospitals------------------
 
 class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
     class Meta:
-        models=models.agg_hhc_recived_hospitals
+        model=models.agg_hhc_recived_hospitals
         fields=('')
 
 
@@ -232,8 +232,8 @@ class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
 
 class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
     class Meta:
-        models=models.agg_hhc_professional_zone
-        fiels='__all__'
+        model=models.agg_hhc_professional_zone
+        fields='__all__'
 
 
 #--------------------------------------agg_hhc_service_professionals------------------
@@ -241,7 +241,7 @@ class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
 class agg_hhc_service_professionals_zone_serializer(serializers.ModelSerializer):
     fullname=serializers.SerializerMethodField()
     class Meta:
-        models=models.agg_hhc_service_professionals
+        model=models.agg_hhc_service_professionals
         fields=('fullname','skill_set')
-    def get_fullname(self,obj):
+    def get_fullname(self,obj): 
         return f"{obj.first_name} {obj.last_name}".strip()
