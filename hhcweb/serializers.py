@@ -232,16 +232,15 @@ class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
 
 class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
     class Meta:
-        models=models.agg_hhc_professional_zone
-        fiels='__all__'
-
+        model=models.agg_hhc_professional_zone
+        fields='__all__'
 
 #--------------------------------------agg_hhc_service_professionals------------------
 
 class agg_hhc_service_professionals_zone_serializer(serializers.ModelSerializer):
     fullname=serializers.SerializerMethodField()
     class Meta:
-        models=models.agg_hhc_service_professionals
+        model=models.agg_hhc_service_professionals
         fields=('fullname','skill_set')
     def get_fullname(self,obj):
         return f"{obj.first_name} {obj.last_name}".strip()

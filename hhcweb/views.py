@@ -469,8 +469,8 @@ class agg_hhc_professional_time_availability_api(APIView):
 class agg_hhc_professional_zone_api(APIView):
     def get(self,request):
         zones =models.agg_hhc_professional_zone.objects.all()
-        serializer= serializers.agg_hhc_professional_zone_serializer(zones, many=True)
-        return Response(serializer.data)
+        serialized= serializers.agg_hhc_professional_zone_serializer(zones, many=True)
+        return Response(serialized.data)
 
 
 
