@@ -225,9 +225,12 @@ class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
         fields=('')
 
 
-#--------------------------------------agg_hhc_event_plan_of_care------------------
+#--------------------------------------agg_hhc_service_professionals------------------
 
-class agg_hhc_event_plan_of_care(serializers.Serializer):
+class agg_hhc_service_professionals_zone_serializer(serializers.ModelSerializer):
+    fullname=serializers.SerializerMethodField()
     class Meta:
-        models=models.agg_hhc_event_plan_of_care
-        fields=('srv_prof_id')
+        models=models.agg_hhc_service_professionals
+        fields=('fullname','skill_set')
+    def get_fullname(self,obj):
+        return f"{obj.first_name} {obj.last_name}".strip()

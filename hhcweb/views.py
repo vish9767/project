@@ -464,9 +464,18 @@ class agg_hhc_professional_time_availability_api(APIView):
         serialized=serializers.agg_hhc_professional_scheduled_serializer(dateobject,many=True)
         return Response(serialized.data)
     
-#-------------------------agg_hhc_event_professional_serializer-------------------
+#-------------------------agg_hhc_service_professionals-------------------
 
 
+
+
+class agg_hhc_service_professionals_api(APIView):
+    def get_object(self,zone):
+        return models.agg_hhc_service_professionals.objects.filter(status=1,prof_zone_id=zone)
+    def get(self,request,zone):
+        zone_object=self.get_object(zone)
+        serialized=serializers.agg_hhc_service_professionals_serializer(zone_object,many=True)
+        return Response(serialized.data)
 
 
 

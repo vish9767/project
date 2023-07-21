@@ -231,6 +231,7 @@ class caller_status_enum(enum.Enum):
 	calling=4
 
 
+
 class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
 	caller_id=models.AutoField(primary_key=True)
 	phone=models.BigIntegerField(null=True)#this will used to store otp
@@ -557,20 +558,23 @@ class agg_hhc_patients(models.Model):#6
 	name = models.CharField(max_length=255,null=True)
 	# first_name = models.CharField(max_length=50,null=True)
 	# middle_name = models.CharField(max_length=50,null=True)
+	pincode=models.PositiveIntegerField(null=True)
 	Age = models.BigIntegerField(null=True)
 	Gender = models.CharField(max_length=10,null=True)
 	email_id = models.EmailField(null=True)
+	address_type=models.CharField(max_length=100,null=True)
 	residential_address = models.CharField(max_length=500,null=True)
 	permanant_address = models.CharField(max_length=500,null=True)
+	state=models.CharField(max_length=150,null=True)
 	city_id = models.BigIntegerField(null=True)
 	sub_location = models.CharField(max_length=50,null=True)
-	loc_id = models.BigIntegerField(null=True)
+	zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
 	otp=models.IntegerField(null=True)
 	otp_expire_time=models.DateTimeField(null=True)
 	google_location = models.CharField(max_length=240,null=True)
 	Suffered_from=models.CharField(max_length=240,null=True)
-	# Hospital_name=models.CharField(max_length=240,null=True)
-	hosp_id=models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# updated
+	hospital_name=models.CharField(max_length=240,null=True)
+	preferred_hosp_id=models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# updated
 	phone_no = models.CharField(max_length=20,null=True)
 	mobile_no = models.CharField(max_length=20,null=True)
 	dob = models.DateField(null=True)
@@ -930,7 +934,6 @@ class agg_hhc_professional_services(models.Model):#28
 	sub_srv_id = models.BigIntegerField(null=True)
 	professional_type = enum.EnumField(professional_type_enum,null=True)
 	srv_prof_id = models.BigIntegerField(null=True)
-	srv_prof_id = models.BigIntegerField(null=True)
 	vender_id = models.BigIntegerField(null=True)
 	availability = models.CharField(max_length=255,null=True)
 	status = enum.EnumField(status_enum,null=True)
@@ -1027,6 +1030,8 @@ class agg_hhc_service_membership_registration(models.Model):#31
 	# membership = enum.EnumField(membership_enum,null=True)
 	membership_id_path = models.CharField(max_length=100,null=True)
 	modified_by = models.CharField(max_length=20,null=True)
+
+
 
 class agg_hhc_service_professionals(models.Model):#32
 	srv_prof_id = models.AutoField(primary_key = True)
@@ -1478,24 +1483,19 @@ class agg_hhc_professional_documents(models.Model):#52
     status=enum.EnumField(documents_enum,null=True)
     isVerified=enum.EnumField(truefalse_enum,null=True)
 
-class agg_hhc_professional_zone(models.Model):#53 Zones 
-    prof_zone_id=models.AutoField(primary_key=True)
-    #prof_srv_id=models.ForeignKey(agg_hhc_professional_services,on_delete=models.CASCADE,null=True)
-    Name=models.CharField(max_length=50,null=True)
-    def __str__(self):
-	    return f'{self.Name}'
+
 
 class agg_hhc_professional_location_details(models.Model):#54
     prof_loc_dt_id=models.AutoField(primary_key=True)
     lattitude=models.FloatField(null=True)
     longitude=models.FloatField(null=True)
     location_name=models.TextField(null=True)
-    prof_zone_id=models.ForeignKey(agg_hhc_professional_zone,on_delete=models.CASCADE,null=True)
+    prof_zone_id=models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
 
 class agg_hhc_professional_location_preferences(models.Model):#55
     prof_loc_pref_id=models.AutoField(primary_key=True)
     #srv_prof_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
-    prof_zone_id=models.ForeignKey(agg_hhc_professional_zone,on_delete=models.CASCADE,null=True)
+    prof_zone_id=models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
     max_latitude=models.FloatField(null=True)
     min_latitude=models.FloatField(null=True)
     max_longitude=models.FloatField(null=True)
@@ -2266,6 +2266,15 @@ class agg_hhc_pincode(models.Model):
 	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True,to_field='state_name')
 	city_name=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True,to_field='city_name')
 	pincode_number=models.PositiveIntegerField(null=True)
+
+class agg_hhc_professional_zone(models.Model):#53 Zones 
+    prof_zone_id=models.AutoField(primary_key=True)
+    #prof_srv_id=models.ForeignKey(agg_hhc_professional_services,on_delete=models.CASCADE,null=True)
+    Name=models.CharField(max_length=50,null=True)
+    def __str__(self):
+	    return f'{self.Name}'
+
+
 
 
 
