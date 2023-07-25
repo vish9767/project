@@ -33,8 +33,8 @@ urlpatterns = [
     path('Caller_details_api/<int:pk>', views.Caller_details_api.as_view()),
     path('patient_detail_info_api/<int:pk>', views.patient_detail_info_api.as_view()),
     path('agg_hhc_service_professionals_api',views.agg_hhc_service_professionals_api.as_view()),#this display professional name and skills
-    path('calculate_total_amount',views.calculate_total_amount.as_view()),
-    path('calculate_discount_api',views.calculate_discount_api.as_view()),
+    path('calculate_total_amount/<int:cost>/<str:start_date>/<str:end_date>/',views.calculate_total_amount.as_view()),
+    path('calculate_discount_api/<int:dtype>/<int:damount>/<int:total_amt>',views.calculate_discount_api.as_view()),
     path('Service_requirment_api', views.Service_requirment_api.as_view()),
     path('agg_hhc_professional_zone_api',views.agg_hhc_professional_zone_api.as_view()),
     path('agg_hhc_professional_scheduled_api/<int:prof_sche_id>',views.agg_hhc_professional_scheduled_api.as_view()),#To display professional time in calander as well as in professional availability
