@@ -481,6 +481,22 @@ class agg_hhc_professional_zone_api(APIView):
         serialized= serializers.agg_hhc_professional_zone_serializer(zones, many=True)
         return Response(serialized.data)
 
+#-------------------------agg_hhc_feedback_answers----------------------------
+
+class agg_hhc_feedback_answers_api(APIView):
+    def get_obj(self,agg_sp_pt_id):
+        try:
+            obj=models.agg_hhc_events.objects.get(agg_sp_pt_id=agg_sp_pt_id)
+            return models.agg_hhc_feedback_answers.objects.get(eve_id=obj.eve_id)
+        except models.agg_hhc_feedback_answers.DoesNotExist:
+            raise Response(status.HTTP_404_NOT_FOUND)
+    def get(self,request,agg_sp_pt_id):
+        feedback_answer=self.get_obj(agg_sp_pt_id)
+        serialized=serializers.agg_hhc_feedback_answers_serializer(feedback_answer)
+        return Response(serialized.data)
+
+
+
 #------------------------agg_hhc_state_and_city from zone id----------------------
 
 class agg_hhc_city_state_from_zone_api(APIView):
@@ -490,7 +506,32 @@ class agg_hhc_city_state_from_zone_api(APIView):
         city_state=self.get_object(city_id)
         serialized=serializers.agg_hhc_city(city_state,many=True)
         return Response(serialized.data)
+    
 
+#-----------------------------------agg_hhc_event_plan_of_care--------------------------------
+
+class service_details_today_total_services(APIView):
+    def get(self,request):
+       total_services = models.agg_hhc_event_plan_of_care.objects.filter(added_date=timezone.now().date()).count()
+       return Response({'total_services': total_services})
+
+
+#----------------------------------last patient service name and start date end date--------------------------
+
+class last_patient_service_info(APIView):
+    def get_object(self,pt_id):
+        return models.agg_hhc_events.objects.filter(agg_sp_pt_id=pt_id).latest('added_date')
+    def get(self, request,pt_id):
+        try:
+            patient_obj = self.get_object(pt_id)
+        except models.agg_hhc_events.DoesNotExist:
+             return Response({"error": "Patient not found"},status=404)
+        patient_date=models.agg_hhc_event_plan_of_care.objects.get(srv_id=patient_obj.eve_id)
+        patient_date_serialized=serializers.agg_hhc_add_service_serializer(patient_date)
+        patient_obj=models.agg_hhc_services.objects.get(srv_id=patient_date.srv_id)
+        patient_obj_serialized=serializers.agg_hhc_services_serializer(patient_obj)
+        return Response({'Date':patient_date_serialized,'service':patient_obj_serialized})
+        
 
 
 #------------------------------mayank---------------------------------------
@@ -509,10 +550,40 @@ class AggHHCServiceProfessionalListAPIView(generics.ListAPIView):
 
 
 
+#--------------------------------------Nikita P-----------------------------------------------
 
+class agg_hhc_zone_api(APIView):
 
+    def get(self, request, format=None):
+        groups = models.agg_hhc_professional_zone.objects.all()
+        if groups:
+            serializer = serializers.agg_hhc_professional_zone_serializer(groups, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
+class agg_hhc_service_professional_api(APIView):
+    def get(self, request, zone, format=None):
+        print(zone)
+        zone = agg_hhc_service_professionals.objects.filter(prof_zone_id=zone)
+        print(f"Filter:- {zone}")
+        if zone:
+            serializer = serializers.agg_hhc_service_professional_serializer(zone, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class agg_hhc_detailed_event_plan_of_care_api(APIView):
 
+    def get(self, request, zone, format=None):
+        print(zone)
+        time = datetime.date.today()
+        print(f"Filter:- {time}")
+        zone = models.agg_hhc_detailed_event_plan_of_care.objects.filter(srv_prof_id=zone, service_status=2, service_date__gte=time)
+        print(f"Plan:- {zone}")
+        if zone:
+            serializer = serializers.agg_hhc_detailed_event_plan_of_care_serializer(zone, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 

@@ -36,11 +36,18 @@ urlpatterns = [
     path('calculate_total_amount/<int:cost>/<str:start_date>/<str:end_date>/',views.calculate_total_amount.as_view()),
     path('calculate_discount_api/<int:dtype>/<int:damount>/<int:total_amt>',views.calculate_discount_api.as_view()),
     path('Service_requirment_api', views.Service_requirment_api.as_view()),
+    path('agg_hhc_feedback_answers_api/<int:agg_sp_pt_id>',views.agg_hhc_feedback_answers_api.as_view()),#this display rating and review from patient id
+    path('last_patient_service_info/<int:pt_id>',views.last_patient_service_info.as_view()),#this is to display patient last service name and last start and end service date
     path('agg_hhc_professional_zone_api',views.agg_hhc_professional_zone_api.as_view()),
     path('agg_hhc_professional_scheduled_api/<int:prof_sche_id>',views.agg_hhc_professional_scheduled_api.as_view()),#To display professional time in calander as well as in professional availability
     path('agg_hhc_professional_time_availability_api/<int:prof_sche_id>',views.agg_hhc_professional_time_availability_api.as_view()),#used to display professional booked services in professional Avalibility
     path('total_services/<int:service_professional_id>/', views.total_services, name='total_services'),#this display total services for Professionals
-    path('agg_hhc_service_professionals/', views.AggHHCServiceProfessionalListAPIView.as_view(), name='agg_hhc_service_professional-list'),#mayank
-    # path('api/calendar_events/', views.get_calendar_events, name='calendar_events'),
+    path('agg_hhc_service_professionals/', views.AggHHCServiceProfessionalListAPIView.as_view(),name='agg_hhc_service_professional-list'),#mayank
+    #--------------------------------------------Dashboard------------Api--------------------------------------
+    path('service_details_today_total_services',views.service_details_today_total_services.as_view()),
+    #-----------------------------------------nikita_p--------------------------------------
+    path('agg_hhc_zone_api',views.agg_hhc_zone_api.as_view()),
+    path('agg_hhc_event_professional_api/<zone>/',views.agg_hhc_service_professional_api.as_view()),
+    path('agg_hhc_detailed_event_plan_of_care/<zone>/',views.agg_hhc_detailed_event_plan_of_care_api.as_view()),
 ]
 

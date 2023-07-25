@@ -139,9 +139,12 @@ class get_latest_patient_record_from_caller_id(serializers.ModelSerializer):
 #####_____________________agg_hhc_callers_____________________________________________#######
 
 class agg_hhc_callers_serializer(serializers.ModelSerializer):#20
+    fullname=serializers.SerializerMethodField()
     class Meta:
         model=models.agg_hhc_callers
-        fields="__all__"
+        fields=('fullname','caller_id','phone','caller_rel_id','age','gender','email','contact_no','alter_contact','Address','save_this_add','profile_pic','caller_status')
+    def get_name(self,obj):
+        return f"{obj.fname} {obj.lname}".strip()
 
 
     
@@ -174,10 +177,12 @@ class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
 
 #______________________________________agg_hhc_callers_serializer_____________
 class agg_hhc_callers(serializers.ModelSerializer):#20
+    fullname = serializers.SerializerMethodField()
     class Meta:
         model=models.agg_hhc_callers
-        fields='__all__'
-
+        fields=('fullname','caller_id','phone','caller_rel_id','age','gender','email','contact_no','alter_contact','Address','save_this_add','profile_pic','caller_status')
+    def get_fullname(self, obj):
+        return f"{obj.fname} {obj.lname}".strip()
 #------------------------------------agg_hhc_hospitals_serializer_____________
 class agg_hhc_hospitals_serializer(serializers.ModelSerializer):
     class Meta:
@@ -260,3 +265,45 @@ class agg_hhc_service_professionals_zone_serializer(serializers.ModelSerializer)
         fields=('fullname','skill_set')
     def get_fullname(self,obj): 
         return f"{obj.first_name} {obj.last_name}".strip()
+    
+
+#--------------------------------agg_hhc_feedback_answers----------------------------
+
+class agg_hhc_feedback_answers_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=models.agg_hhc_service_professionals
+        fields='__all__'
+
+#---------------------------------------agg_hhc_event_plan_of_care------------------
+
+class agg_hhc_event_plan_of_care_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=models.agg_hhc_event_plan_of_care
+        fields='__all__'
+
+
+#---------------------------------------------Nikita P---------------------------------------------------------
+
+class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
+    class Meta:
+        model  = models.agg_hhc_professional_zone
+        fields = '__all__'
+        
+    def validate(self, data):
+        return data
+    
+class agg_hhc_service_professional_serializer(serializers.ModelSerializer):
+    class Meta:
+        model  = models.agg_hhc_service_professionals
+        fields = '__all__'
+        
+    def validate(self, data):
+        return data
+    
+class agg_hhc_detailed_event_plan_of_care_serializer(serializers.ModelSerializer):
+    class Meta:
+        model  = models.agg_hhc_detailed_event_plan_of_care
+        fields = '__all__'
+        
+    def validate(self, data):
+        return data

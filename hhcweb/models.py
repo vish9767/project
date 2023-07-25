@@ -230,7 +230,11 @@ class caller_status_enum(enum.Enum):
 	walking=3
 	calling=4
 
-
+class service_status_enum(enum.Enum):
+	Pending = 1
+	Ongoing = 2
+	Completed = 3
+	terminated = 4
 
 class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
 	caller_id=models.AutoField(primary_key=True)
@@ -612,12 +616,11 @@ class agg_hhc_patients(models.Model):#6
 
 class agg_hhc_detailed_event_plan_of_care(models.Model):#8
 	agg_sp_dt_eve_poc_id = models.AutoField(primary_key = True)
-	# pt_id = models.ForeignKey(agg_hhc_patinet_list_enquiry, on_delete=models.CASCADE, null=True)
-	eve_poc_id = models.BigIntegerField(null=True)
+	agg_sp_pt_id= models.ForeignKey(agg_hhc_patinet_list_enquiry, on_delete=models.CASCADE, null=True)
 	eve_id = models.BigIntegerField(null=True)
 	eve_req_id = models.BigIntegerField(null=True)
 	index_of_Session = models.BigIntegerField(null=True)
-	srv_prof_id = models.BigIntegerField(null=True)
+	srv_prof_id = models.ForeignKey('agg_hhc_service_professionals', related_name='relation_id',on_delete=models.CASCADE, null=True, blank=True, default=None)
 	ext_srv_id = models.CharField(max_length=11,null=True)
 	service_date = models.DateField(null=True)
 	service_date_to = models.DateField(null=True)
@@ -642,13 +645,14 @@ class agg_hhc_detailed_event_plan_of_care(models.Model):#8
 	OTP_count = models.BigIntegerField(null=True)
 	otp_expire_time = models.DateField(null=True)
 	Reschedule_count = models.BigIntegerField(null=True)
+	service_status = enum.EnumField(service_status_enum, null=True)
 
 class agg_hhc_events(models.Model):#9
 	eve_id = models.AutoField(primary_key = True)
 	event_code = models.CharField(max_length=640,null=True,blank=True)
-	caller_id = models.BigIntegerField(null=True)
+	caller_id = models.ForeignKey('agg_hhc_callers',on_delete=models.CASCADE,null=True)
 	# relation = models.CharField(max_length=64,null=True)
-	# pt_id = models.ForeignKey(agg_hhc_patinet_list_enquiry, on_delete=models.CASCADE, null=True)
+	agg_sp_pt_id= models.ForeignKey(agg_hhc_patients,on_delete=models.CASCADE, null=True)
 	purp_call_id = models.BigIntegerField(null=True)
 	bill_no_ref_no = models.BigIntegerField(null=True)
 	event_date = models.DateTimeField(auto_now_add=True,null=True)
@@ -1196,9 +1200,9 @@ class agg_hhc_feedbackform1(models.Model):#39
 
 class agg_hhc_feedback_answers(models.Model):#40
 	fb_ans_id = models.AutoField(primary_key = True)
-	event_id = models.BigIntegerField(null=True)
-	fb_from_id = models.BigIntegerField(null=True)
-	option_id = models.BigIntegerField(null=True)
+	eve_id = models.ForeignKey('agg_hhc_events',on_delete=models.CASCADE,null=True)
+	#fb_from_id = models.BigIntegerField(null=True)
+	Ratings=models.FloatField(null=True)
 	answer = models.CharField(max_length=255,null=True)
 	user_id = models.BigIntegerField(null=True)
 	user_type = enum.EnumField(user_type_enum,null=True)
@@ -1630,7 +1634,7 @@ class agg_hhc_bank_details(models.Model):#66
 
 class agg_hhc_cancellation_history(models.Model):#67
     canc_his_id=models.AutoField(primary_key=True)
-    #event_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
+    #eve_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
     event_code=models.CharField(max_length=50,null=True)
     cancelled_date=models.DateTimeField(null=True)
     can_amt=models.IntegerField(null=True)
@@ -2271,7 +2275,7 @@ class agg_hhc_app_patient_documents(models.Model):
 class agg_hhc_pincode(models.Model):
 	pincode_id=models.AutoField(primary_key=True)
 	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True,to_field='state_name')
-	city_name=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True,to_field='city_name')
+	city_id=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True,to_field='city_name')
 	pincode_number=models.PositiveIntegerField(null=True)
 
 class agg_hhc_professional_zone(models.Model):#53 Zones 
@@ -2283,8 +2287,34 @@ class agg_hhc_professional_zone(models.Model):#53 Zones
 	    return f'{self.Name}'
 
 
+class agg_hhc_professional_cancled_resson(models.Model):
+	cancle_reason_id=models.AutoField(primary_key=True)
+	srv_prof_id=models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
+	reason=models.TextField(null=True)
+	added_date=models.DateTimeField(default=timezone.now,null=True)
+	
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#___________________JWT_tables-------------------------------  
 
 
 class agg_mas_group(models.Model):
