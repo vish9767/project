@@ -41,7 +41,11 @@ def get_tokens_for_user(user):
                 'id': user.id,
                 'first_name': user.clg_first_name,
                 'last_name': user.clg_last_name,
-                'email': user.clg_email,
+                'email': user.clg_work_email_id,
+                'phone_no': user.clg_mobile_no,
+                'profile_photo_path':user.clg_profile_photo_path,
+                'address':user.clg_address,
+                'designation':user.clg_designation,
                 'clg_group': group
             },
         "user_group" :group,
@@ -578,6 +582,7 @@ class agg_hhc_service_professional_api(APIView):
     def get(self, request, format=None):
 
         pros = agg_hhc_service_professionals.objects.all()
+        print(pros)
         if pros:
             serializer = serializers.agg_hhc_service_professional_serializer(pros, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)

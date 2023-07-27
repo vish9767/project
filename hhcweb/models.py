@@ -954,12 +954,12 @@ class agg_hhc_professional_sub_services(models.Model):#29
 	prof_cost = models.FloatField(null=True)
 
 	def __str__(self):
-		return f'{self.srv_id},{self.srv_id},{self.sub_srv_id}'
+		return f'{self.srv_id}'
 
 
 class agg_hhc_services(models.Model):#30
 	srv_id = models.AutoField(primary_key = True)
-	service_title = models.CharField(max_length=255,null=True)
+	service_title = models.CharField(max_length=255,null=True,unique=True)
 	is_hd_access = enum.EnumField(yes_no_enum,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
@@ -976,7 +976,7 @@ class agg_hhc_services(models.Model):#30
 	dash_order = models.CharField(max_length=10,null=True)
 
 	def __str__(self):
-	    return f"{self.srv_id},{self.service_title}"
+	    return f"{self.service_title}"
 	
 class agg_hhc_sub_services(models.Model):#34
 	sub_srv_id = models.AutoField(primary_key = True)
@@ -1088,6 +1088,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	reg_source = enum.EnumField(reg_source_enum,null=True)
 	availability_status = enum.EnumField(yes_no_enum,null=True)
 	location_status = enum.EnumField(yes_no_enum,null=True)
+	prof_srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True,to_field="service_title")
 	prof_sub_srv_id = models.ForeignKey('agg_hhc_professional_sub_services',on_delete=models.CASCADE,null=True)
 	Experience = models.IntegerField(null=True)
 	Calendar = models.DateField(auto_now=False, auto_now_add=False, null=True)
