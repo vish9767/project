@@ -531,15 +531,8 @@ class last_patient_service_info(APIView):
         patient_date=models.agg_hhc_event_plan_of_care.objects.filter(eve_id=eve_id)
         patient_date=patient_date.first()
         patient_date_serialized=serializers.agg_hhc_event_plan_of_care_serializer(patient_date)
-        print('this is patient _sat',patient_date)
-        print('this is patient',str(patient_date.srv_id))
-        patient_service_serialized=models.agg_hhc_services.objects.filter(srv_id=str(patient_date.srv_id)).first()
-        print(';;;;;;',patient_service_serialized.service_title)
-
-        # print('this is latest patient service',latest_patient_service)
-        # print('this is service ',latest_patient_service.srv_id)
-        # patient_obj=models.agg_hhc_services.objects.get(srv_id=latest_patient_service)
-        # patient_obj_serialized=serializers.agg_hhc_services_serializer(patient_obj)
+        a=patient_date_serialized.data.get('srv_id')
+        patient_service_serialized=models.agg_hhc_services.objects.filter(srv_id=a).first()
         return Response({'Date':patient_date_serialized.data,'service':patient_service_serialized.service_title})
         
 
