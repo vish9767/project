@@ -526,16 +526,21 @@ class last_patient_service_info(APIView):
             patient_objects = self.get_object(pt_id)
         except models.agg_hhc_events.DoesNotExist:
              return Response({"error": "Patient not found"},status=404)
-        
         latest_patient_object = patient_objects.first()  # Get the latest object from the queryset
         eve_id = latest_patient_object.eve_id
-        print("this is my details",eve_id)
-        patient_date=models.agg_hhc_event_plan_of_care.objects.filter(srv_id=eve_id)
-        print('this is patient_date',patient_date.srv_id)
-        patient_date_serialized=serializers.agg_hhc_add_service_serializer(patient_date)
-        patient_obj=models.agg_hhc_services.objects.get(srv_id=patient_date.srv_id)
-        patient_obj_serialized=serializers.agg_hhc_services_serializer(patient_obj)
-        return Response({'Date':patient_date_serialized,'service':patient_obj_serialized})
+        patient_date=models.agg_hhc_event_plan_of_care.objects.filter(eve_id=eve_id)
+        patient_date=patient_date.first()
+        patient_date_serialized=serializers.agg_hhc_event_plan_of_care_serializer(patient_date)
+        print('this is patient _sat',patient_date)
+        print('this is patient',str(patient_date.srv_id))
+        patient_service_serialized=models.agg_hhc_services.objects.filter(srv_id=str(patient_date.srv_id)).first()
+        print(';;;;;;',patient_service_serialized.service_title)
+
+        # print('this is latest patient service',latest_patient_service)
+        # print('this is service ',latest_patient_service.srv_id)
+        # patient_obj=models.agg_hhc_services.objects.get(srv_id=latest_patient_service)
+        # patient_obj_serialized=serializers.agg_hhc_services_serializer(patient_obj)
+        return Response({'Date':patient_date_serialized.data,'service':patient_service_serialized.service_title})
         
 
 
@@ -580,8 +585,9 @@ class agg_hhc_service_professional_api_zone(APIView):
     
 class agg_hhc_service_professional_api(APIView):
     def get(self, request, format=None):
-
         pros = agg_hhc_service_professionals.objects.all()
+        service_name = pros.srv_prof_id
+        print(service_name)
         if pros:
             serializer = serializers.agg_hhc_service_professional_serializer(pros, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)

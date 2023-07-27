@@ -950,7 +950,7 @@ class agg_hhc_professional_sub_services(models.Model):#29
 	prof_sub_srv_id = models.AutoField(primary_key = True)
 	srv_prof_id = models.BigIntegerField(null=True)
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
-	sub_srv_id = models.ForeignKey('agg_hhc_sub_services',on_delete=models.CASCADE,null=True)
+	#sub_srv_id = models.ForeignKey('agg_hhc_sub_services',on_delete=models.CASCADE,null=True)
 	prof_cost = models.FloatField(null=True)
 
 	def __str__(self):
@@ -976,7 +976,7 @@ class agg_hhc_services(models.Model):#30
 	dash_order = models.CharField(max_length=10,null=True)
 
 	def __str__(self):
-	    return f"{self.srv_id},{self.service_title}"
+	    return f"{self.srv_id}"
 	
 class agg_hhc_sub_services(models.Model):#34
 	sub_srv_id = models.AutoField(primary_key = True)
