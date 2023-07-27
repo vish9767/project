@@ -293,12 +293,23 @@ class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
         return data
     
 class agg_hhc_service_professional_serializer(serializers.ModelSerializer):
+    cost = serializers.SerializerMethodField()
     class Meta:
         model  = models.agg_hhc_service_professionals
-        fields = '__all__'
-        
-    def validate(self, data):
-        return data
+        fields = ['professional_code', 'cost']
+        # fields = ['cost']
+
+   
+
+    def get_cost(self, data):
+        pros = models.agg_hhc_service_professionals.objects.all()
+        for i in pros:
+            p = i.prof_sub_srv_id
+            print(type(p))
+            subsrv = models.agg_hhc_professional_sub_services.objects.get(prof_sub_srv_id=1)
+            cost=subsrv.prof_cost
+        return cost
+    
     
 class agg_hhc_detailed_event_plan_of_care_serializer(serializers.ModelSerializer):
     class Meta:

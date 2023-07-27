@@ -14,7 +14,7 @@ from hhcweb.renders import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
-from .models import agg_hhc_service_professionals
+from .models import agg_hhc_service_professionals, agg_hhc_professional_sub_services
 from .serializers import AggHHCServiceProfessionalSerializer
 from rest_framework.decorators import api_view
 
@@ -590,15 +590,24 @@ class agg_hhc_service_professional_api_zone(APIView):
 class agg_hhc_service_professional_api(APIView):
     def get(self, request, format=None):
         pros = agg_hhc_service_professionals.objects.all()
-<<<<<<< HEAD
-        print(pros)
-=======
-        service_name = pros.srv_prof_id
-        print(service_name)
->>>>>>> 6a324789cf07750428a52a4225f46e88ec406747
+        # for i in pros:
+        #     p = i.prof_sub_srv_id
+        #     print(type(p))
+        #     subsrv = agg_hhc_professional_sub_services.objects.get(prof_sub_srv_id=1)
+        #     cost=subsrv.prof_cost
+
+
+
+        # print(service_name)
         if pros:
+
             serializer = serializers.agg_hhc_service_professional_serializer(pros, many=True)
+            # serializer2 = {
+            #     'cost':cost,
+            #     'serializer':serializer.data
+            # }
             return Response(serializer.data, status=status.HTTP_200_OK)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class agg_hhc_detailed_event_plan_of_care_api(APIView):

@@ -976,11 +976,7 @@ class agg_hhc_services(models.Model):#30
 	dash_order = models.CharField(max_length=10,null=True)
 
 	def __str__(self):
-<<<<<<< HEAD
-	    return f"{self.service_title}"
-=======
 	    return f"{self.srv_id}"
->>>>>>> 6a324789cf07750428a52a4225f46e88ec406747
 	
 class agg_hhc_sub_services(models.Model):#34
 	sub_srv_id = models.AutoField(primary_key = True)
