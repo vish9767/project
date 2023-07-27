@@ -33,8 +33,8 @@ urlpatterns = [
     path('Caller_details_api/<int:pk>', views.Caller_details_api.as_view()),
     path('patient_detail_info_api/<int:pk>', views.patient_detail_info_api.as_view()),
     path('agg_hhc_service_professionals_api',views.agg_hhc_service_professionals_api.as_view()),#this display professional name and skills
-    path('calculate_total_amount',views.calculate_total_amount.as_view()),
-    path('calculate_discount_api',views.calculate_discount_api.as_view()),
+    path('calculate_total_amount/<int:cost>/<str:start_date>/<str:end_date>/',views.calculate_total_amount.as_view()),
+    path('calculate_discount_api/<int:dtype>/<int:damount>/<int:total_amt>',views.calculate_discount_api.as_view()),
     path('Service_requirment_api', views.Service_requirment_api.as_view()),
     path('agg_hhc_feedback_answers_api/<int:agg_sp_pt_id>',views.agg_hhc_feedback_answers_api.as_view()),#this display rating and review from patient id
     path('last_patient_service_info/<int:pt_id>',views.last_patient_service_info.as_view()),#this is to display patient last service name and last start and end service date
@@ -47,7 +47,8 @@ urlpatterns = [
     path('service_details_today_total_services',views.service_details_today_total_services.as_view()),
     #-----------------------------------------nikita_p--------------------------------------
     path('agg_hhc_zone_api',views.agg_hhc_zone_api.as_view()),
-    path('agg_hhc_event_professional_api/<zone>/',views.agg_hhc_service_professional_api.as_view()),
+    path('agg_hhc_event_professional_api/<zone>/',views.agg_hhc_service_professional_api_zone.as_view()),
+    path('agg_hhc_event_professional_api/',views.agg_hhc_service_professional_api.as_view()),
     path('agg_hhc_detailed_event_plan_of_care/<zone>/',views.agg_hhc_detailed_event_plan_of_care_api.as_view()),
     #-------------------------------------------mohin---------------------------------------------------------
     path('combined_get/',combined_info,name='combined-list-create'),

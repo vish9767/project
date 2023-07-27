@@ -398,12 +398,12 @@ class  agg_hhc_service_professionals_api(APIView):
     
 
 class calculate_discount_api(APIView):
-    def get(self, request):#dtype,amount,total_amt
-        dtype=request.data['dtype']
-        amount=request.data['amount']
-        total_amt=request.data['total_amt']
+    def get(self, request,dtype,damount,total_amt):#dtype,amount,total_amt
+        dtype=dtype
+        amount=damount
+        total_amt=total_amt
         if dtype == 1:
-            final= ((total_amt*amount)/100)-total_amt
+            final= (total_amt-(total_amt*amount)/100)
             return Response({"final_amount":final})
         elif dtype == 2:
             final = (total_amt-amount)
@@ -412,16 +412,19 @@ class calculate_discount_api(APIView):
 
 
 class calculate_total_amount(APIView):
-    def get(self, request):
-        print(request.data)
-        start_date_string = request.data['start_date']
-        end_date_string = request.data['end_date']  
+    def get(self,request,cost,start_date,end_date):
+        # start_date_string = request.data['start_date']
+        # end_date_string = request.data['end_date'] 
+        start_date_string = start_date
+        end_date_string = end_date
+        start_date_string = start_date_string.replace('T',' ') 
+        end_date_string = end_date.replace('T',' ')
         print(start_date_string)     
         try:
-            start_date = datetime.datetime.strptime(str(start_date_string), '%Y-%m-%d').date()
-            end_date = datetime.datetime.strptime(str(end_date_string), '%Y-%m-%d').date()            
+            start_date = datetime.datetime.strptime(str(start_date_string), '%Y-%m-%d %H:%M').date()
+            end_date = datetime.datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').date()            
             diff = (end_date - start_date).days 
-            total = (diff+1) * request.data['srv_cost']           
+            total = (diff+1) * cost          
             return Response({'days_difference': total})
         except ValueError:
             return Response({'error': 'Invalid date format'}, status=400)
@@ -564,13 +567,23 @@ class agg_hhc_zone_api(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-class agg_hhc_service_professional_api(APIView):
+class agg_hhc_service_professional_api_zone(APIView):
     def get(self, request, zone, format=None):
-        print(zone)
-        zone = agg_hhc_service_professionals.objects.filter(prof_zone_id=zone)
-        print(f"Filter:- {zone}")
-        if zone:
-            serializer = serializers.agg_hhc_service_professional_serializer(zone, many=True)
+        # print(zone)
+
+        pros = agg_hhc_service_professionals.objects.filter(prof_zone_id=zone)
+
+        if pros:
+            serializer = serializers.agg_hhc_service_professional_serializer(pros, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class agg_hhc_service_professional_api(APIView):
+    def get(self, request, format=None):
+
+        pros = agg_hhc_service_professionals.objects.all()
+        if pros:
+            serializer = serializers.agg_hhc_service_professional_serializer(pros, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     

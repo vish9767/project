@@ -260,7 +260,7 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	caller_status=enum.EnumField(caller_status_enum,null=True)
 
 	def __str__(self):
-		return f"{self.caller_id}"
+		return f"{self.caller_id},{self.fname}"
 	
 	
 """
@@ -935,7 +935,7 @@ class agg_hhc_no_reason_for_service(models.Model):#27
 class agg_hhc_professional_services(models.Model):#28
 	prof_srv_id = models.AutoField(primary_key = True)
 	srv_id = models.BigIntegerField(null=True)
-	sub_srv_id = models.BigIntegerField(null=True)
+	sub_srv_id = models.ForeignKey('agg_hhc_sub_services',on_delete=models.CASCADE,null=True)
 	professional_type = enum.EnumField(professional_type_enum,null=True)
 	srv_prof_id = models.BigIntegerField(null=True)
 	vender_id = models.BigIntegerField(null=True)
@@ -949,12 +949,12 @@ class agg_hhc_professional_services(models.Model):#28
 class agg_hhc_professional_sub_services(models.Model):#29
 	prof_sub_srv_id = models.AutoField(primary_key = True)
 	srv_prof_id = models.BigIntegerField(null=True)
-	srv_id = models.CharField(max_length=11,null=True)
-	sub_srv_id = models.BigIntegerField(null=True)
+	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
+	sub_srv_id = models.ForeignKey('agg_hhc_sub_services',on_delete=models.CASCADE,null=True)
 	prof_cost = models.FloatField(null=True)
 
 	def __str__(self):
-		return f'{self.srv_id}'
+		return f'{self.srv_id},{self.srv_id},{self.sub_srv_id}'
 
 
 class agg_hhc_services(models.Model):#30
@@ -1088,7 +1088,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	reg_source = enum.EnumField(reg_source_enum,null=True)
 	availability_status = enum.EnumField(yes_no_enum,null=True)
 	location_status = enum.EnumField(yes_no_enum,null=True)
-	Services = models.ForeignKey('agg_hhc_professional_sub_services',on_delete=models.CASCADE,null=True)
+	prof_sub_srv_id = models.ForeignKey('agg_hhc_professional_sub_services',on_delete=models.CASCADE,null=True)
 	Experience = models.IntegerField(null=True)
 	Calendar = models.DateField(auto_now=False, auto_now_add=False, null=True)
 
