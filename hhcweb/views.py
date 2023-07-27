@@ -517,13 +517,18 @@ class service_details_today_total_services(APIView):
 
 class last_patient_service_info(APIView):
     def get_object(self,pt_id):
-        return models.agg_hhc_events.objects.filter(agg_sp_pt_id=pt_id).latest('added_date')
+        return models.agg_hhc_events.objects.filter(agg_sp_pt_id=pt_id)#.latest('added_date')
     def get(self, request,pt_id):
         try:
-            patient_obj = self.get_object(pt_id)
+            patient_objects = self.get_object(pt_id)
         except models.agg_hhc_events.DoesNotExist:
              return Response({"error": "Patient not found"},status=404)
-        patient_date=models.agg_hhc_event_plan_of_care.objects.get(srv_id=patient_obj.eve_id)
+        
+        latest_patient_object = patient_objects.first()  # Get the latest object from the queryset
+        eve_id = latest_patient_object.eve_id
+        print("this is my details",eve_id)
+        patient_date=models.agg_hhc_event_plan_of_care.objects.filter(srv_id=eve_id)
+        print('this is patient_date',patient_date.srv_id)
         patient_date_serialized=serializers.agg_hhc_add_service_serializer(patient_date)
         patient_obj=models.agg_hhc_services.objects.get(srv_id=patient_date.srv_id)
         patient_obj_serialized=serializers.agg_hhc_services_serializer(patient_obj)
@@ -595,6 +600,41 @@ class agg_hhc_service_professionals_api(APIView):
 
 
 
+
+
+
+
+#---------------------------Mohin-----------------------
+
+
+@api_view(['GET'])
+def combined_info(request):
+    if request.method == 'GET':
+        patients = models.agg_hhc_patients.objects.all()
+        date = models.agg_hhc_event_plan_of_care.objects.all()
+        services = models.agg_hhc_services.objects.all()
+        subservices = models.agg_hhc_sub_services.objects.all()
+        professionalzone = models.agg_hhc_professional_zone.objects.all()
+
+        
+        patients_Serializer = serializers.patients_info_Serializer(patients,many=True)
+        date_Serializer = serializers.hhc_services_date_Serializer(date,many=True)
+        services_Serializer = serializers.hhc_services_Serializer(services,many=True)
+        sub_services_Serializer = serializers.agg_hhc_sub_services_Serializer(subservices,many=True)
+        professional_Serializer = serializers.agg_hhc_professional_zone_Serializer(professionalzone,many=True)
+        
+        combined_data = []
+        for patients_data,date_data,services_data,sub_services_data,professional_data in zip(patients_Serializer.data, date_Serializer.data, services_Serializer.data, sub_services_Serializer.data, professional_Serializer.data):
+            combined_data.append({
+                'patients': patients_data,
+                'date ' : date_data,
+                'services' : services_data,
+                'subservices ' : sub_services_data,
+                'professionalzone ' :professional_data,
+                
+            })
+
+        return Response(combined_data)
 
 
 

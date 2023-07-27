@@ -594,15 +594,15 @@ class agg_hhc_patients(models.Model):#6
 	langitude = models.FloatField(null=True)
 	Profile_pic = models.CharField(max_length=200,null=True)
 
-	def save(self, *args, **kwargs):
-		if not self.agg_sp_pt_id:
-			last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
-			prefix = self.hosp_id.hospital_short_code if self.hosp_id else None
-			if not prefix:
-				raise status.HTTP_404_NOT_FOUND
-			last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
-			self.hhc_code = f"{prefix}HC{last_sequence:05d}"
-		return super().save(*args, **kwargs)
+	# def save(self, *args, **kwargs):
+	# 	if not self.agg_sp_pt_id:
+	# 		last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
+	# 		prefix = self.hosp_id.hospital_short_code if self.hosp_id else None
+	# 		if not prefix:
+	# 			raise status.HTTP_404_NOT_FOUND
+	# 		last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
+	# 		self.hhc_code = f"{prefix}HC{last_sequence:05d}"
+	# 	return super().save(*args, **kwargs)
 
 # class agg_hhc_webinar_patient_table(models.Model):#7
 # 	agg_sp_web_pt_li_id = models.AutoField(primary_key = True)
@@ -781,7 +781,7 @@ class agg_hhc_event_other_call(models.Model):#14
 
 class agg_hhc_event_plan_of_care(models.Model):#15
 	eve_poc_id = models.AutoField(primary_key = True)
-	eve_id = models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)# new added
+	eve_id = models.ForeignKey('agg_hhc_events',on_delete=models.CASCADE,null=True)# new added
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)# new added
 	sub_srv_id = models.ForeignKey('agg_hhc_sub_services', on_delete=models.CASCADE,null=True)
 	hosp_id = models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# new added
@@ -2287,7 +2287,7 @@ class agg_hhc_professional_zone(models.Model):#53 Zones
 	    return f'{self.Name}'
 
 
-class agg_hhc_professional_cancled_resson(models.Model):
+class  agg_hhc_professional_cancelled_reason(models.Model):
 	cancle_reason_id=models.AutoField(primary_key=True)
 	srv_prof_id=models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
 	reason=models.TextField(null=True)

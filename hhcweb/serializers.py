@@ -307,3 +307,38 @@ class agg_hhc_detailed_event_plan_of_care_serializer(serializers.ModelSerializer
         
     def validate(self, data):
         return data
+
+
+#--------------------mohin------------------------------------------------------------------
+
+class patients_info_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_patients
+        fields = ['name','mobile_no']
+        
+class hhc_services_date_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_event_plan_of_care
+        fields = ['start_date','end_date','prof_prefered']
+
+class hhc_services_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_services
+        fields = ['service_title']
+
+class agg_hhc_sub_services_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_sub_services
+        fields = ['recommomded_service']
+        
+class agg_hhc_professional_zone_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_professional_zone
+        fields = ['Name']
+        
+class CombinedSerializer(serializers.Serializer):
+    patients = patients_info_Serializer()
+    date = hhc_services_date_Serializer()
+    services = hhc_services_Serializer()
+    subservices = agg_hhc_sub_services_Serializer()
+    professionalzone = agg_hhc_professional_zone_Serializer()

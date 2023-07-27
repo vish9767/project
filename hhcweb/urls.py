@@ -1,6 +1,6 @@
 from django.urls import path
 from hhcweb import views
-from hhcweb.views import UserRegistrationView, UserLoginView, LogoutView
+from hhcweb.views import UserRegistrationView, UserLoginView, LogoutView,combined_info
 
 urlpatterns = [
     path('register/', UserRegistrationView.as_view(), name='register'),
@@ -49,5 +49,10 @@ urlpatterns = [
     path('agg_hhc_zone_api',views.agg_hhc_zone_api.as_view()),
     path('agg_hhc_event_professional_api/<zone>/',views.agg_hhc_service_professional_api.as_view()),
     path('agg_hhc_detailed_event_plan_of_care/<zone>/',views.agg_hhc_detailed_event_plan_of_care_api.as_view()),
+    #-------------------------------------------mohin---------------------------------------------------------
+    path('combined_get/',combined_info,name='combined-list-create'),
+
+
+
 ]
 
