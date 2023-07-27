@@ -520,12 +520,13 @@ class service_details_today_total_services(APIView):
 
 class last_patient_service_info(APIView):
     def get_object(self,pt_id):
-        return models.agg_hhc_events.objects.filter(agg_sp_pt_id=pt_id).latest('added_date')
+        return models.agg_hhc_events.objects.filter(agg_sp_pt_id=pt_id)#.latest('added_date')
     def get(self, request,pt_id):
         try:
             patient_obj = self.get_object(pt_id)
         except models.agg_hhc_events.DoesNotExist:
              return Response({"error": "Patient not found"},status=404)
+        print("this is event",patient_obj.eve_id)
         patient_date=models.agg_hhc_event_plan_of_care.objects.get(srv_id=patient_obj.eve_id)
         patient_date_serialized=serializers.agg_hhc_add_service_serializer(patient_date)
         patient_obj=models.agg_hhc_services.objects.get(srv_id=patient_date.srv_id)
@@ -562,13 +563,23 @@ class agg_hhc_zone_api(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-class agg_hhc_service_professional_api(APIView):
+class agg_hhc_service_professional_api_zone(APIView):
     def get(self, request, zone, format=None):
-        print(zone)
-        zone = agg_hhc_service_professionals.objects.filter(prof_zone_id=zone)
-        print(f"Filter:- {zone}")
-        if zone:
-            serializer = serializers.agg_hhc_service_professional_serializer(zone, many=True)
+        # print(zone)
+
+        pros = agg_hhc_service_professionals.objects.filter(prof_zone_id=zone)
+
+        if pros:
+            serializer = serializers.agg_hhc_service_professional_serializer(pros, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class agg_hhc_service_professional_api(APIView):
+    def get(self, request, format=None):
+
+        pros = agg_hhc_service_professionals.objects.all()
+        if pros:
+            serializer = serializers.agg_hhc_service_professional_serializer(pros, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     

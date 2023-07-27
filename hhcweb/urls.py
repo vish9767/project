@@ -47,7 +47,9 @@ urlpatterns = [
     path('service_details_today_total_services',views.service_details_today_total_services.as_view()),
     #-----------------------------------------nikita_p--------------------------------------
     path('agg_hhc_zone_api',views.agg_hhc_zone_api.as_view()),
-    path('agg_hhc_event_professional_api/<zone>/',views.agg_hhc_service_professional_api.as_view()),
+    path('agg_hhc_event_professional_api/<zone>/',views.agg_hhc_service_professional_api_zone.as_view()),
+    path('agg_hhc_event_professional_api/',views.agg_hhc_service_professional_api.as_view()),
     path('agg_hhc_detailed_event_plan_of_care/<zone>/',views.agg_hhc_detailed_event_plan_of_care_api.as_view()),
+    
 ]
 
