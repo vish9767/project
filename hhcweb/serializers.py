@@ -330,7 +330,7 @@ class patients_info_Serializer(serializers.ModelSerializer):
 class hhc_services_date_Serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_event_plan_of_care
-        fields = ['start_date','end_date','prof_prefered']
+        fields = ['start_date','end_date','prof_prefered','eve_id']
 
 class hhc_services_Serializer(serializers.ModelSerializer):
     class Meta:
