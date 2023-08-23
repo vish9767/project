@@ -229,10 +229,10 @@ class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
 
 #----------------------------------------agg_hhc_professional_zone------------------------#
 
-class agg_hhc_professional_zone_serializerss(serializers.ModelSerializer):
-    class Meta:
-        model=agg_hhc_professional_zone
-        fields='__all__'
+# class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
+#     class Meta:
+#         model=models.agg_hhc_professional_zone
+#         fields='__all__'
 
 
 
@@ -281,10 +281,11 @@ class agg_hhc_event_plan_of_care_serializer(serializers.ModelSerializer):
 
 class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
     class Meta:
-        model =agg_hhc_professional_zone
+        model  = agg_hhc_professional_zone
         fields = '__all__'
-    def validate(self, data):
-        return data
+        
+    # def validate(self, data):
+    #     return data
     
 class agg_hhc_service_professional_serializer(serializers.ModelSerializer):
     class Meta:
@@ -347,8 +348,7 @@ class ProfesNameSerializer(serializers.ModelSerializer):
     srv_id = ServiceSerilaizer()
     class Meta:
         model = models.agg_hhc_event_plan_of_care
-        fields = ['eve_id','srv_prof_id','srv_id','start_date','end_date','service_status']
-    
+        fields = ['start_date','end_date','prof_prefered','eve_id']
 
 class SessionStatusSerializer(serializers.ModelSerializer):
     Total_case_count = serializers.SerializerMethodField()
