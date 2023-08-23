@@ -89,7 +89,7 @@ class UserModelAdmin(BaseUserAdmin):
 # Register your models here.
 admin.site.register(agg_com_colleague, UserModelAdmin)
 admin.site.register(agg_mas_group)
-admin.site.register(agg_hhc_patinet_list_enquiry)#1
+admin.site.register(agg_hhc_patient_list_enquiry)#1
 admin.site.register(agg_hhc_assessment_patient)#2
 admin.site.register(agg_hhc_assessment_patient_details)#3
 admin.site.register(agg_hhc_assessment_patient_list)#4
@@ -202,3 +202,5 @@ admin.site.register(sp_vc_prescription)#110
 admin.site.register(agg_hhc_video_consulting)#111
 admin.site.register(agg_hhc_gender)#112
 admin.site.register(agg_hhc_pincode)
+admin.site.register(agg_hhc_enquiry_follow_up_cancellation_reason)
+admin.site.register(agg_hhc_coupon_codes)

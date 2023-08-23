@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from hhcweb import serializers
 from hhcweb import models
 import json
+from django.db.models import Q
 from rest_framework import status,permissions
 from django.utils import timezone
 from hhcweb.serializers import UserRegistrationSerializer,UserLoginSerializer
@@ -15,6 +16,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from .models import agg_hhc_service_professionals, agg_hhc_professional_sub_services
+from .serializers import AggHHCServiceProfessionalSerializer
+from .serializers import *
+from rest_framework.decorators import api_view
+from rest_framework import generics
+from .models import agg_hhc_service_professionals
 from .serializers import AggHHCServiceProfessionalSerializer
 from rest_framework.decorators import api_view
 
@@ -215,29 +221,105 @@ class agg_hhc_patinet_list_enquiry_put(APIView):
             return Response(serialized.data)
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
 
+# ------------------------------ Sandip Shimpi ---------------------------------------------- 
 class agg_hhc_add_service_details_api(APIView):
     def post(self,request):
-        event = models.agg_hhc_events(purp_call_id=request.data['purp_call_id'])
-        event.save()
-        print(event,'lLlllllllllllllllllll')
-        # if(event.is_valid()):
-        #     serialized=serializers.agg_hhc_add_service_serializer(data=request.data['srv_id','pt_id', 'sub_srv_id', 'start_date', 'end_date','prof_prefered', 'srv_prof_id'])
-        #     finalcost=serializers.agg_hhc_add_discount_serializer(data=request.data['discount_type', 'discount','total_cost','final_cost'])
-        #     if(serialized.is_valid() and finalcost.is_valid()):
-        #         serialized.save()
-        #         finalcost.save()
-        #     return Response(serialized.data,finalcost.data,status=status.HTTP_201_CREATED)
-        # return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
-        # else:
-        #     return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
-        # if(finalcost.is_valid()):
-        #     finalcost.save()
-        return Response({"event":event},)
-        
-        #     return Response(serialized.data,finalcost.data,status=status.HTTP_201_CREATED)
-        # return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+        event=serializers.agg_hhc_event_serializer(data=request.data)
+        print(request.data['phone'])
 
-    # def add_detail_event(self, request):
+        caller = models.agg_hhc_callers.objects.filter(phone=request.data['phone'])
+        if caller:
+            caller.update(caller_fullname=request.data['caller_fullname'], caller_rel_id=request.data['caller_rel_id'], purp_call_id=request.data['purp_call_id'], caller_status=3)
+            callerID = caller.first().caller_id 
+        else:  
+            callers=serializers.agg_hhc_callers_serializer(data= request.data)
+            if callers.is_valid():
+                callers.validated_data['caller_status']=3
+                callerID=callers.save().caller_id
+                callerID
+            else:
+                return Response([callers.errors,'5'])
+        # if request.data['purp_call_id']==1:
+        #     patient=models.agg_hhc_patients.objects.filter(phone_no=request.data['phone_no'])
+        #     if patient:
+        #         patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID )
+        #         patientID=patient.first().agg_sp_pt_id 
+        #     else:
+        #         patient = serializers.agg_hhc_patients_serializer(data=request.data)
+        #         if patient.is_valid():
+        #             patient.validated_data['caller_id']=callerID
+        #             patientID=patient.save()
+        #             patientID=patientID.agg_sp_pt_id
+        #         else:
+        #             return Response([patient.errors,'6'])
+        # else:
+        #     patient=models.agg_hhc_patient_list_enquiry.objects.filter(Q(phone_no=request.data['phone_no'])|Q())
+        #     if patient:
+        #         patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID )
+        #         patientID=patient.first().pt_id 
+        #     else:
+        #         patient = serializers.agg_hhc_patient_list_serializer(data=request.data)
+        #         if patient.is_valid():
+        #             patientID=patient.save()
+        #             patientID=patientID.pt_id
+        #         else:
+        #             return Response([patient.errors,'7'])
+
+        # if event.is_valid():
+        #     eventID=event.save().eve_id
+        # else:
+        #     return Response([event.errors,'8'])
+        # event=models.agg_hhc_events.objects.filter(eve_id=eventID)
+        # if request.data['purp_call_id']==1:
+        #     event.update(agg_sp_pt_id=patientID,caller_id=callerID)
+        # else:
+        #     event.update(pt_id=patientID,caller_id=callerID)
+        # data=request.data['sub_srv_id']
+        # start_date = datetime.datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
+        # end_date = datetime.datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
+        # diff = ((end_date.date() - start_date.date()).days)
+        # for sub_srv in data:
+        #     request.data['sub_srv_id']=sub_srv
+        #     add_service=serializers.agg_hhc_add_service_serializer(data=request.data)
+        #     if add_service.is_valid():
+        #         service=add_service.save().eve_poc_id
+        #     else:
+        #         return Response([add_service.errors,'9'])
+        #     plan_O_C=models.agg_hhc_event_plan_of_care.objects.filter(eve_poc_id=service)
+        #     plan_O_C.update(eve_id=eventID)
+
+        #     for i in range(0,(diff+1)):
+        #         start_date_string=start_date+datetime.timedelta(days=i)
+        #         request.data['actual_StartDate_Time']=start_date_string
+        #         request.data['actual_EndDate_Time']=datetime.datetime.combine(start_date_string.date(),end_date.time())
+        #         detailPlaneofcare=serializers.agg_hhc_add_detail_service_serializer(data=request.data)
+        #         if detailPlaneofcare.is_valid():
+        #             detailPlaneofcare.eve_poc_id=service
+        #             detailPlaneofcare.eve_id=eventID
+        #             detail_plan=detailPlaneofcare.save().agg_sp_dt_eve_poc_id
+        #         else:
+        #             return Response([detailPlaneofcare.errors,'000'])
+        #         data1=models.agg_hhc_detailed_event_plan_of_care.objects.filter(agg_sp_dt_eve_poc_id=detail_plan)
+        #         data1.update(eve_poc_id=service,eve_id=eventID,index_of_Session=(i+1))
+        return Response("Service Created Event Code")    
+class agg_hhc_state_api(APIView):
+    def get(self,request,format=None):
+        reason=models.agg_hhc_state.objects.all()
+        serializer=serializers.agg_hhc_get_state_serializer(reason,many=True)
+        return Response(serializer.data)
+    
+class agg_hhc_city_api(APIView):
+    def get(self,request,pk,format=None):
+        reason=models.agg_hhc_city.objects.filter(state_id=pk)
+        serializer=serializers.agg_hhc_get_city_serializer(reason,many=True)
+        return Response(serializer.data)
+
+class agg_hhc_consultant_api(APIView):
+    def get(self,request):
+        consultant=models.agg_hhc_doctors_consultants.objects.filter(status=1)
+        consultantSerializer=serializers.agg_hhc_doctors_consultants_serializer(consultant,many=True)
+        return Response(consultantSerializer.data)
+# ----------------------------------------------------------------------------------------------------
 
         
 
@@ -260,6 +342,7 @@ class agg_hhc_callers_phone_no(APIView):
         snippet=self.get_object(pk)
         caller_record=models.agg_hhc_callers.objects.get(pk=snippet)
         record=models.agg_hhc_patients.objects.filter(caller_id=snippet)
+        print(record)
         serialized_caller=serializers.agg_hhc_callers(caller_record)
         serialized=serializers.agg_hhc_app_patient_by_caller_phone_no(record,many=True)
         return Response({"caller": serialized_caller.data, "patients": serialized.data})
@@ -322,9 +405,10 @@ class agg_hhc_pincode_number_api(APIView):
 class agg_hhc_city_from_state_api(APIView):
     def get_object(self,state,formate=None):
         try:
-            return models.agg_hhc_city.objects.filter(state_name=state)
+            return models.agg_hhc_city.objects.filter(state_id=state)
         except models.agg_hhc_city.DoesNotExist:
             raise Response(status.HTTP_404_NOT_FOUND)
+        
     def get(self,request,state):
         state_obj=self.get_object(state)
         serialized=serializers.agg_hhc_city(state_obj,many=True)
@@ -535,8 +619,15 @@ class last_patient_service_info(APIView):
         patient_date=models.agg_hhc_event_plan_of_care.objects.filter(eve_id=eve_id)
         patient_date=patient_date.first()
         patient_date_serialized=serializers.agg_hhc_event_plan_of_care_serializer(patient_date)
-        a=patient_date_serialized.data.get('srv_id')
-        patient_service_serialized=models.agg_hhc_services.objects.filter(srv_id=a).first()
+        print('this is patient _sat',patient_date)
+        print('this is patient',str(patient_date.srv_id))
+        patient_service_serialized=models.agg_hhc_services.objects.filter(srv_id=str(patient_date.srv_id)).first()
+        print(';;;;;;',patient_service_serialized.service_title)
+
+        # print('this is latest patient service',latest_patient_service)
+        # print('this is service ',latest_patient_service.srv_id)
+        # patient_obj=models.agg_hhc_services.objects.get(srv_id=latest_patient_service)
+        # patient_obj_serialized=serializers.agg_hhc_services_serializer(patient_obj)
         return Response({'Date':patient_date_serialized.data,'service':patient_service_serialized.service_title})
         
 
@@ -559,72 +650,124 @@ class AggHHCServiceProfessionalListAPIView(generics.ListAPIView):
 
 #--------------------------------------Nikita P-----------------------------------------------
 
-class agg_hhc_zone_api(APIView):
+class agg_hhc_zone_api(APIView): # List of Zones
 
     def get(self, request, format=None):
         groups = models.agg_hhc_professional_zone.objects.all()
         if groups:
-            serializer = serializers.agg_hhc_professional_zone_serializer(groups, many=True)
+            serializer = agg_hhc_professional_zone_serializer(groups, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-class agg_hhc_service_professional_api_zone(APIView):
-    def get(self, request, zone, format=None):
-        # print(zone)
+class agg_hhc_service_professional_api(APIView): # List of professionals
 
-        pros = agg_hhc_service_professionals.objects.filter(prof_zone_id=zone)
-
-        if pros:
-            serializer = serializers.agg_hhc_service_professional_serializer(pros, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-class agg_hhc_service_professional_api(APIView):
     def get(self, request, format=None):
-        pros = agg_hhc_service_professionals.objects.all()
-        # for i in pros:
-        #     p = i.prof_sub_srv_id
-        #     print(type(p))
-        #     subsrv = agg_hhc_professional_sub_services.objects.get(prof_sub_srv_id=1)
-        #     cost=subsrv.prof_cost
-
-
-
-        # print(service_name)
-        if pros:
-
-            serializer = serializers.agg_hhc_service_professional_serializer(pros, many=True)
-            # serializer2 = {
-            #     'cost':cost,
-            #     'serializer':serializer.data
-            # }
+        zone = request.GET.get('zone')
+        title = request.GET.get('title')
+        pro = request.GET.get('pro')
+        # zone = agg_hhc_service_professionals.objects.filter(prof_zone_id=zone)
+        # if zone == None or title == None or pro == None:
+        if zone or title:
+            zone = agg_hhc_service_professionals.objects.filter(Q(prof_zone_id=zone) | Q(title=title))
+        elif pro:
+            zone = agg_hhc_service_professionals.objects.filter(srv_prof_id=pro)
+        else:
+            zone = agg_hhc_service_professionals.objects.all()
+        if zone:
+            serializer = agg_hhc_service_professional_serializer(zone, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class agg_hhc_detailed_event_plan_of_care_api(APIView):
 
-    def get(self, request, zone, format=None):
-        print(zone)
-        time = datetime.date.today()
-        print(f"Filter:- {time}")
-        zone = models.agg_hhc_detailed_event_plan_of_care.objects.filter(srv_prof_id=zone, service_status=2, service_date__gte=time)
-        print(f"Plan:- {zone}")
-        if zone:
-            serializer = serializers.agg_hhc_detailed_event_plan_of_care_serializer(zone, many=True)
+    def get(self, request, format=None):
+        pro = request.GET.get('pro')
+        pro = models.agg_hhc_detailed_event_plan_of_care.objects.filter(srv_prof_id=pro)# To display all past & upcoming events.
+
+        if pro:
+            serializer = agg_hhc_detailed_event_plan_of_care_serializer(pro, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class agg_hhc_detailed_event_plan_of_care_per_day_api(APIView):
+
+    def get(self, request, format=None):
+        pro = request.GET.get('pro')
+        # time = datetime.date.today()
+        current_datetime = timezone.now()
+        time = current_datetime.strftime("%Y-%m-%d")
+        # time = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+        print(f"Filter:- {time}")
+        pro = models.agg_hhc_detailed_event_plan_of_care.objects.filter(srv_prof_id=pro, service_status=2, actual_StartDate_Time__icontains=time)
+        if pro:
+            serializer = agg_hhc_detailed_event_plan_of_care_serializer(pro, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    def put(self, request, format=None):
+        json_data = json.loads(request.body)
+        evt = json_data['agg_sp_dt_eve_poc_id']
+        if evt is not None:
+            # print(f"evt: {evt}")
+            evt = models.agg_hhc_detailed_event_plan_of_care.objects.get(agg_sp_dt_eve_poc_id=evt)
+            serializer = agg_hhc_detailed_event_plan_of_care_serializer(evt, data=json_data)
+            # print(serializer)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class CashfreeCreateOrder(APIView):
+
+    def post(self, request, format=None):
+        # serializer = PatientSerializer(data=request.data)
+        # if serializer.is_valid(raise_exception=True):
+        #     patient = serializer.save()
+        if request.data:
+            print(request.data)
+            return Response({'msg':'Payment Successfully added'},status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+    # def post(self, request):
+    #     url = f"{settings.CASHFREE_API_URL}/payout/v1/order/create"
+    #     # url = f"https://api.cashfree.com/payout/v1/order/create"
+    #     payload = {
+    #     "orderId": "0001",
+    #     "orderAmount": "1",
+    #     "orderCurrency": "INR",
+    #     "orderNote": "Your order description or note",
+    #     "customerName": "Nikita Pawar",
+    #     "customerPhone": "7057662056",
+    #     "customerEmail": "john.doe@example.com",
+    #     "returnUrl": "https://example.com/payment-success",  # URL to redirect after successful payment
+    #     "notifyUrl": "https://example.com/payment-notify",  # URL to receive payment notifications (webhooks)
+    #     "source": "web",  # The source of the payment (web, mobile, etc.)
+    #     "paymentModes": "card,upi,netbanking",  # Supported payment modes for the order
+    #     # Add other required parameters specific to your use case here
+    # }
+    #     headers = {
+    #         "Content-Type": "application/json",
+    #         "Authorization": f"Bearer {settings.CASHFREE_SECRET_KEY}",
+    #     }
 
-class agg_hhc_service_professionals_api(APIView):
-    def get_object(self,zone):
-        return models.agg_hhc_service_professionals.objects.filter(status=1,prof_zone_id=zone)
-    def get(self,request,zone):
-        zone_object=self.get_object(zone)
-        serialized=serializers.agg_hhc_service_professionals_serializer(zone_object,many=True)
-        return Response(serialized.data)
+    #     response = requests.post(url, json=payload, headers=headers)
+
+    #     if response.status_code == status.HTTP_200_OK:
+    #         # Successful response from Cashfree API
+    #         data = response.json()
+    #         # Process the data and return a success response to the client
+    #         return Response(data, status=status.HTTP_200_OK)
+    #     else:
+    #         # Handle error response from Cashfree API
+    #         error_data = response.json()
+    #         # Handle the error data and return an error response to the client
+    #         return Response(error_data, status=status.HTTP_400_BAD_REQUEST)
+
+#--------------------------------------------#######-----------------------------------------------
 
 
 
@@ -636,36 +779,36 @@ class agg_hhc_service_professionals_api(APIView):
 #---------------------------Mohin-----------------------
 
 
-@api_view(['GET'])
-def combined_info(request):
-    if request.method == 'GET':
-        patients = models.agg_hhc_patients.objects.all()
-        date = models.agg_hhc_event_plan_of_care.objects.all()
-        services = models.agg_hhc_services.objects.all()
-        subservices = models.agg_hhc_sub_services.objects.all()
-        professionalzone = models.agg_hhc_professional_zone.objects.all()
-
-        
-        patients_Serializer = serializers.patients_info_Serializer(patients,many=True)
-        date_Serializer = serializers.hhc_services_date_Serializer(date,many=True)
-        services_Serializer = serializers.hhc_services_Serializer(services,many=True)
-        sub_services_Serializer = serializers.agg_hhc_sub_services_Serializer(subservices,many=True)
-        professional_Serializer = serializers.agg_hhc_professional_zone_Serializer(professionalzone,many=True)
-        
-        combined_data = []
-        for patients_data,date_data,services_data,sub_services_data,professional_data in zip(patients_Serializer.data, date_Serializer.data, services_Serializer.data, sub_services_Serializer.data, professional_Serializer.data):
-            combined_data.append({
-                'patients': patients_data,
-                'date ' : date_data,
-                'services' : services_data,
-                'subservices ' : sub_services_data,
-                'professionalzone ' :professional_data,
-                
-            })
-
-        return Response(combined_data)
-
-
+class combined_info(APIView):
+    def get(self,request):
+        if request.method == 'GET':
+            event_data=models.agg_hhc_events.objects.filter(Q(event_status=1) | Q(event_status=4))
+            agg_hhc_events=serializers.agg_hhc_events_serializers1(event_data,many=True)
+            event=[]
+            for i in agg_hhc_events.data:
+                event_code=i['event_code']#i['eve_id']
+                patient_no=i['agg_sp_pt_id']
+                patient=models.agg_hhc_patients.objects.get(agg_sp_pt_id=patient_no)
+                pat_ser=serializers.agg_hhc_patients_serializer(patient)
+                patient_name=pat_ser.data.get('patient_fullname')
+                patient_number=pat_ser.data.get('phone_no')
+                patient_zone=pat_ser.data.get('zone_id')
+                caller_id=pat_ser.data.get('caller_id')
+                caller_status=models.agg_hhc_callers.objects.get(caller_id=caller_id)
+                caller_seri=serializers.agg_hhc_callers_seralizer(caller_status)
+                caler_status=caller_seri.data.get('caller_status')
+                event_plan_of_care = models.agg_hhc_event_plan_of_care.objects.filter(eve_id=i['eve_id']).latest('eve_id')
+                event_plan_of_care_serialzer=serializers.agg_hhc_add_service_serializer(event_plan_of_care)
+                event_start_date=event_plan_of_care_serialzer.data.get('start_date')
+                event_end_date=event_plan_of_care_serialzer.data.get('end_date')
+                professional_prefered=event_plan_of_care_serialzer.data.get('prof_prefered')
+                service_id=event_plan_of_care_serialzer.data.get('srv_id')
+                service=models.agg_hhc_services.objects.get(srv_id=service_id)
+                service_serializer=serializers.agg_hhc_services_serializer(service)
+                service_name=service_serializer.data.get('service_title')
+                even={'event_id':i['eve_id'],'event_code':event_code,'patient_name':patient_name,'patient_number':patient_number,'patient_zone':patient_zone,'event_start_date':event_start_date,'event_end_date':event_end_date,'service_name':service_name,'caller_status':caler_status,'professional_prefered':professional_prefered}
+                event.append(even)
+            return Response({'event_code':event,})#'patient_name':patient.name,'patient_number':patient.phone_no,'service_name':service_name.service_title})#add zone from agg_hhc_patient_table
 
 
 
@@ -685,3 +828,245 @@ class LogoutView(APIView):
             return Response({'msg':'Token is blacklisted successfully.'},status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response({'msg':'Bad Request'},status=status.HTTP_400_BAD_REQUEST)
+
+
+#--------------------------------mayank--------------------------------------------
+
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+# from rest_framework import status
+from .models import agg_hhc_service_professionals, agg_hhc_event_plan_of_care
+from .serializers import AggHHCServiceProfessionalSerializer
+
+@api_view(['GET'])
+def total_services(request):
+    try:
+        service_professionals = agg_hhc_service_professionals.objects.all()
+        data = []
+        for professional in service_professionals:
+            total_services_count = agg_hhc_event_plan_of_care.objects.filter(srv_prof_id=professional.srv_prof_id).count()
+            serializer = AggHHCServiceProfessionalSerializer(professional)
+            professional_data = serializer.data
+            professional_data['total_services'] = total_services_count
+            data.append(professional_data)
+        return Response(data, status=status.HTTP_200_OK)
+    except agg_hhc_service_professionals.DoesNotExist:
+        return Response({"error": "Service Professionals not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+
+
+
+
+#---------------- ongoing service ------------------------
+
+
+
+from . models import agg_hhc_event_professional,agg_hhc_events,agg_hhc_payments
+from . serializers import OngoingServiceSerializer
+
+
+class OngoingServiceView(APIView):
+    serializer_class = OngoingServiceSerializer
+
+    def get(self, request, format=None):
+        data = models.agg_hhc_events.objects.all()
+        serializer = self.serializer_class(data, many=True)  
+        return Response(serializer.data)
+    
+# -------------------------------------Amit Rasale---------------------------------------------------------------
+class agg_hhc_enquiry_previous_follow_up_APIView(APIView):
+    def get(self, request, event_id=None):
+        queryset = models.agg_hhc_enquiry_follow_up.objects.all()
+        if event_id is not None:
+            queryset = queryset.filter(event_id=event_id)
+        serializer = serializers.agg_hhc_enquiry_previous_follow_up_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+class agg_hhc_enquiry_Add_follow_up_APIView(APIView):
+    def post(self, request):
+        serializer = serializers.agg_hhc_enquiry_Add_follow_up_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class agg_hhc_enquiry_Add_follow_up_Cancel_by_Spero_APIView(APIView):
+     def get(self,request,pk,format=None):
+        reason=models.agg_hhc_enquiry_follow_up_cancellation_reason.objects.filter(cancel_by_id=pk)
+        serializer=serializers.agg_hhc_enquiry_follow_up_cancellation_reason_spero_serializer(reason,many=True)
+        return Response(serializer.data)
+    
+class agg_hhc_enquiry_followUp_cancellation_api(APIView):
+    def get(self,request,pk,format=None):
+        reason=models.agg_hhc_enquiry_follow_up_cancellation_reason.objects.filter(cancel_by_id=pk)
+        serializer=serializers.agg_hhc_enquiry_follow_up_cancellation_reason_spero_serializer(reason,many=True)
+        return Response(serializer.data)
+   
+class agg_hhc_enquiry_Add_follow_up_Cancel_by_APIView(APIView):   
+    def post(self, request):
+        serializer = serializers.agg_hhc_enquiry_Add_follow_up_Cancel_by_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class agg_hhc_enquiry_Add_follow_up_create_service_APIView(APIView):
+    def post(self, request):
+        serializer = serializers.agg_hhc_enquiry_Add_follow_up_create_service_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+  
+
+class agg_hhc_service_enquiry_list_combined_table_view(APIView):
+    def get(self, request, eve_id=None, *args, **kwargs):
+        queryset = models.agg_hhc_events.objects.all()
+        if eve_id is not None:
+            queryset = queryset.filter(eve_id=eve_id)
+        serializer = serializers.agg_hhc_service_enquiry_list_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    
+#------------------------------------coupon--code----------------------------------------------------------
+ 
+class coupon_code_post_api(APIView):
+    def get_object(self,code,format=None):
+        try:
+            return models.agg_hhc_coupon_codes.objects.filter(coupon_code=code,coupon_code_status=1).first()
+        except models.agg_hhc_coupon_codes.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+    def get(self,request,code,total_amt,format=None):
+        queryset=self.get_object(code)
+        if(queryset==None):
+            return Response({'total_amt':total_amt})
+        else:
+            serialized=serializers.agg_hhc_coupon_code_serializers(queryset)
+            percentage=serialized.data.get('coupon_code_discount_Percentage')
+            amount=percentage
+            total_amt=total_amt
+            final= (total_amt-(total_amt*amount)/100)
+            return Response({"final_amount":final})
+        #return Response(serialized.data.get('coupon_code_discount_Percentage'))
+
+class coupon_code_api(APIView):
+    def get(self,request):
+        codes=models.agg_hhc_coupon_codes.objects.filter(coupon_code_status=1,coupon_code_discount_Percentage__lte=10)
+        serializered=serializers.agg_hhc_coupon_code_serializers(codes,many=True)
+        return Response(serializered.data)
+
+
+
+
+
+# ------------------ service reschedule  -------------
+
+from . serializers import Detailed_EPOC_serializer
+from datetime import datetime, timedelta
+
+class service_reschedule_view(APIView):
+    def get(self, request, eve_id, format=None):
+        queryset = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id)
+        serializer = Detailed_EPOC_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+  
+
+    def patch(self, request, eve_id, format=None):
+        start_date = datetime.strptime(request.data.get('start_date'), '%Y-%m-%dT%H:%M')
+        end_date = datetime.strptime(request.data.get('end_date'), '%Y-%m-%dT%H:%M')
+
+        # start_date_str = request.data.get('start_date')
+        # end_date_str = request.data.get('end_date')
+
+        # start_date = datetime.strptime(start_date_str, '%Y-%m-%d')  
+        # end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+
+        # start_date = datetime.strptime(request.data.get('start_date'), '%Y-%m-%d').date()
+        # end_date = datetime.strptime(request.data.get('end_date'), '%Y-%m-%d').date()
+        remark = request.data.get('remark')
+
+        try:
+            queryset = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id)
+            queryset2 = models.agg_hhc_event_plan_of_care.objects.filter(eve_id=eve_id)
+            queryset2.update(start_date=start_date, end_date=end_date, remark=remark)
+
+            for i, obj in enumerate(queryset):
+                new_start_date = start_date + timedelta(days=i)
+                new_end_date = end_date + timedelta(days=i)
+                obj.start_date = new_start_date
+                obj.end_date = new_start_date
+                obj.save()
+
+        
+
+            serializer = Detailed_EPOC_serializer(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except models.agg_hhc_event_plan_of_care.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+# ------------------ Professional Reschedule ------------------
+
+from . models import Session_status_enum
+class Professional_Reschedule_Apiview(APIView):
+    # serializer_class = serializers.Prof_Reschedule_serializer
+
+    # def get(self, request, eve_id,index_of_session):
+        
+    #     data = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
+    #     serializer = self.serializer_class(data, many=True)
+    #     return Response(serializer.data)
+    
+    # def get(self, request, eve_id, index_of_session):
+    def get(self, request,eve_id):
+        try:
+            # record = models.agg_hhc_detailed_event_plan_of_care.objects.get(eve_id=eve_id, index_of_Session=index_of_session,Session_status=Session_status_enum.Pending)
+            record = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
+            serializer = self.serializers.Prof_Reschedule_serializer(record, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except models.agg_hhc_detailed_event_plan_of_care.DoesNotExist:
+            return Response({'error': 'No record found for the given eve_id and index_of_session'}, status=status.HTTP_404_NOT_FOUND)
+
+
+    def patch(self, request, eve_id):
+        try:
+            start_date = request.data.get('start_date')
+            end_date = request.data.get('end_date')
+            srv_prof_id = request.data.get('srv_prof_id')
+
+            # If start_date and end_date are the same, update the specific record
+            if start_date == end_date:
+                record = models.agg_hhc_detailed_event_plan_of_care.objects.get(
+                    eve_id=eve_id, start_date=start_date, end_date=end_date
+                )
+                serializer = self.serializer_class(record, data=request.data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+            else:
+                
+                service_professional = models.agg_hhc_service_professionals.objects.get(pk=srv_prof_id)
+                
+                
+                records_to_update = models.agg_hhc_detailed_event_plan_of_care.objects.filter(
+                    eve_id=eve_id, start_date__gte=start_date, end_date__lte=end_date
+                )
+                for record in records_to_update:
+                    record.srv_prof_id = service_professional
+                    record.save()
+
+            return Response({'message': 'Records updated successfully'}, status=status.HTTP_200_OK)
+        except models.agg_hhc_detailed_event_plan_of_care.DoesNotExist:
+            return Response({'error': 'No matching session found or session is less than date'}, status=status.HTTP_404_NOT_FOUND)
+
+
+# -------------- Prof Avail ----------
+
+# class get_all_avail_professionals(APIView):
+#     serializer_class = serializers.avail_prof_serializer
+#     def get(self,request,srv_id):
+
+#         data = models.agg_hhc_professional_sub_services.objects.filter(srv_id=srv_id)
+#         serializer =  self.serializer_class(data,many=True)
+#         return Response(serializer.data) 

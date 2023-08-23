@@ -10,11 +10,23 @@ from django.contrib.auth.models import(
 )
 # Create your models here.
 
+class cancel_from(enum.Enum):
+	Cancel_By_Spero=1
+	Cancel_By_Patient=2
+	
 class enquiry_from_enum(enum.Enum):
 	website = 1
 	application = 2
 	consultant = 3
+	Oncall = 4
 	__default__ = website
+
+class enquiry_status(enum.Enum):
+	Cancelled_Enquiry = 1
+	Follow_up_pending = 2
+	Converted_Into_service = 3
+	Follow_up_Reschedule = 4
+	
 
 class active_inactive_enum(enum.Enum):
     Active=1
@@ -29,6 +41,19 @@ class status_enum(enum.Enum):
 	Active = 1
 	Inactive = 2
 	Delete = 3
+
+class valid_event_enum(enum.Enum):
+	Not_allocated_Professional = 1
+	Allocated_Professional = 2
+	Closure_completed = 3 
+	Incomplete_info=4
+
+class service_status_enum(enum.Enum):
+	Service_about_to_end = 1
+	Acknowledge_pending = 2
+	Acknowledge_by_professional = 3
+	Closure_completed = 4
+	Pending_for_closure = 5
 
 class level(enum.Enum):
     Primary = 0
@@ -236,13 +261,29 @@ class service_status_enum(enum.Enum):
 	Completed = 3
 	terminated = 4
 
+
+
+# --------------------------------Amit Rasale-----------------------------
+class follow_up_cancel_by(models.TextChoices):
+    From_Spero 		= 1
+    From_Patient   	= 2
+    Other      		= 3
+    
+
+class follow_up(models.TextChoices):
+    Keep_In_Follow_up = 1
+    Cancel = 2
+    Create_Service = 3
+# ------------------------------------------------------------------------
+
 class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
 	caller_id=models.AutoField(primary_key=True)
 	phone=models.BigIntegerField(null=True)#this will used to store otp
 	otp=models.IntegerField(null=True)
 	otp_expire_time=models.DateTimeField(null=True)
-	fname=models.CharField(max_length=50,null=True)
-	lname=models.CharField(max_length=50,null=True)
+	caller_fullname=models.CharField(max_length=50,null=True)
+	# lname=models.CharField(max_length=50,null=True)
+	purp_call_id = models.ForeignKey('agg_hhc_purpose_call',on_delete=models.CASCADE,null=True)
 	caller_rel_id=models.ForeignKey('agg_hhc_caller_relation',on_delete=models.CASCADE,null=True)
 	age=models.IntegerField(null=True)
 	gender=models.CharField(max_length=20,null=True)
@@ -260,7 +301,7 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	caller_status=enum.EnumField(caller_status_enum,null=True)
 
 	def __str__(self):
-		return f"{self.caller_id},{self.fname}"
+		return f"{self.caller_id},{self.caller_fullname}"
 	
 	
 """
@@ -277,12 +318,13 @@ class agg_hhc_callers(models.Model):#20
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)"""
 
-class agg_hhc_patinet_list_enquiry(models.Model):#1
+class agg_hhc_patient_list_enquiry(models.Model):#1
 	pt_id = models.AutoField(primary_key = True)
 	consultat_id = models.BigIntegerField(null=True)
 	consultat_fname = models.CharField(max_length=50,null=True)
-	name = models.CharField(max_length=50,null=True)
+	patient_fullname = models.CharField(max_length=50,null=True)
 	contact = models.CharField(max_length=20,null=True)
+	eve_id = models.ForeignKey('agg_hhc_events',to_field='eve_id', on_delete=models.CASCADE,null=True)
 	call_type=models.CharField(max_length=50,null=True)
 	relation = models.CharField(max_length=20,null=True)
 	patient_fname = models.CharField(max_length=50,null=True)
@@ -302,9 +344,10 @@ class agg_hhc_patinet_list_enquiry(models.Model):#1
 	# End_Date_and_Time=models.DateTimeField(null=True)
 	# Professional_Preferred=models.CharField(max_length=100,null=True)
 	# note = models.CharField(max_length=50,null=True)
-	status = models.CharField(max_length=2,null=True)
-	added_date = models.DateField(default=timezone.now,null=True)
-	enquiry_from = enum.EnumField(enquiry_from_enum,null=True)
+	status = models.CharField(max_length=2, null=True)
+	enquiry_status = enum.EnumField(enquiry_status, null=True)
+	added_date = models.DateField(default=timezone.now, null=True)
+	enquiry_from = enum.EnumField(enquiry_from_enum, null=True)
 	
 class agg_hhc_assessment_patient(models.Model):#2
 	ass_pt_id = models.AutoField(primary_key = True)
@@ -559,7 +602,7 @@ class agg_hhc_patients(models.Model):#6
 	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
 	hhc_code = models.CharField(max_length=50,null=True, blank=True)
 	membership_id = models.CharField(max_length=50,null=True)
-	name = models.CharField(max_length=255,null=True)
+	patient_fullname = models.CharField(max_length=255,null=True)
 	# first_name = models.CharField(max_length=50,null=True)
 	# middle_name = models.CharField(max_length=50,null=True)
 	pincode=models.PositiveIntegerField(null=True)
@@ -572,15 +615,16 @@ class agg_hhc_patients(models.Model):#6
 	state=models.CharField(max_length=150,null=True)
 	city_id = models.BigIntegerField(null=True)
 	sub_location = models.CharField(max_length=50,null=True)
-	zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
+	prof_zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True,to_field="Name")
+	eve_id = models.ForeignKey('agg_hhc_events',on_delete=models.CASCADE,null=True)
 	otp=models.IntegerField(null=True)
 	otp_expire_time=models.DateTimeField(null=True)
 	google_location = models.CharField(max_length=240,null=True)
 	Suffered_from=models.CharField(max_length=240,null=True)
 	hospital_name=models.CharField(max_length=240,null=True)
 	preferred_hosp_id=models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# updated
-	phone_no = models.CharField(max_length=20,null=True)
-	mobile_no = models.CharField(max_length=20,null=True)
+	phone_no = models.BigIntegerField(null=True)
+	# mobile_no = models.CharField(max_length=20,null=True)
 	dob = models.DateField(null=True)
 	patient_ref_name = models.CharField(max_length=50,null=True)
 	status = enum.EnumField(status_enum,null=True)
@@ -616,8 +660,9 @@ class agg_hhc_patients(models.Model):#6
 
 class agg_hhc_detailed_event_plan_of_care(models.Model):#8
 	agg_sp_dt_eve_poc_id = models.AutoField(primary_key = True)
-	agg_sp_pt_id= models.ForeignKey(agg_hhc_patinet_list_enquiry, on_delete=models.CASCADE, null=True)
-	eve_id = models.BigIntegerField(null=True)
+	eve_poc_id = models.ForeignKey('agg_hhc_event_plan_of_care',on_delete=models.CASCADE,null=True)
+	agg_sp_pt_id= models.ForeignKey(agg_hhc_patient_list_enquiry, on_delete=models.CASCADE, null=True)
+	eve_id = models.ForeignKey('agg_hhc_events',on_delete = models.CASCADE, null=True)
 	eve_req_id = models.BigIntegerField(null=True)
 	index_of_Session = models.BigIntegerField(null=True)
 	srv_prof_id = models.ForeignKey('agg_hhc_service_professionals', related_name='relation_id',on_delete=models.CASCADE, null=True, blank=True, default=None)
@@ -625,10 +670,10 @@ class agg_hhc_detailed_event_plan_of_care(models.Model):#8
 	service_date = models.DateField(null=True)
 	service_date_to = models.DateField(null=True)
 	Actual_Service_date = models.DateField(null=True)
-	start_date = models.DateField(null=True)
-	end_date = models.DateField(null=True)
-	actual_StartDate_Time = models.DateField(null=True)
-	actual_EndDate_Time = models.DateField(null=True)
+	start_date = models.DateTimeField(null=True)
+	end_date = models.DateTimeField(null=True)
+	actual_StartDate_Time = models.DateTimeField(null=True)
+	actual_EndDate_Time = models.DateTimeField(null=True)
 	service_cost = models.FloatField(null=True)
 	amount_received = models.CharField(max_length=11,null=True)
 	status = enum.EnumField(status_enum,null=True)
@@ -646,12 +691,16 @@ class agg_hhc_detailed_event_plan_of_care(models.Model):#8
 	otp_expire_time = models.DateField(null=True)
 	Reschedule_count = models.BigIntegerField(null=True)
 	service_status = enum.EnumField(service_status_enum, null=True)
+	remark = models.CharField(max_length=200, null=True)# newly added
+	
 
 class agg_hhc_events(models.Model):#9
 	eve_id = models.AutoField(primary_key = True)
 	event_code = models.CharField(max_length=640,null=True,blank=True)
+	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
 	caller_id = models.ForeignKey('agg_hhc_callers',on_delete=models.CASCADE,null=True)
 	# relation = models.CharField(max_length=64,null=True)
+	pt_id = models.ForeignKey(agg_hhc_patient_list_enquiry,on_delete=models.CASCADE,null=True)
 	agg_sp_pt_id= models.ForeignKey(agg_hhc_patients,on_delete=models.CASCADE, null=True)
 	purp_call_id = models.BigIntegerField(null=True)
 	bill_no_ref_no = models.BigIntegerField(null=True)
@@ -664,10 +713,11 @@ class agg_hhc_events(models.Model):#9
 	enquiry_cancellation_reason = models.CharField(max_length=500,null=True)
 	enquiry_cancel_date = models.DateField(null=True)
 	description = models.CharField(max_length=500,null=True)
-	finalcost = models.CharField(max_length=240,null=True)
+	# Total_cost = models.CharField(max_length=240,null=True)
+	Total_cost = models.DecimalField(max_digits=50, decimal_places=2,null=True)
 	discount_type = enum.EnumField(discount_type_enum,null=True)
 	discount_value = models.FloatField(null=True)
-	discount_amount = models.FloatField(null=True)
+	final_amount = models.FloatField(null=True)
 	status = enum.EnumField(status_enum,null=True)
 	# inc_call_id = models.CharField(max_length=100,null=True)
 	# event_status = enum.EnumField(event_status_enum,null=True)
@@ -694,6 +744,7 @@ class agg_hhc_events(models.Model):#9
 	OTP_count = models.IntegerField(null=True)
 	otp_expire_time = models.DateField(null=True)
 	sor_of_enq_id = models.BigIntegerField(null=True)
+	event_status=enum.EnumField(valid_event_enum,null=True)
 
 	def save(self, *args, **kwargs):
 		if not self.eve_id:
@@ -703,7 +754,7 @@ class agg_hhc_events(models.Model):#9
 				last_sequence = int(last_pt.event_code[-4:]) + 1  
 			else:last_sequence= 1
 			self.event_code = f"{prefix}{last_sequence:04d}"
-			return super().save(*args, **kwargs)
+		return super().save(*args, **kwargs)
 	# def save(self, *args, **kwargs):
 	# 	if not self.eve_id:
 	# 		last_pt = agg_hhc_events.objects.order_by('-eve_id').first()
@@ -781,7 +832,7 @@ class agg_hhc_event_other_call(models.Model):#14
 
 class agg_hhc_event_plan_of_care(models.Model):#15
 	eve_poc_id = models.AutoField(primary_key = True)
-	eve_id = models.ForeignKey('agg_hhc_events',on_delete=models.CASCADE,null=True)# new added
+	eve_id = models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,related_name='event_id',null=True)# new added
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)# new added
 	sub_srv_id = models.ForeignKey('agg_hhc_sub_services', on_delete=models.CASCADE,null=True)
 	hosp_id = models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# new added
@@ -790,6 +841,8 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 	srv_prof_id = models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
 	# service_date = models.DateField(null=True)# this field for fields stor  time
 	# service_date_to = models.DateField(null=True)# this field for fields stor time
+	actual_StartDate_Time = models.DateTimeField(null=True)
+	actual_EndDate_Time = models.DateTimeField(null=True)
 	start_date = models.DateTimeField(null=True)
 	end_date = models.DateTimeField(null=True)
 	service_cost = models.FloatField(null=True)
@@ -800,6 +853,7 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 	remark = models.CharField(max_length=200, null=True)# newly added
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
+	service_status = enum.EnumField(service_status_enum,null=True)
 
 class agg_hhc_event_professional(models.Model):#16 To store professional available details
 	eve_prof_id = models.AutoField(primary_key = True)
@@ -948,7 +1002,8 @@ class agg_hhc_professional_services(models.Model):#28
 
 class agg_hhc_professional_sub_services(models.Model):#29
 	prof_sub_srv_id = models.AutoField(primary_key = True)
-	srv_prof_id = models.BigIntegerField(null=True)
+	# srv_prof_id = models.BigIntegerField(null=True)
+	srv_prof_id = models.ForeignKey("agg_hhc_service_professionals", on_delete=models.CASCADE, null=True)
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
 	#sub_srv_id = models.ForeignKey('agg_hhc_sub_services',on_delete=models.CASCADE,null=True)
 	prof_cost = models.FloatField(null=True)
@@ -1047,9 +1102,10 @@ class agg_hhc_service_professionals(models.Model):#32
 	title = models.CharField(max_length=500,null=True)
 	skill_set=models.CharField(max_length=200,null=True)#BHMS
 	Job_type = models.CharField(max_length=10,null=True)
-	first_name = models.CharField(max_length=255,null=True)
-	last_name = models.CharField(max_length=50,null=True)
-	middle_name = models.CharField(max_length=50,null=True)
+	prof_fullname = models.CharField(max_length=200,null=True)
+	# first_name = models.CharField(max_length=255,null=True)
+	# last_name = models.CharField(max_length=50,null=True)
+	# middle_name = models.CharField(max_length=50,null=True)
 	email_id = models.CharField(max_length=255,null=True)
 	phone_no = models.CharField(max_length=20,null=True)
 	mobile_no = models.CharField(max_length=20,null=True)
@@ -1059,7 +1115,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	work_email_id = models.CharField(max_length=255,null=True)
 	work_phone_no = models.CharField(max_length=20,null=True)
 	work_address = models.CharField(max_length=500,null=True)
-	prof_zone_id= models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
+	prof_zone_id= models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True, to_field="Name")
 	loc_id = models.CharField(max_length=240,null=True)
 	set_location = enum.EnumField(set_location_enum,null=True)
 	status = enum.EnumField(status_enum,null=True)
@@ -1080,7 +1136,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	OTP = models.CharField(max_length=4,null=True)
 	OTP_count = models.BigIntegerField(null=True)
 	otp_expire_time = models.DateTimeField(null=True)
-	Profile_pic = models.CharField(max_length=100,null=True)
+	Profile_pic = models.ImageField(null=True,max_length=None)
 	Ratings = models.FloatField(null=True)
 	Reviews = models.IntegerField(null=True)
 	Description = models.CharField(max_length=200,null=True)
@@ -1088,10 +1144,13 @@ class agg_hhc_service_professionals(models.Model):#32
 	reg_source = enum.EnumField(reg_source_enum,null=True)
 	availability_status = enum.EnumField(yes_no_enum,null=True)
 	location_status = enum.EnumField(yes_no_enum,null=True)
-	prof_srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True,to_field="service_title")
-	prof_sub_srv_id = models.ForeignKey('agg_hhc_professional_sub_services',on_delete=models.CASCADE,null=True)
+	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True,to_field="service_title")# rename by vishal
+	# prof_srv_id = models.IntegerField(null=True)
+	# prof_sub_srv_id = models.ForeignKey('agg_hhc_professional_sub_services',on_delete=models.CASCADE,null=True)
 	Experience = models.IntegerField(null=True)
 	Calendar = models.DateField(auto_now=False, auto_now_add=False, null=True)
+	# srv_id = models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True)#added by mayank
+	Experience = models.FloatField(null=True)#added by mayank
 
 class agg_hhc_service_professional_details(models.Model):#33
 	srv_prof_dt_id = models.AutoField(primary_key = True)
@@ -1655,13 +1714,21 @@ class agg_hhc_cheque_images(models.Model):#69
     Url_path=models.CharField(max_length=200,null=True)
     Added_date=models.DateTimeField(default=timezone.now,null=True)
 
+# class agg_hhc_city(models.Model):#70
+#     city_id=models.AutoField(primary_key=True)
+#     city_name=models.CharField(max_length=100,null=True,unique=True)
+#     state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True,to_field='state_name')
+#     status=enum.EnumField(status_enum,null=True)
+#     Added_by=models.IntegerField(null=True)
+#     Added_date=models.DateTimeField(default=timezone.now,null=True)
+#     def __str__(self):
+# 	    return self.city_name
 class agg_hhc_city(models.Model):#70
     city_id=models.AutoField(primary_key=True)
     city_name=models.CharField(max_length=100,null=True,unique=True)
-    state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True,to_field='state_name')
+    state_id=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
     status=enum.EnumField(status_enum,null=True)
-    Added_by=models.IntegerField(null=True)
-    Added_date=models.DateTimeField(default=timezone.now,null=True)
+    
     def __str__(self):
 	    return self.city_name
 
@@ -1724,12 +1791,13 @@ class agg_hhc_doctors_consultants(models.Model):#76
     doct_cons_id=models.AutoField(primary_key=True)
     #hosp_id=models.ForeignKey(agg_hhc_hospitals,on_delete=models.CASCADE,null=True)
     hos_nm=models.CharField(max_length=100,null=True)
-    first_name=models.CharField(max_length=100,null=True)
-    last_name=models.CharField(max_length=100,null=True)
-    middle_name=models.CharField(max_length=100,null=True,blank=True)
+    cons_fullname = models.CharField(max_length=255,null=True)
+    # first_name=models.CharField(max_length=100,null=True)
+    # last_name=models.CharField(max_length=100,null=True)
+    # middle_name=models.CharField(max_length=100,null=True,blank=True)
     email_id=models.EmailField(null=True)
     #phone_no=models.IntegerField(null=True)
-    mobile_no=models.IntegerField(null=True)
+    mobile_no=models.BigIntegerField(null=True)
     weblogin_password=models.CharField(max_length=100,null=True)
     work_email_id=models.EmailField(null=True,blank=True)
     work_phone_no=models.IntegerField(null=True,blank=True)
@@ -1814,15 +1882,24 @@ class agg_hhc_emp_spero(models.Model):#80
 
 class agg_hhc_enquiry_follow_up(models.Model):#81
     enq_follow_up_id=models.AutoField(primary_key=True)
-    #event_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
-    follow_up_date=models.DateField(null=True)
-    follow_up_time=models.CharField(max_length=255,null=True)
+    event_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE)
+    # follow_up_date = models.DateField()                              
+    # follow_up_time = models.TimeField()   
+    follow_up_date_time = models.DateTimeField(null=True)
+    previous_follow_up_remark = models.CharField(max_length=500)
+    cancel_by = models.CharField(max_length=255,choices=follow_up_cancel_by.choices)              # Amit Rasale __ Add follow_up field
+    canclation_reason = models.CharField(max_length=255)              				# Amit Rasale __ Add follow_up field   
+    follow_up = models.CharField(max_length=255,choices=follow_up.choices)
+    
+    # follow_up_date1=models.DateField(null=True)
+    # follow_up_time1=models.CharField(max_length=255,null=True)
     follow_up_desc=models.CharField(max_length=500,null=True)
     follow_up_status=enum.EnumField(status_enum,null=True)
     follow_up_next_date=models.DateField(null=True,blank=True)
     added_by=models.IntegerField(null=True)
     added_date=models.DateTimeField(default=timezone.now,null=True)
     last_modified_by=models.IntegerField(null=True,blank=True)
+    
     last_modified_date=models.DateTimeField(null=True,blank=True)
     is_read_status=enum.EnumField(is_delet_enum,null=True)
 
@@ -1981,7 +2058,8 @@ class agg_hhc_payments(models.Model):#93
     party_bank_name=models.CharField(max_length=50,null=True)
     professional_name=models.CharField(max_length=50,null=True)
     Transaction_Type=models.CharField(max_length=50,null=True)
-    amount=models.IntegerField(null=True)
+    amount = models.DecimalField(max_digits=50, decimal_places=2)
+    # amount = models.CharField(max_length=240,null=True)
     types=models.CharField(max_length=50,null=True)
     added_by=models.IntegerField(null=True)
     Add_through=enum.EnumField(Add_through_enum,null=True)
@@ -2283,7 +2361,7 @@ class agg_hhc_professional_zone(models.Model):#53 Zones
     prof_zone_id=models.AutoField(primary_key=True)
     city_id=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)
 	#prof_srv_id=models.ForeignKey(agg_hhc_professional_services,on_delete=models.CASCADE,null=True)
-    Name=models.CharField(max_length=50,null=True)
+    Name=models.CharField(max_length=50,null=True, unique=True)
     def __str__(self):
 	    return f'{self.Name}'
 
@@ -2294,7 +2372,13 @@ class  agg_hhc_professional_cancelled_reason(models.Model):
 	reason=models.TextField(null=True)
 	added_date=models.DateTimeField(default=timezone.now,null=True)
 	
-
+class agg_hhc_coupon_codes(models.Model):
+	coupon_id=models.AutoField(primary_key=True)
+	coupon_code=models.CharField(max_length=200,null=True)
+	coupon_code_discount_Percentage=models.IntegerField(null=True)
+	coupon_code_status=enum.EnumField(status_enum,null=True)
+	Added_date=models.DateTimeField(default=timezone.now,null=True)
+	added_by=models.IntegerField(null=True)
 
 
 
@@ -2430,6 +2514,7 @@ class agg_colleague_manager(BaseUserManager):
 class agg_com_colleague(AbstractBaseUser):
     # clg_id = models.AutoField(primary_key=True, auto_created=True)
     clg_ref_id = models.CharField(max_length=15,unique=True, null=True)
+    # clg_ref_id2 = models.CharField(max_length=15, null=True)
     clg_email = models.EmailField(
         verbose_name='email address',
         max_length=255,
@@ -2503,3 +2588,10 @@ class agg_com_colleague(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+    
+class agg_hhc_enquiry_follow_up_cancellation_reason(models.Model):
+	cancelation_reason_id = models.AutoField(primary_key=True)
+	cancelation_reason = models.CharField(max_length=300,null=True)
+	cancel_by_id= enum.EnumField(cancel_from,null=True)
+
+	

@@ -1,6 +1,8 @@
 from django.urls import path
 from hhcweb import views
 from hhcweb.views import UserRegistrationView, UserLoginView, LogoutView,combined_info
+# from .views import AggHHCServiceProfessionalAPIView
+
 
 urlpatterns = [
     path('register/', UserRegistrationView.as_view(), name='register'),
@@ -46,12 +48,50 @@ urlpatterns = [
     #--------------------------------------------Dashboard------------Api--------------------------------------
     path('service_details_today_total_services',views.service_details_today_total_services.as_view()),
     #-----------------------------------------nikita_p--------------------------------------
-    path('agg_hhc_zone_api',views.agg_hhc_zone_api.as_view()),
-    path('agg_hhc_event_professional_api/<zone>/',views.agg_hhc_service_professional_api_zone.as_view()),
-    path('agg_hhc_event_professional_api/',views.agg_hhc_service_professional_api.as_view()),
-    path('agg_hhc_detailed_event_plan_of_care/<zone>/',views.agg_hhc_detailed_event_plan_of_care_api.as_view()),
+    # path('agg_hhc_zone_api/<int:pk>',views.agg_hhc_professional_zone_api.as_view()),                # Added by sandip shimpi
+    # path('agg_hhc_event_professional_api/<zone>/',views.agg_hhc_service_professional_api_zone.as_view()),
+    # path('agg_hhc_event_professional_api/',views.agg_hhc_service_professional_api.as_view()),
+    # path('agg_hhc_detailed_event_plan_of_care/<zone>/',views.agg_hhc_detailed_event_plan_of_care_api.as_view()),
+
+
+    path('agg_hhc_zone_api',views.agg_hhc_zone_api.as_view()),# Display List of Zones
+    path('agg_hhc_event_professional_api/',views.agg_hhc_service_professional_api.as_view()), # Display List of Professionals (all) OR (with filter:- Services, Zones)
+    path('agg_hhc_detailed_event_plan_of_care/',views.agg_hhc_detailed_event_plan_of_care_api.as_view()), # Display All Events against perticular professional 
+    path('agg_hhc_detailed_event_plan_of_care_per_day/',views.agg_hhc_detailed_event_plan_of_care_per_day_api.as_view()),# Display all the TOADY'S events against perticular professional 
     #-------------------------------------------mohin---------------------------------------------------------
-    path('combined_get/',combined_info,name='combined-list-create'),
+    path('service_request/',views.combined_info.as_view()),
+    #-----------------------------mayank-----------------------------
+    # path('service-professionals/', AggHHCServiceProfessionalAPIView.as_view(), name='service-professional-api'),
+    path('total_services/', views.total_services, name='total-services-list'),
+
+    # -------------------- vinayak ------------------
+                        
+    path('ongoing_service', views.OngoingServiceView.as_view()),
+    path('service_reschedule/<int:eve_id>/',views.service_reschedule_view.as_view()),
+    path('prof_reschedule/<int:eve_id>/', views.Professional_Reschedule_Apiview.as_view()),
+    # path('professional_availability_api/<int:srv_id>/',views.get_all_avail_professionals.as_view()),
+
+    #-------------------------------------------Amit---------------------------------------------------------
+    path('Follow_Up_combined_table/', views.agg_hhc_service_enquiry_list_combined_table_view.as_view()),
+    path('previous_follow_up/<int:event_id>/', views.agg_hhc_enquiry_previous_follow_up_APIView.as_view()),
+    # path('previous_follow_up/', views.agg_hhc_enquiry_previous_follow_up_APIView.as_view()),
+    path('Add_follow_up/', views.agg_hhc_enquiry_Add_follow_up_APIView.as_view()),
+    path('cancel_spero_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Spero_APIView.as_view()),
+    # path('cancel_patent_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Patent_APIView.as_view()),
+    path('cancellation_reason_follow_up_list/<int:pk>', views.agg_hhc_enquiry_followUp_cancellation_api.as_view()),
+    path('cancel_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_APIView.as_view()),
+    path('create_service_follow_up/', views.agg_hhc_enquiry_Add_follow_up_create_service_APIView.as_view()),
+    
+# ------------------------------------------Sandip-------------------------------------------------
+    path('agg_hhc_add_service_details_api/', views.agg_hhc_add_service_details_api.as_view()),
+    path('agg_hhc_consultant_api/',views.agg_hhc_consultant_api.as_view()),
+    path('agg_hhc_state_api',views.agg_hhc_state_api.as_view()),
+    path('agg_hhc_city_api/<int:pk>',views.agg_hhc_city_api.as_view()),
+#_-----------------------------------------Vishal-----------------------------------------------_
+    path('coupon_code_post_api/<str:code>/<int:total_amt>',views.coupon_code_post_api.as_view()),
+    path('coupon_code_api',views.coupon_code_api.as_view()),
+
+
 
 
 
