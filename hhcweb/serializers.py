@@ -355,8 +355,12 @@ class ProfesNameSerializer(serializers.ModelSerializer):
     srv_id = ServiceSerilaizer()
     class Meta:
         model = models.agg_hhc_event_plan_of_care
+<<<<<<< HEAD
         fields = ['eve_id','srv_prof_id','srv_id','start_date','end_date','service_status']
     
+=======
+        fields = ['start_date','end_date','prof_prefered','eve_id']
+>>>>>>> 3ff1c1fdd9d75d29ef490cd3e0917385cd43fc77
 
 class SessionStatusSerializer(serializers.ModelSerializer):
     Total_case_count = serializers.SerializerMethodField()
