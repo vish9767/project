@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from hhcweb import models
 from hhcweb.models import agg_com_colleague, agg_hhc_professional_zone, agg_hhc_service_professionals, agg_hhc_detailed_event_plan_of_care
-
+from hhcweb import models
 
 # We are writing this because we need confirm password field in our Registration Request
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -38,11 +37,6 @@ class UserLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = agg_com_colleague
         fields = ['clg_ref_id', 'password']
-
-
-
-
-
 
 
 
@@ -235,9 +229,9 @@ class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
 
 #----------------------------------------agg_hhc_professional_zone------------------------#
 
-class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
+class agg_hhc_professional_zone_serializerss(serializers.ModelSerializer):
     class Meta:
-        model=models.agg_hhc_professional_zone
+        model=agg_hhc_professional_zone
         fields='__all__'
 
 
@@ -287,10 +281,8 @@ class agg_hhc_event_plan_of_care_serializer(serializers.ModelSerializer):
 
 class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
     class Meta:
-        model  = agg_hhc_professional_zone
-
+        model =agg_hhc_professional_zone
         fields = '__all__'
-        
     def validate(self, data):
         return data
     
@@ -355,12 +347,8 @@ class ProfesNameSerializer(serializers.ModelSerializer):
     srv_id = ServiceSerilaizer()
     class Meta:
         model = models.agg_hhc_event_plan_of_care
-<<<<<<< HEAD
         fields = ['eve_id','srv_prof_id','srv_id','start_date','end_date','service_status']
     
-=======
-        fields = ['start_date','end_date','prof_prefered','eve_id']
->>>>>>> 3ff1c1fdd9d75d29ef490cd3e0917385cd43fc77
 
 class SessionStatusSerializer(serializers.ModelSerializer):
     Total_case_count = serializers.SerializerMethodField()
@@ -462,7 +450,7 @@ class ServiceNameSerializer(serializers.ModelSerializer):
 
 class patient_professional_zone_serializer(serializers.ModelSerializer):
     class Meta:
-        model = models.agg_hhc_professional_zone
+        model = agg_hhc_professional_zone
         fields = ['prof_zone_id','city_id', 'Name']
 
 class EventPatientSerializer(serializers.ModelSerializer):

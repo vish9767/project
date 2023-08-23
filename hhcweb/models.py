@@ -615,12 +615,8 @@ class agg_hhc_patients(models.Model):#6
 	state_id=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True,to_field='state_name')
 	city_id = models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True,to_field='city_name')
 	sub_location = models.CharField(max_length=50,null=True)
-<<<<<<< HEAD
 	prof_zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True,to_field="Name")
 	eve_id = models.ForeignKey('agg_hhc_events',on_delete=models.CASCADE,null=True)
-=======
-	zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True,to_field='Name')
->>>>>>> 3ff1c1fdd9d75d29ef490cd3e0917385cd43fc77
 	otp=models.IntegerField(null=True)
 	otp_expire_time=models.DateTimeField(null=True)
 	google_location = models.CharField(max_length=240,null=True)
@@ -2365,11 +2361,7 @@ class agg_hhc_professional_zone(models.Model):#53 Zones
     prof_zone_id=models.AutoField(primary_key=True)
     city_id=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)
 	#prof_srv_id=models.ForeignKey(agg_hhc_professional_services,on_delete=models.CASCADE,null=True)
-<<<<<<< HEAD
     Name=models.CharField(max_length=50,null=True, unique=True)
-=======
-    Name=models.CharField(max_length=50,null=True,unique=True)
->>>>>>> 3ff1c1fdd9d75d29ef490cd3e0917385cd43fc77
     def __str__(self):
 	    return f'{self.Name}'
 
