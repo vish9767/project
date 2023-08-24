@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from hhcweb import models
 from hhcweb.models import agg_com_colleague, agg_hhc_professional_zone, agg_hhc_service_professionals, agg_hhc_detailed_event_plan_of_care
-
+from hhcweb import models
 
 # We are writing this because we need confirm password field in our Registration Request
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -38,11 +37,6 @@ class UserLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = agg_com_colleague
         fields = ['clg_ref_id', 'password']
-
-
-
-
-
 
 
 
@@ -456,7 +450,7 @@ class ServiceNameSerializer(serializers.ModelSerializer):
 
 class patient_professional_zone_serializer(serializers.ModelSerializer):
     class Meta:
-        model = models.agg_hhc_professional_zone
+        model = agg_hhc_professional_zone
         fields = ['prof_zone_id','city_id', 'Name']
 
 class EventPatientSerializer(serializers.ModelSerializer):

@@ -768,7 +768,7 @@ class agg_hhc_professional_zone_api(APIView):
         zones = agg_hhc_professional_zone.objects.all()
         serialized=  agg_hhc_professional_zone_serializer(zones, many=True)
         return Response(serialized.data)
-
+    
 #-------------------------agg_hhc_feedback_answers----------------------------
 
 class agg_hhc_feedback_answers_api(APIView):
@@ -1261,12 +1261,38 @@ class Professional_Reschedule_Apiview(APIView):
             return Response({'error': 'No matching session found or session is less than date'}, status=status.HTTP_404_NOT_FOUND)
 
 
-# -------------- Prof Avail ----------
+# -------------- Professional Allocation ----------
 
-# class get_all_avail_professionals(APIView):
-#     serializer_class =  avail_prof_serializer
-#     def get(self,request,srv_id):
-
-#         data =  agg_hhc_professional_sub_services.objects.filter(srv_id=srv_id)
-#         serializer =  self.serializer_class(data,many=True)
-#         return Response(serializer.data) 
+class allocate_api(APIView):
+    def post(self,request):
+        professional_id=request.data.get('srv_prof_id')
+        try:
+            event_id=agg_hhc_events.objects.get(eve_id=request.data.get('eve_id'))
+        except:
+            return Response({'message':'event not found'},status=404)
+        try:
+            service_id=agg_hhc_services.objects.get(srv_id=request.data.get('srv_id'))
+        except:
+            return Response({'message': 'Service not found'}, status=404)
+        try:
+            professional_instance = agg_hhc_service_professionals.objects.get(srv_prof_id=professional_id)
+        except agg_hhc_service_professionals.DoesNotExist:
+            return Response({'message': 'Professional not found'}, status=404)
+        event_plan_of_care=agg_hhc_event_plan_of_care.objects.filter(eve_id=event_id).first()
+        print("event name",event_plan_of_care)
+        event_plan_of_care.srv_prof_id=professional_instance #to update and save new field here
+        event_plan_of_care.save()
+        event_professional=agg_hhc_event_professional.objects.create(eve_id=event_id,srv_prof_id=professional_instance,eve_poc_id=event_plan_of_care,srv_id=service_id,status=1)
+        event_professional.save()
+        try:
+            detailed_event_poc=agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=request.data.get('eve_id'))
+            print("detailed event plan of care",detailed_event_poc)
+        except:
+            return Response({'message':"detailed_event_plan_of_care not found"},status=404)
+        for i in detailed_event_poc:
+            i.srv_prof_id=professional_instance
+            print(i)
+            i.save()
+        event_id.event_status=2
+        event_id.save()
+        return Response({'message':'professional Allocated sucessfully'})
