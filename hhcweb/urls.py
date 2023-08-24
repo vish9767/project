@@ -54,7 +54,7 @@ urlpatterns = [
     # path('agg_hhc_detailed_event_plan_of_care/<zone>/',views.agg_hhc_detailed_event_plan_of_care_api.as_view()),
 
 
-    path('agg_hhc_zone_api',views.agg_hhc_zone_api.as_view()),# Display List of Zones
+    path('agg_hhc_zone_api/<int:pk>',views.agg_hhc_zone_api.as_view()),# Display List of Zones
     path('agg_hhc_event_professional_api/',views.agg_hhc_service_professional_api.as_view()), # Display List of Professionals (all) OR (with filter:- Services, Zones)
     path('agg_hhc_detailed_event_plan_of_care/',views.agg_hhc_detailed_event_plan_of_care_api.as_view()), # Display All Events against perticular professional 
     path('agg_hhc_detailed_event_plan_of_care_per_day/',views.agg_hhc_detailed_event_plan_of_care_per_day_api.as_view()),# Display all the TOADY'S events against perticular professional 

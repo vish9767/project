@@ -2,7 +2,7 @@ from django.db import models
 from django_enumfield import enum
 from rest_framework import status
 from datetime import date
-
+from django.http import Http404
 from django.utils import timezone
 import datetime
 from django.contrib.auth.models import(
@@ -320,17 +320,19 @@ class agg_hhc_callers(models.Model):#20
 
 class agg_hhc_patient_list_enquiry(models.Model):#1
 	pt_id = models.AutoField(primary_key = True)
-	consultat_id = models.BigIntegerField(null=True)
-	consultat_fname = models.CharField(max_length=50,null=True)
-	patient_fullname = models.CharField(max_length=50,null=True)
-	contact = models.CharField(max_length=20,null=True)
+	doct_cons_id = models.ForeignKey('agg_hhc_doctors_consultants',on_delete=models.CASCADE,null=True)
+	# consultat_fname = models.CharField(max_length=50,null=True)
+	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
+	# hhc_code = models.CharField(max_length=50,null=True, blank=True)
 	eve_id = models.ForeignKey('agg_hhc_events',to_field='eve_id', on_delete=models.CASCADE,null=True)
+	name = models.CharField(max_length=50,null=True)
+	phone_no = models.CharField(max_length=20,null=True)
 	call_type=models.CharField(max_length=50,null=True)
 	relation = models.CharField(max_length=20,null=True)
-	patient_fname = models.CharField(max_length=50,null=True)
-	patient_age = models.CharField(max_length=2,null=True)
+	# patient_fname = models.CharField(max_length=50,null=True)
+	Age = models.CharField(max_length=2,null=True)
 	patient_date_of_birth=models.DateField(null=True)
-	patient_gender = models.CharField(max_length=20,null=True)
+	Gender = models.CharField(max_length=20,null=True)
 	suffered_from=models.CharField(max_length=200,null=True)
 	hospital_name=models.CharField(max_length=150,null=True)
 	patient_add = models.CharField(max_length=200,null=True)
@@ -338,17 +340,25 @@ class agg_hhc_patient_list_enquiry(models.Model):#1
 	google_location = models.CharField(max_length=200,null=True)
 	patient_contact = models.CharField(max_length=10,null=True)
 	patient_email=models.EmailField(null=True)
-	# mainService = models.CharField(max_length=11,null=True)
+	srv_id=models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)#added by vishal
+	Patient_status_at_present=models.CharField(max_length=200,null=True)#added by vishal
+	#zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,to_field='Name',null=True)
 	# sub_service = models.CharField(max_length=11,null=True)
-	# Start_Date_and_Time=models.DateTimeField(null=True)
+	Start_Date_and_Time=models.DateTimeField(null=True)
+	
 	# End_Date_and_Time=models.DateTimeField(null=True)
 	# Professional_Preferred=models.CharField(max_length=100,null=True)
 	# note = models.CharField(max_length=50,null=True)
-	status = models.CharField(max_length=2, null=True)
-	enquiry_status = enum.EnumField(enquiry_status, null=True)
-	added_date = models.DateField(default=timezone.now, null=True)
-	enquiry_from = enum.EnumField(enquiry_from_enum, null=True)
-	
+	status = models.CharField(max_length=2,null=True)
+	added_date = models.DateField(default=timezone.now,null=True)
+	enquiry_from = enum.EnumField(enquiry_from_enum,null=True)
+	address = models.CharField(max_length=500,null=True)
+	city_id = models.BigIntegerField(null=True)   	#sandip
+	state_id = models.IntegerField(null=True)		#sandip
+	pincode = models.IntegerField(null=True,blank=True)		#sandip
+	sub_location = models.CharField(max_length=50,null=True)
+	zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)   #Amit
+
 class agg_hhc_assessment_patient(models.Model):#2
 	ass_pt_id = models.AutoField(primary_key = True)
 	ass_pt_li_id = models.BigIntegerField(null=True)
@@ -603,19 +613,22 @@ class agg_hhc_patients(models.Model):#6
 	hhc_code = models.CharField(max_length=50,null=True, blank=True)
 	membership_id = models.CharField(max_length=50,null=True)
 	patient_fullname = models.CharField(max_length=255,null=True)
-	# first_name = models.CharField(max_length=50,null=True)
+	# name = models.CharField(max_length=50,null=True)
 	# middle_name = models.CharField(max_length=50,null=True)
 	pincode=models.PositiveIntegerField(null=True)
-	Age = models.BigIntegerField(null=True)
-	Gender = models.CharField(max_length=10,null=True)
+	# Age = models.BigIntegerField(null=True)
+	age = models.BigIntegerField(null=True)
+	# Gender = models.CharField(max_length=10,null=True)
+	gender_id = models.ForeignKey('agg_hhc_gender',on_delete=models.CASCADE,null=True)
 	email_id = models.EmailField(null=True)
-	address_type=models.CharField(max_length=100,null=True)
-	residential_address = models.CharField(max_length=500,null=True)
-	permanant_address = models.CharField(max_length=500,null=True)
-	state_id=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True,to_field='state_name')
-	city_id = models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True,to_field='city_name')
-	sub_location = models.CharField(max_length=50,null=True)
-	zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True,to_field='Name')
+	# address_type=models.CharField(max_length=100,null=True)
+	# residential_address = models.CharField(max_length=500,null=True)
+	# permanant_address = models.CharField(max_length=500,null=True)
+	state_id=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
+	city_id = models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)
+	address = models.CharField(max_length=500,null=True)
+	zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
+	pincode=models.IntegerField(null=True)
 	otp=models.IntegerField(null=True)
 	otp_expire_time=models.DateTimeField(null=True)
 	google_location = models.CharField(max_length=240,null=True)
@@ -646,7 +659,15 @@ class agg_hhc_patients(models.Model):#6
 	# 		last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
 	# 		self.hhc_code = f"{prefix}HC{last_sequence:05d}"
 	# 	return super().save(*args, **kwargs)
-
+	def save(self, *args, **kwargs):
+		if not self.hhc_code:
+			last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
+			prefix = self.preferred_hosp_id.hospital_short_code if self.preferred_hosp_id else None
+			if not prefix:
+				raise Http404
+			last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
+			self.hhc_code = f"{prefix}HC{last_sequence:05d}"
+		return super().save(*args, **kwargs)
 # class agg_hhc_webinar_patient_table(models.Model):#7
 # 	agg_sp_web_pt_li_id = models.AutoField(primary_key = True)
 # 	HHC_no = models.CharField(max_length=20,null=True)
@@ -1728,8 +1749,8 @@ class agg_hhc_city(models.Model):#70
     state_id=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
     status=enum.EnumField(status_enum,null=True)
     
-    def __str__(self):
-	    return self.city_name
+    # def __str__(self):
+	#     return self.city_name
 
 class agg_hhc_consent_agree_form(models.Model):#71
     consent_agree_form_id=models.AutoField(primary_key=True)
@@ -2334,8 +2355,8 @@ class agg_hhc_patient_documents(models.Model):
 class agg_hhc_state(models.Model):
 	state_id=models.AutoField(primary_key=True)
 	state_name=models.CharField(max_length=100,null=True,unique=True)
-	def __str__(self):
-		return f"{self.state_name}"
+	# def __str__(self):
+	# 	return f"{self.state_name}"
 
 class agg_hhc_app_patient_documents(models.Model):
 	pt_id = models.AutoField(primary_key=True)

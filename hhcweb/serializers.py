@@ -290,8 +290,8 @@ class agg_hhc_professional_zone_serializer(serializers.ModelSerializer):
         model  = agg_hhc_professional_zone
         fields = '__all__'
         
-    # def validate(self, data):
-    #     return data
+    def validate(self, data):
+        return data
     
 class agg_hhc_service_professional_serializer(serializers.ModelSerializer):
     class Meta:
