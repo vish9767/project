@@ -660,7 +660,7 @@ class agg_hhc_patients(models.Model):#6
 class agg_hhc_detailed_event_plan_of_care(models.Model):#8
 	agg_sp_dt_eve_poc_id = models.AutoField(primary_key = True)
 	eve_poc_id = models.ForeignKey('agg_hhc_event_plan_of_care',on_delete=models.CASCADE,null=True)
-	agg_sp_pt_id= models.ForeignKey(agg_hhc_patient_list_enquiry, on_delete=models.CASCADE, null=True)
+	#pt_id= models.ForeignKey(agg_hhc_patient_list_enquiry, on_delete=models.CASCADE, null=True)
 	eve_id = models.ForeignKey('agg_hhc_events',on_delete = models.CASCADE, null=True)
 	eve_req_id = models.BigIntegerField(null=True)
 	index_of_Session = models.BigIntegerField(null=True)
@@ -699,7 +699,7 @@ class agg_hhc_events(models.Model):#9
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
 	caller_id = models.ForeignKey('agg_hhc_callers',on_delete=models.CASCADE,null=True)
 	# relation = models.CharField(max_length=64,null=True)
-	pt_id = models.ForeignKey(agg_hhc_patient_list_enquiry,on_delete=models.CASCADE,null=True)
+	#pt_id = models.ForeignKey(agg_hhc_patient_list_enquiry,on_delete=models.CASCADE,null=True)
 	agg_sp_pt_id= models.ForeignKey(agg_hhc_patients,on_delete=models.CASCADE, null=True)
 	purp_call_id = models.BigIntegerField(null=True)
 	bill_no_ref_no = models.BigIntegerField(null=True)
@@ -856,11 +856,11 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 
 class agg_hhc_event_professional(models.Model):#16 To store professional available details
 	eve_prof_id = models.AutoField(primary_key = True)
-	eve_id = models.BigIntegerField(null=True)
+	eve_id = models.ForeignKey("agg_hhc_events",on_delete=models.CASCADE,null=True)
 	eve_req_id = models.BigIntegerField(null=True)
-	srv_prof_id = models.BigIntegerField(null=True)
-	eve_poc_id = models.BigIntegerField(null=True)
-	srv_id = models.BigIntegerField(null=True)
+	srv_prof_id = models.ForeignKey("agg_hhc_service_professionals",on_delete=models.CASCADE,null=True)
+	eve_poc_id = models.ForeignKey("agg_hhc_event_plan_of_care",on_delete=models.CASCADE,null=True)
+	srv_id = models.ForeignKey("agg_hhc_services",on_delete=models.CASCADE,null=True)
 	service_closed = enum.EnumField(yes_no_enum,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
