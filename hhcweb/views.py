@@ -339,8 +339,8 @@ class agg_hhc_add_service_details_api(APIView):
         start_date = datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
         end_date = datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
         diff = ((end_date.date() - start_date.date()).days)
-
-        for sub_srv in request.data['sub_srv_id']:
+        a=[request.data['sub_srv_id']]
+        for sub_srv in a:
             request.data['sub_srv_id']=sub_srv 
             
                 # request.data['start_date']=request.data['actual_StartDate_Time']
@@ -360,7 +360,9 @@ class agg_hhc_add_service_details_api(APIView):
                     request.data['actual_StartDate_Time']=start_date_string
                     request.data['actual_EndDate_Time']=datetime.combine(start_date_string.date(),end_date.time())
                     detailPlaneofcare= agg_hhc_add_detail_service_serializer(data=request.data)
+                    print('views')
                     if detailPlaneofcare.is_valid():
+                        print('views1')
                         # detailPlaneofcare.eve_poc_id=service
                         # detailPlaneofcare.eve_id=eventID
                         # detailPlaneofcare.index_of_Session=(i+1)
