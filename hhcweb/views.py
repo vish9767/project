@@ -983,9 +983,9 @@ class combined_info(APIView):
     def get(self,request):
         if request.method == 'GET':
             event_data= agg_hhc_events.objects.filter(Q(event_status=1) | Q(event_status=4))
-            agg_hhc_events= agg_hhc_events_serializers1(event_data,many=True)
+            agg_hhc_eve= agg_hhc_events_serializers1(event_data,many=True)
             event=[]
-            for i in agg_hhc_events.data:
+            for i in agg_hhc_eve.data:
                 event_code=i['event_code']#i['eve_id']
                 patient_no=i['agg_sp_pt_id']
                 patient= agg_hhc_patients.objects.get(agg_sp_pt_id=patient_no)
@@ -1329,3 +1329,4 @@ class allocate_api(APIView):
         event_id.event_status=2
         event_id.save()
         return Response({'message':'professional Allocated sucessfully'})
+    
