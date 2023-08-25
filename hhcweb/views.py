@@ -223,42 +223,225 @@ class agg_hhc_patinet_list_enquiry_put(APIView):
 
 # ------------------------------ Sandip Shimpi ---------------------------------------------- 
 class agg_hhc_add_service_details_api(APIView):
-    def post(self,request):
-        event= agg_hhc_event_serializer(data=request.data)
-        print(request.data['phone'])
-
-        caller =  agg_hhc_callers.objects.filter(phone=request.data['phone'])
+    def post(self,request):  
+        patientID=None  
+        caller = agg_hhc_callers.objects.filter(phone=request.data['phone']).first()
+        print('1')
         if caller:
-            caller.update(caller_fullname=request.data['caller_fullname'], caller_rel_id=request.data['caller_rel_id'], purp_call_id=request.data['purp_call_id'], caller_status=3)
-            callerID = caller.first().caller_id 
+            callerSerializer= agg_hhc_callers_serializer(caller,data= request.data)
+            if callerSerializer.is_valid():
+                callerID=callerSerializer.save()
+                callerID=callerID.caller_id
+                print('2')
+            else:
+                return Response(callerSerializer.errors)
+            # caller.update(caller_fullname=request.data['caller_fullname'], caller_rel_id=request.data['caller_rel_id'], purp_call_id=request.data['purp_call_id'], caller_status=3)
+            # callerID = caller.first().caller_id 
+        else:  
+            callers= agg_hhc_callers_serializer(data= request.data)
+            if callers.is_valid():
+                # callers.validated_data['caller_status']=3
+                callerID=callers.save().caller_id
+                print('3')
+            else:
+                return Response([callers.errors,'5'])
+        # print(callerID,'llllsecond')
+        if request.data['purp_call_id']==1:
+            print('4')
+            patient= agg_hhc_patients.objects.filter(phone_no=request.data['phone_no']).first()
+            print(patient)
+            if patient:
+                # patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
+                # patientID=patient.first().agg_sp_pt_id 
+                request.data['caller_id']=callerID
+                patientSerializer = agg_hhc_patients_serializer(patient,data=request.data)
+                if patientSerializer.is_valid():
+                    # patientSerializer.validated_data['caller_id']=callerID
+                    patientID=patientSerializer.save().agg_sp_pt_id
+                    print('5')
+                else: return Response(patientSerializer.errors)
+            else:
+                patient = agg_hhc_patients_serializer(data=request.data)
+                request.data['caller_id']=callerID
+                if patient.is_valid():
+                    # print(patient,'pppppppppppppp')
+                    # patient.validated_data['caller_id']=callerID
+                    patientID=patient.save().agg_sp_pt_id
+                    # patientID=patientID.agg_sp_pt_id
+                else:
+                    return Response([patient.errors,'6'])
+                print('4.6')                
+        elif request.data['purp_call_id']==2:
+            patient= agg_hhc_patient_list_enquiry.objects.filter(phone_no=request.data['phone_no']).first()
+            request.data['caller_id']=callerID
+            if patient:
+                print(patient,'7')
+                patientSerializer = agg_hhc_patient_list_serializer(patient,data=request.data)
+                if patientSerializer.is_valid():
+                    # patientSerializer.validated_data['caller_id']=callerID
+                    print(patientSerializer)
+                    # print('pppppppppppppppppppppppppp')
+                    patientID=patientSerializer.save().pt_id
+                    # for items in patientID:
+
+                    # print(patientID.eve_id)
+                    #     items.pt_id
+                    # patientID=patientID.pt_id
+
+                    # saved_patients = []
+                    # for patient_instance in patientSerializer.save():
+                    #     saved_patients.append(patient_instance)
+                else:
+                    # print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;')
+                    return Response(patientSerializer.errors)
+                # patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
+                # patientID=patient.first().pt_id 
+            else:
+                request.data['caller_id']=callerID
+                patient = agg_hhc_patient_list_serializer(data=request.data)
+                print('9')
+                if patient.is_valid():
+                    patientID=patient.save()
+                    patientID=patientID.pt_id
+                    print('10')
+                else:
+                    return Response([patient.errors,'7'])
+
+        # else:
+        #     patient=models.agg_hhc_patient_list_enquiry.objects.filter(phone_no=request.data['phone_no'])
+        # # if patient:
+        # #     patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID )
+        # #     patientID=patient.first().agg_sp_pt_id 
+        # else:
+        #     patient = serializers.agg_hhc_patients_serializer(data=request.data)
+        #         # patient = serializers.agg_hhc_patient_list_serializer(data=request.data)
+        #     if patient.is_valid():
+        #         # patient.validated_data['caller_id']=callerID
+        #         # print(patient.validated_data['caller_id'],';;;;;;;;;;;;;;;;;;;;;;;;')
+        #         patientID=patient.save()
+        #         patientID=patientID.agg_sp_pt_id
+
+        #     else:
+        #         return Response(patient.errors)
+        print(callerID,'ll;;;l')
+        print(patientID,'ll;;;l')
+        event= agg_hhc_event_serializer(data=request.data)
+        if event.is_valid():
+            eventID=event.save().eve_id
+        else:
+            return Response([event.errors,'8'])
+        event= agg_hhc_events.objects.filter(eve_id=eventID)
+        if request.data['purp_call_id']==1:
+            event.update(agg_sp_pt_id=patientID,caller_id=callerID)
+        elif request.data['purp_call_id']==2:
+            event.update(pt_id=patientID,caller_id=callerID)
+        # data=request.data['sub_srv_id']
+        start_date = datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
+        end_date = datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
+        diff = ((end_date.date() - start_date.date()).days)
+
+        for sub_srv in request.data['sub_srv_id']:
+            request.data['sub_srv_id']=sub_srv 
+            
+                # request.data['start_date']=request.data['actual_StartDate_Time']
+                # request.data['end_date']=request.data['actual_EndDate_Time']
+                
+            add_service= agg_hhc_add_service_serializer(data=request.data)
+            if add_service.is_valid():
+                service=add_service.save().eve_poc_id
+                print(service)
+            else:
+                return Response([add_service.errors,'9'])
+            plan_O_C= agg_hhc_event_plan_of_care.objects.filter(eve_poc_id=service)
+            plan_O_C.update(eve_id=eventID)
+            if request.data['purp_call_id']==1:
+                for i in range(0,(diff+1)):
+                    start_date_string=start_date+timedelta(days=i)
+                    request.data['actual_StartDate_Time']=start_date_string
+                    request.data['actual_EndDate_Time']=datetime.combine(start_date_string.date(),end_date.time())
+                    detailPlaneofcare= agg_hhc_add_detail_service_serializer(data=request.data)
+                    if detailPlaneofcare.is_valid():
+                        # detailPlaneofcare.eve_poc_id=service
+                        # detailPlaneofcare.eve_id=eventID
+                        # detailPlaneofcare.index_of_Session=(i+1)
+                        detail_plan=detailPlaneofcare.save().agg_sp_dt_eve_poc_id
+                    else:
+                        return Response([detailPlaneofcare.errors,'000'])
+                    data1= agg_hhc_detailed_event_plan_of_care.objects.filter(agg_sp_dt_eve_poc_id=detail_plan)
+                    data1.update(eve_poc_id=service,eve_id=eventID,index_of_Session=(i+1))
+        return Response({"Service Created Event Code":eventID})
+    
+# =================================================================================================================
+
+    def get_event(self,event):
+        try:
+            return agg_hhc_events.objects.get(eve_id=event)
+        except agg_hhc_events.DoesNotExist:
+            return Response('please enter valid event id')
+        
+    def get_caller(self,phone):
+        try:
+            return agg_hhc_callers.objects.get(phone=phone)
+        except agg_hhc_callers.DoesNotExist:
+            return None
+
+    def get_patient(self,phone_no):
+        try:
+            return agg_hhc_patients.objects.get(phone_no=phone_no)
+        except agg_hhc_patients.DoesNotExist:
+            return None
+
+
+    def put(self,request,pk):    
+        # event=self.get_event(pk)
+        caller = self.get_caller(phone=request.data['phone'])
+        # print(caller.__dict__.items(),'llklll')
+        print(';')
+        if caller:
+            # caller.update(caller_fullname=request.data['caller_fullname'], caller_rel_id=request.data['caller_rel_id'], purp_call_id=request.data['purp_call_id'], caller_status=3)
+            # caller.update(caller_fullname=request.data['caller_fullname'], caller_rel_id=request.data['caller_rel_id'], purp_call_id=request.data['purp_call_id'], caller_status=3)
+            # callerID = caller.first().caller_id 
+            callerSerializer= agg_hhc_callers_serializer(caller,data= request.data)
+            if callerSerializer.is_valid():
+                callerID=callerSerializer.save().caller_id
+            else:
+                return Response(callerSerializer.errors)
         else:  
             callers= agg_hhc_callers_serializer(data= request.data)
             if callers.is_valid():
                 callers.validated_data['caller_status']=3
                 callerID=callers.save().caller_id
-                callerID
             else:
-                return Response([callers.errors,'5'])
+                return Response([callers.errors,'5'])   
+        # # print(callerID,'llllsecond')
         # if request.data['purp_call_id']==1:
-        #     patient= agg_hhc_patients.objects.filter(phone_no=request.data['phone_no'])
-        #     if patient:
-        #         patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID )
-        #         patientID=patient.first().agg_sp_pt_id 
-        #     else:
-        #         patient =  agg_hhc_patients_serializer(data=request.data)
-        #         if patient.is_valid():
-        #             patient.validated_data['caller_id']=callerID
-        #             patientID=patient.save()
-        #             patientID=patientID.agg_sp_pt_id
-        #         else:
-        #             return Response([patient.errors,'6'])
+        patient=self.get_patient(phone_no=request.data['phone_no'])
+        if patient:
+            # patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
+            # patientID=patient.first().agg_sp_pt_id 
+            patientSerializer= agg_hhc_patients_serializer(patient,data=request.data)
+            if patientSerializer.is_valid():
+                patientID=patientSerializer.save().agg_sp_pt_id
+                print(patientID,';;;;;;;;;;;;;;;;;;')
+                # return Response(patientSerializer.data)
+            else:
+                return Response(patientSerializer.errors)
+            
+        else:
+            patient = agg_hhc_patients_serializer(data=request.data)
+            if patient.is_valid():
+                patient.validated_data['caller_id']=callerID
+                patientID=patient.save()
+                patientID=patientID.agg_sp_pt_id
+            else:
+                return Response([patient.errors,'6'])
         # else:
-        #     patient= agg_hhc_patient_list_enquiry.objects.filter(Q(phone_no=request.data['phone_no'])|Q())
+        #     patient=models.agg_hhc_patient_list_enquiry.objects.filter(Q(phone_no=request.data['phone_no'])|Q())
         #     if patient:
-        #         patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID )
+        #         patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
         #         patientID=patient.first().pt_id 
         #     else:
-        #         patient =  agg_hhc_patient_list_serializer(data=request.data)
+        #         patient = serializers.agg_hhc_patient_list_serializer(data=request.data)
         #         if patient.is_valid():
         #             patientID=patient.save()
         #             patientID=patientID.pt_id
@@ -269,39 +452,56 @@ class agg_hhc_add_service_details_api(APIView):
         #     eventID=event.save().eve_id
         # else:
         #     return Response([event.errors,'8'])
-        # event= agg_hhc_events.objects.filter(eve_id=eventID)
+        event=self.get_event(event=pk)
         # if request.data['purp_call_id']==1:
-        #     event.update(agg_sp_pt_id=patientID,caller_id=callerID)
+        data={'agg_sp_pt_id':patientID,'caller_id':callerID}
+        eventSerializer= agg_hhc_updateIDs_event_serializer(event,data=data)
+        if eventSerializer.is_valid():
+            eventID=eventSerializer.save().eve_id
+
+
+            
+        # event.update(agg_sp_pt_id=patientID,caller_id=callerID)
+        # eventID=event.first().eve_id
+        print(eventID)
+        print(callerID)
         # else:
         #     event.update(pt_id=patientID,caller_id=callerID)
-        # data=request.data['sub_srv_id']
-        # start_date = datetime.datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
-        # end_date = datetime.datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
-        # diff = ((end_date.date() - start_date.date()).days)
-        # for sub_srv in data:
-        #     request.data['sub_srv_id']=sub_srv
-        #     add_service= agg_hhc_add_service_serializer(data=request.data)
-        #     if add_service.is_valid():
-        #         service=add_service.save().eve_poc_id
-        #     else:
-        #         return Response([add_service.errors,'9'])
-        #     plan_O_C= agg_hhc_event_plan_of_care.objects.filter(eve_poc_id=service)
-        #     plan_O_C.update(eve_id=eventID)
+        start_date = datetime.datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
+        end_date = datetime.datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
+        diff = ((end_date.date() - start_date.date()).days)
 
-        #     for i in range(0,(diff+1)):
-        #         start_date_string=start_date+datetime.timedelta(days=i)
-        #         request.data['actual_StartDate_Time']=start_date_string
-        #         request.data['actual_EndDate_Time']=datetime.datetime.combine(start_date_string.date(),end_date.time())
-        #         detailPlaneofcare= agg_hhc_add_detail_service_serializer(data=request.data)
-        #         if detailPlaneofcare.is_valid():
-        #             detailPlaneofcare.eve_poc_id=service
-        #             detailPlaneofcare.eve_id=eventID
-        #             detail_plan=detailPlaneofcare.save().agg_sp_dt_eve_poc_id
-        #         else:
-        #             return Response([detailPlaneofcare.errors,'000'])
-        #         data1= agg_hhc_detailed_event_plan_of_care.objects.filter(agg_sp_dt_eve_poc_id=detail_plan)
-        #         data1.update(eve_poc_id=service,eve_id=eventID,index_of_Session=(i+1))
-        return Response("Service Created Event Code")    
+        for sub_srv in request.data['sub_srv_id']:
+            request.data['sub_srv_id']=sub_srv 
+            add_service= agg_hhc_add_service_serializer(data=request.data)
+            if add_service.is_valid():
+                service=add_service.save().eve_poc_id
+            else:
+                return Response([add_service.errors,'9'])
+            plan_O_C= agg_hhc_event_plan_of_care.objects.filter(eve_poc_id=service)
+            plan_O_C.update(eve_id=eventID)
+            if request.data['purp_call_id']==1:
+                for i in range(0,(diff+1)):
+                    start_date_string=start_date+datetime.timedelta(days=i)
+                    request.data['actual_StartDate_Time']=start_date_string
+                    request.data['actual_EndDate_Time']=datetime.datetime.combine(start_date_string.date(),end_date.time())
+                    detailPlaneofcare= agg_hhc_add_detail_service_serializer(data=request.data)
+                    if detailPlaneofcare.is_valid():
+                        detailPlaneofcare.eve_poc_id=service
+                        detailPlaneofcare.eve_id=eventID
+                        detail_plan=detailPlaneofcare.save().eve_poc_id
+                    else:
+                        return Response([detailPlaneofcare.errors,'000'])
+                    data1= agg_hhc_detailed_event_plan_of_care.objects.filter(agg_sp_dt_eve_poc_id=detail_plan)
+                    data1.update(eve_poc_id=service,eve_id=eventID,index_of_Session=(i+1))
+        return Response({"Service Created Event Code"})
+
+
+
+
+
+# =================================================================================================================
+ 
 class agg_hhc_state_api(APIView):
     def get(self,request,format=None):
         reason= agg_hhc_state.objects.all()
@@ -568,7 +768,7 @@ class agg_hhc_professional_zone_api(APIView):
         zones = agg_hhc_professional_zone.objects.all()
         serialized=  agg_hhc_professional_zone_serializer(zones, many=True)
         return Response(serialized.data)
-
+    
 #-------------------------agg_hhc_feedback_answers----------------------------
 
 class agg_hhc_feedback_answers_api(APIView):
@@ -652,8 +852,8 @@ class AggHHCServiceProfessionalListAPIView(generics.ListAPIView):
 
 class agg_hhc_zone_api(APIView): # List of Zones
 
-    def get(self, request, format=None):
-        groups =  agg_hhc_professional_zone.objects.all()
+    def get(self, request, pk, format=None):
+        groups =  agg_hhc_professional_zone.objects.filter(city_id=pk)
         if groups:
             serializer = agg_hhc_professional_zone_serializer(groups, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -1062,7 +1262,7 @@ class Professional_Reschedule_Apiview(APIView):
             return Response({'error': 'No matching session found or session is less than date'}, status=status.HTTP_404_NOT_FOUND)
 
 
-# -------------- Prof Avail ----------
+# -------------- Professional Allocation ----------
 
 # class get_all_avail_professionals(APIView):
 #     serializer_class =  avail_prof_serializer
@@ -1096,3 +1296,36 @@ class ServiceCancellationView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class allocate_api(APIView):
+    def post(self,request):
+        professional_id=request.data.get('srv_prof_id')
+        try:
+            event_id=agg_hhc_events.objects.get(eve_id=request.data.get('eve_id'))
+        except:
+            return Response({'message':'event not found'},status=404)
+        try:
+            service_id=agg_hhc_services.objects.get(srv_id=request.data.get('srv_id'))
+        except:
+            return Response({'message': 'Service not found'}, status=404)
+        try:
+            professional_instance = agg_hhc_service_professionals.objects.get(srv_prof_id=professional_id)
+        except agg_hhc_service_professionals.DoesNotExist:
+            return Response({'message': 'Professional not found'}, status=404)
+        event_plan_of_care=agg_hhc_event_plan_of_care.objects.filter(eve_id=event_id).first()
+        print("event name",event_plan_of_care)
+        event_plan_of_care.srv_prof_id=professional_instance #to update and save new field here
+        event_plan_of_care.save()
+        event_professional=agg_hhc_event_professional.objects.create(eve_id=event_id,srv_prof_id=professional_instance,eve_poc_id=event_plan_of_care,srv_id=service_id,status=1)
+        event_professional.save()
+        try:
+            detailed_event_poc=agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=request.data.get('eve_id'))
+            print("detailed event plan of care",detailed_event_poc)
+        except:
+            return Response({'message':"detailed_event_plan_of_care not found"},status=404)
+        for i in detailed_event_poc:
+            i.srv_prof_id=professional_instance
+            print(i)
+            i.save()
+        event_id.event_status=2
+        event_id.save()
+        return Response({'message':'professional Allocated sucessfully'})
