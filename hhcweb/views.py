@@ -871,7 +871,8 @@ class OngoingServiceView(APIView):
     def get(self, request, format=None):
         data =  agg_hhc_events.objects.all()
         serializer = self.serializer_class(data, many=True)  
-        return Response(serializer.data)
+        filtered_data = [item for item in serializer.data if item is not None]
+        return Response(filtered_data)
     
 # -------------------------------------Amit Rasale---------------------------------------------------------------
 class agg_hhc_enquiry_previous_follow_up_APIView(APIView):
@@ -1070,3 +1071,28 @@ class Professional_Reschedule_Apiview(APIView):
 #         data =  agg_hhc_professional_sub_services.objects.filter(srv_id=srv_id)
 #         serializer =  self.serializer_class(data,many=True)
 #         return Response(serializer.data) 
+
+
+
+# ---------------------  service cancellation ----------
+
+from . serializers import ServiceCancellationSerializer,Event_Staus
+class ServiceCancellationView(APIView):
+    serializer_class = ServiceCancellationSerializer
+
+    serilizer_class2 = Event_Staus
+    def get(self, request, eve_id):
+        data = agg_hhc_events.objects.get(eve_id=eve_id)
+        serializer = self.serilizer_class2(data)
+        return Response(serializer.data)
+
+
+
+    def post(self, request, eve_id):
+        data1 = agg_hhc_events.objects.get(eve_id=eve_id)
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
