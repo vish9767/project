@@ -343,10 +343,10 @@ class agg_hhc_add_service_details_api(APIView):
         start_date = datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
         end_date = datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
         diff = ((end_date.date() - start_date.date()).days)
-        
+        a=[request.data['sub_srv_id']]
         # for sub_srv in request.data['sub_srv_id']:    for multiple sub services
         event_plane_of_care=[]
-        for sub_srv in request.data['sub_srv_id']:
+        for sub_srv in a:
             request.data['sub_srv_id']=sub_srv 
                 # request.data['start_date']=request.data['actual_StartDate_Time']
                 # request.data['end_date']=request.data['actual_EndDate_Time']
@@ -365,9 +365,7 @@ class agg_hhc_add_service_details_api(APIView):
                     request.data['actual_StartDate_Time']=start_date_string
                     request.data['actual_EndDate_Time']=datetime.combine(start_date_string.date(),end_date.time())
                     detailPlaneofcare= agg_hhc_add_detail_service_serializer(data=request.data)
-                    print('views')
                     if detailPlaneofcare.is_valid():
-                        print('views1')
                         # detailPlaneofcare.eve_poc_id=service
                         # detailPlaneofcare.eve_id=eventID
                         # detailPlaneofcare.index_of_Session=(i+1)
@@ -487,8 +485,9 @@ class agg_hhc_add_service_details_api(APIView):
         start_date = datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
         end_date = datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
         diff = ((end_date.date() - start_date.date()).days)
+        a=[request.data['sub_srv_id']]
         event_plane_of_care=[]
-        for sub_srv in request.data['sub_srv_id']:
+        for sub_srv in a:
             request.data['sub_srv_id']=sub_srv 
             add_service= agg_hhc_add_service_serializer(data=request.data)
             if add_service.is_valid():
@@ -653,13 +652,13 @@ class Caller_details_api(APIView):
         return  agg_hhc_callers.objects.get(caller_id=pk)
             
     def get_relation(self,pk):
-        return  agg_hhc_caller_relation.objects.filter(pk=pk)
+        return  agg_hhc_caller_relation.objects.get(caller_rel_id=pk)
              
-    def get(self,request,pk):   
+    def get(self,request,pk):  
         caller = self.get_object(pk)
         if caller:
             serializer =  Caller_details_serializer(caller)
-            relation=(self.get_relation(serializer.data['caller_rel_id']))[0]
+            relation=(self.get_relation(serializer.data['caller_rel_id']))
             relations= relation_serializer(relation)
             return Response({"caller":serializer.data,"relation":relations.data})
         else:
@@ -744,7 +743,6 @@ class Service_requirment_api(APIView):
     def get_service(self,pk):
         return  agg_hhc_event_plan_of_care.objects.get(eve_poc_id=pk)
     def get(self,request,pk):
-        print(';;;;;;llllll')
         service = self.get_service(pk)
         if service:
             services =  agg_hhc_add_service_serializer(service)
@@ -754,7 +752,6 @@ class Service_requirment_api(APIView):
         
     def put(self, request, pk):
         service = self.get_service(pk)
-        print(service)
         serializer =  agg_hhc_add_service_serializer(service, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -1008,7 +1005,6 @@ class combined_info(APIView):
     def get(self,request):
         if request.method == 'GET':
             event_data= agg_hhc_events.objects.filter(Q(event_status=1) | Q(event_status=4))
-            print("this is event data ",event_data)
             agg_hhc_eve= agg_hhc_events_serializers1(event_data,many=True)
             event=[]
             for i in agg_hhc_eve.data:

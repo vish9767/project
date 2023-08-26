@@ -285,7 +285,7 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	# lname=models.CharField(max_length=50,null=True)
 	purp_call_id = models.ForeignKey('agg_hhc_purpose_call',on_delete=models.CASCADE,null=True)
 	caller_rel_id=models.ForeignKey('agg_hhc_caller_relation',on_delete=models.CASCADE,null=True)
-	age=models.IntegerField(null=True)
+	Age=models.IntegerField(null=True)
 	gender=models.CharField(max_length=20,null=True)
 	email=models.EmailField(null=True)
 	contact_no=models.BigIntegerField(null=True)
@@ -300,8 +300,8 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	status=enum.EnumField(active_inactive_enum,null=True)
 	caller_status=enum.EnumField(caller_status_enum,null=True)
 
-	def __str__(self):
-		return f"{self.caller_id},{self.caller_fullname}"
+	# def __str__(self):
+	# 	return f"{self.caller_id},{self.caller_fullname}"
 	
 	
 """
