@@ -89,7 +89,7 @@ urlpatterns = [
     path('agg_hhc_consultant_api/',views.agg_hhc_consultant_api.as_view()),
     path('agg_hhc_state_api',views.agg_hhc_state_api.as_view()),
     path('agg_hhc_city_api/<int:pk>',views.agg_hhc_city_api.as_view()),
-#_-----------------------------------------Vishal-----------------------------------------------_
+#------------------------------------------Vishal-----------------------------------------------_
     path('coupon_code_post_api/<str:code>/<int:total_amt>',views.coupon_code_post_api.as_view()),
     path('coupon_code_api',views.coupon_code_api.as_view()),
     path('allocate_api',views.allocate_api.as_view()),
