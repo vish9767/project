@@ -325,7 +325,7 @@ class agg_hhc_add_service_details_api(APIView):
         #         return Response(patient.errors)
         # print(callerID,'ll;;;l')
         # print(patientID,'ll;;;l')
-        request.data['status']=1
+        request.data['event_status']=1
         event= agg_hhc_event_serializer(data=request.data)
         if event.is_valid():
             eventID=event.save().eve_id
@@ -899,7 +899,7 @@ class agg_hhc_service_professional_api(APIView): # List of professionals
         if zone:
             serializer = agg_hhc_service_professional_serializer(zone, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     
 class agg_hhc_detailed_event_plan_of_care_api(APIView):
 
