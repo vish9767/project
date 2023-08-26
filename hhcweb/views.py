@@ -428,7 +428,9 @@ class agg_hhc_add_service_details_api(APIView):
                 return Response([callers.errors,'5'])   
         # # print(callerID,'llllsecond')
         # if request.data['purp_call_id']==1:
+        print('l')
         patient=self.get_patient(phone_no=request.data['phone_no'])
+        print(patient,';;;;;;;;;;;;;;;')
         if patient:
             # patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
             # patientID=patient.first().agg_sp_pt_id 
@@ -682,7 +684,7 @@ class patient_detail_info_api(APIView):
         patient = self.get_patient(pk)
         if patient:
             serializer =  patient_detail_serializer(patient)
-            hospital = self.get_hospital(serializer.data['hosp_id'])
+            hospital = self.get_hospital(serializer.data['preferred_hosp_id'])
             if hospital:
                 hospitals =  hospital_serializer(hospital)
                 return Response({"patient": serializer.data, "hospital": hospitals.data})
@@ -739,8 +741,9 @@ class calculate_total_amount(APIView):
         
 class Service_requirment_api(APIView):
     def get_service(self,pk):
-        return  agg_hhc_event_plan_of_care.objects.filter(pk)
-    def get(self,pk):
+        return  agg_hhc_event_plan_of_care.objects.get(eve_poc_id=pk)
+    def get(self,request,pk):
+        print(';;;;;;llllll')
         service = self.get_service(pk)
         if service:
             services =  agg_hhc_add_service_serializer(service)
@@ -750,6 +753,7 @@ class Service_requirment_api(APIView):
         
     def put(self, request, pk):
         service = self.get_service(pk)
+        print(service)
         serializer =  agg_hhc_add_service_serializer(service, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
