@@ -68,7 +68,17 @@ class agg_hhc_services_serializer(serializers.ModelSerializer):
 class agg_hhc_event_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_events
-        fields = ['purp_call_id']
+        fields = ['purp_call_id','status']
+
+class agg_hhc_event_response_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_events
+        fields = ['agg_sp_pt_id','caller_id']
+
+class agg_hhc_updateIDs_event_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_events
+        fields = ['eve_id','agg_sp_pt_id','caller_id','status']
 
 class agg_hhc_add_service_serializer(serializers.ModelSerializer):
     class Meta:

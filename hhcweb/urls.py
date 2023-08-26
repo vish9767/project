@@ -34,10 +34,10 @@ urlpatterns = [
     path('agg_hhc_pincode_from_city_api/<str:city>',views.agg_hhc_pincode_from_city_api.as_view()),#find all findcode from city name 
     path('Caller_details_api/<int:pk>', views.Caller_details_api.as_view()),
     path('patient_detail_info_api/<int:pk>', views.patient_detail_info_api.as_view()),
+    path('Service_requirment_api/<int:pk>', views.Service_requirment_api.as_view()),
     path('agg_hhc_service_professionals_api',views.agg_hhc_service_professionals_api.as_view()),#this display professional name and skills
     path('calculate_total_amount/<int:cost>/<str:start_date>/<str:end_date>/',views.calculate_total_amount.as_view()),
     path('calculate_discount_api/<int:dtype>/<int:damount>/<int:total_amt>',views.calculate_discount_api.as_view()),
-    path('Service_requirment_api', views.Service_requirment_api.as_view()),
     path('agg_hhc_feedback_answers_api/<int:agg_sp_pt_id>',views.agg_hhc_feedback_answers_api.as_view()),#this display rating and review from patient id
     path('last_patient_service_info/<int:pt_id>',views.last_patient_service_info.as_view()),#this is to display patient last service name and last start and end service date
     path('agg_hhc_professional_zone_api',views.agg_hhc_professional_zone_api.as_view()),
@@ -85,6 +85,7 @@ urlpatterns = [
     
 # ------------------------------------------Sandip-------------------------------------------------
     path('agg_hhc_add_service_details_api/', views.agg_hhc_add_service_details_api.as_view()),
+    path('agg_hhc_add_service_details_api/<int:pk>', views.agg_hhc_add_service_details_api.as_view()),
     path('agg_hhc_consultant_api/',views.agg_hhc_consultant_api.as_view()),
     path('agg_hhc_state_api',views.agg_hhc_state_api.as_view()),
     path('agg_hhc_city_api/<int:pk>',views.agg_hhc_city_api.as_view()),
