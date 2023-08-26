@@ -100,10 +100,16 @@ class relation_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_caller_relation
         fields = ['caller_rel_id', 'relation']
 
+class preffered_proffesional(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_doctors_consultants
+        fields = ['cons_fullname','mobile_no']
+
 class patient_detail_serializer(serializers.ModelSerializer):
+    doct_cons_id=preffered_proffesional()
     class Meta:
         model = models.agg_hhc_patients
-        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id']
+        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id','doct_cons_id']
 
 class hospital_serializer(serializers.ModelSerializer):
     class Meta:
