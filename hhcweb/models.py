@@ -721,7 +721,7 @@ class agg_hhc_events(models.Model):#9
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
 	caller_id = models.ForeignKey('agg_hhc_callers',on_delete=models.CASCADE,null=True)
 	# relation = models.CharField(max_length=64,null=True)
-	#pt_id = models.ForeignKey(agg_hhc_patient_list_enquiry,on_delete=models.CASCADE,null=True)
+	pt_id = models.ForeignKey(agg_hhc_patient_list_enquiry,on_delete=models.CASCADE,null=True)
 	agg_sp_pt_id= models.ForeignKey(agg_hhc_patients,on_delete=models.CASCADE, null=True)
 	purp_call_id = models.BigIntegerField(null=True)
 	bill_no_ref_no = models.BigIntegerField(null=True)
@@ -2404,6 +2404,7 @@ class agg_hhc_coupon_codes(models.Model):
 	coupon_code_discount_Percentage=models.IntegerField(null=True)
 	coupon_code_status=enum.EnumField(status_enum,null=True)
 	Added_date=models.DateTimeField(default=timezone.now,null=True)
+	is_used = enum.EnumField(is_delet_enum)
 	added_by=models.IntegerField(null=True)
 
 

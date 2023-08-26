@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -226,13 +226,13 @@ class agg_hhc_add_service_details_api(APIView):
     def post(self,request):  
         patientID=None  
         caller = agg_hhc_callers.objects.filter(phone=request.data['phone']).first()
-        print('1')
+        # print('1')
         if caller:
             callerSerializer= agg_hhc_callers_serializer(caller,data= request.data)
             if callerSerializer.is_valid():
                 callerID=callerSerializer.save()
                 callerID=callerID.caller_id
-                print('2')
+                # print('2')
             else:
                 return Response(callerSerializer.errors)
             # caller.update(caller_fullname=request.data['caller_fullname'], caller_rel_id=request.data['caller_rel_id'], purp_call_id=request.data['purp_call_id'], caller_status=3)
@@ -242,14 +242,14 @@ class agg_hhc_add_service_details_api(APIView):
             if callers.is_valid():
                 # callers.validated_data['caller_status']=3
                 callerID=callers.save().caller_id
-                print('3')
+                # print('3')
             else:
                 return Response([callers.errors,'5'])
         # print(callerID,'llllsecond')
         if request.data['purp_call_id']==1:
-            print('4')
+            # print('4')
             patient= agg_hhc_patients.objects.filter(phone_no=request.data['phone_no']).first()
-            print(patient)
+            # print(patient)
             if patient:
                 # patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
                 # patientID=patient.first().agg_sp_pt_id 
@@ -258,7 +258,7 @@ class agg_hhc_add_service_details_api(APIView):
                 if patientSerializer.is_valid():
                     # patientSerializer.validated_data['caller_id']=callerID
                     patientID=patientSerializer.save().agg_sp_pt_id
-                    print('5')
+                    # print('5')
                 else: return Response(patientSerializer.errors)
             else:
                 patient = agg_hhc_patients_serializer(data=request.data)
@@ -270,16 +270,16 @@ class agg_hhc_add_service_details_api(APIView):
                     # patientID=patientID.agg_sp_pt_id
                 else:
                     return Response([patient.errors,'6'])
-                print('4.6')                
+                # print('4.6')                
         elif request.data['purp_call_id']==2:
             patient= agg_hhc_patient_list_enquiry.objects.filter(phone_no=request.data['phone_no']).first()
             request.data['caller_id']=callerID
             if patient:
-                print(patient,'7')
+                # print(patient,'7')
                 patientSerializer = agg_hhc_patient_list_serializer(patient,data=request.data)
                 if patientSerializer.is_valid():
                     # patientSerializer.validated_data['caller_id']=callerID
-                    print(patientSerializer)
+                    # print(patientSerializer)
                     # print('pppppppppppppppppppppppppp')
                     patientID=patientSerializer.save().pt_id
                     # for items in patientID:
@@ -299,11 +299,11 @@ class agg_hhc_add_service_details_api(APIView):
             else:
                 request.data['caller_id']=callerID
                 patient = agg_hhc_patient_list_serializer(data=request.data)
-                print('9')
+                # print('9')
                 if patient.is_valid():
                     patientID=patient.save()
                     patientID=patientID.pt_id
-                    print('10')
+                    # print('10')
                 else:
                     return Response([patient.errors,'7'])
 
@@ -323,37 +323,42 @@ class agg_hhc_add_service_details_api(APIView):
 
         #     else:
         #         return Response(patient.errors)
-        print(callerID,'ll;;;l')
-        print(patientID,'ll;;;l')
+        # print(callerID,'ll;;;l')
+        # print(patientID,'ll;;;l')
+        request.data['status']=1
         event= agg_hhc_event_serializer(data=request.data)
         if event.is_valid():
             eventID=event.save().eve_id
+            request.data.pop('status')
         else:
             return Response([event.errors,'8'])
         event= agg_hhc_events.objects.filter(eve_id=eventID)
         if request.data['purp_call_id']==1:
+            # print('spero service')
             event.update(agg_sp_pt_id=patientID,caller_id=callerID)
         elif request.data['purp_call_id']==2:
+            # print('enquiry')
             event.update(pt_id=patientID,caller_id=callerID)
         # data=request.data['sub_srv_id']
         start_date = datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
         end_date = datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
         diff = ((end_date.date() - start_date.date()).days)
         a=[request.data['sub_srv_id']]
+        # for sub_srv in request.data['sub_srv_id']:    for multiple sub services
+        event_plane_of_care=[]
         for sub_srv in a:
             request.data['sub_srv_id']=sub_srv 
-            
                 # request.data['start_date']=request.data['actual_StartDate_Time']
                 # request.data['end_date']=request.data['actual_EndDate_Time']
-                
             add_service= agg_hhc_add_service_serializer(data=request.data)
             if add_service.is_valid():
                 service=add_service.save().eve_poc_id
-                print(service)
+                # print(service)
             else:
                 return Response([add_service.errors,'9'])
             plan_O_C= agg_hhc_event_plan_of_care.objects.filter(eve_poc_id=service)
             plan_O_C.update(eve_id=eventID)
+            event_plane_of_care.append(service)
             if request.data['purp_call_id']==1:
                 for i in range(0,(diff+1)):
                     start_date_string=start_date+timedelta(days=i)
@@ -371,7 +376,15 @@ class agg_hhc_add_service_details_api(APIView):
                         return Response([detailPlaneofcare.errors,'000'])
                     data1= agg_hhc_detailed_event_plan_of_care.objects.filter(agg_sp_dt_eve_poc_id=detail_plan)
                     data1.update(eve_poc_id=service,eve_id=eventID,index_of_Session=(i+1))
-        return Response({"Service Created Event Code":eventID})
+        if request.data['purp_call_id']==1: 
+            # return Response({"Service Created Event Code":[eventID,eventID.agg_sp_pt_id]})
+            event=agg_hhc_events.objects.get(eve_id=eventID)
+            events=agg_hhc_event_response_serializer(event)
+            return Response({"Service Created Event Code":[eventID,events.data,{"event_plan_of_care_id":event_plane_of_care}]})
+
+        else:
+            return Response({"Service Created Event Code":eventID})
+            
     
 # =================================================================================================================
 
@@ -417,7 +430,9 @@ class agg_hhc_add_service_details_api(APIView):
                 return Response([callers.errors,'5'])   
         # # print(callerID,'llllsecond')
         # if request.data['purp_call_id']==1:
+        print('l')
         patient=self.get_patient(phone_no=request.data['phone_no'])
+        print(patient,';;;;;;;;;;;;;;;')
         if patient:
             # patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
             # patientID=patient.first().agg_sp_pt_id 
@@ -456,7 +471,7 @@ class agg_hhc_add_service_details_api(APIView):
         #     return Response([event.errors,'8'])
         event=self.get_event(event=pk)
         # if request.data['purp_call_id']==1:
-        data={'agg_sp_pt_id':patientID,'caller_id':callerID}
+        data={'agg_sp_pt_id':patientID,'caller_id':callerID,'status':1}
         eventSerializer= agg_hhc_updateIDs_event_serializer(event,data=data)
         if eventSerializer.is_valid():
             eventID=eventSerializer.save().eve_id
@@ -469,11 +484,12 @@ class agg_hhc_add_service_details_api(APIView):
         print(callerID)
         # else:
         #     event.update(pt_id=patientID,caller_id=callerID)
-        start_date = datetime.datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
-        end_date = datetime.datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
+        start_date = datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
+        end_date = datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
         diff = ((end_date.date() - start_date.date()).days)
-
-        for sub_srv in request.data['sub_srv_id']:
+        a=[request.data['sub_srv_id']]
+        event_plane_of_care=[]
+        for sub_srv in a:
             request.data['sub_srv_id']=sub_srv 
             add_service= agg_hhc_add_service_serializer(data=request.data)
             if add_service.is_valid():
@@ -482,22 +498,28 @@ class agg_hhc_add_service_details_api(APIView):
                 return Response([add_service.errors,'9'])
             plan_O_C= agg_hhc_event_plan_of_care.objects.filter(eve_poc_id=service)
             plan_O_C.update(eve_id=eventID)
+            event_plane_of_care.append(service)
             if request.data['purp_call_id']==1:
                 for i in range(0,(diff+1)):
-                    start_date_string=start_date+datetime.timedelta(days=i)
+                    start_date_string=start_date+timedelta(days=i)
                     request.data['actual_StartDate_Time']=start_date_string
-                    request.data['actual_EndDate_Time']=datetime.datetime.combine(start_date_string.date(),end_date.time())
+                    request.data['actual_EndDate_Time']=datetime.combine(start_date_string.date(),end_date.time())
                     detailPlaneofcare= agg_hhc_add_detail_service_serializer(data=request.data)
                     if detailPlaneofcare.is_valid():
                         detailPlaneofcare.eve_poc_id=service
                         detailPlaneofcare.eve_id=eventID
-                        detail_plan=detailPlaneofcare.save().eve_poc_id
+                        detail_plan=detailPlaneofcare.save().agg_sp_dt_eve_poc_id
                     else:
                         return Response([detailPlaneofcare.errors,'000'])
                     data1= agg_hhc_detailed_event_plan_of_care.objects.filter(agg_sp_dt_eve_poc_id=detail_plan)
-                    data1.update(eve_poc_id=service,eve_id=eventID,index_of_Session=(i+1))
-        return Response({"Service Created Event Code"})
-
+                    data1.update(eve_poc_id=service,eve_id=eventID,index_of_Session=(i+1))                
+        # return Response({"Service Created Event Code"})
+        if request.data['purp_call_id']==1: 
+            event=agg_hhc_events.objects.get(eve_id=eventID)
+            events=agg_hhc_event_response_serializer(event)
+            return Response({"Service Created Event Code":[eventID,events.data,{"event_plan_of_care_id":event_plane_of_care}]})
+        else:
+            return Response({"Service Created Event Code":eventID})
 
 
 
@@ -664,7 +686,7 @@ class patient_detail_info_api(APIView):
         patient = self.get_patient(pk)
         if patient:
             serializer =  patient_detail_serializer(patient)
-            hospital = self.get_hospital(serializer.data['hosp_id'])
+            hospital = self.get_hospital(serializer.data['preferred_hosp_id'])
             if hospital:
                 hospitals =  hospital_serializer(hospital)
                 return Response({"patient": serializer.data, "hospital": hospitals.data})
@@ -711,8 +733,8 @@ class calculate_total_amount(APIView):
         end_date_string = end_date.replace('T',' ')
         print(start_date_string)     
         try:
-            start_date = datetime.datetime.strptime(str(start_date_string), '%Y-%m-%d %H:%M').date()
-            end_date = datetime.datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').date()            
+            start_date = datetime.strptime(str(start_date_string), '%Y-%m-%d %H:%M').date()
+            end_date = datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').date()            
             diff = (end_date - start_date).days 
             total = (diff+1) * cost          
             return Response({'days_difference': total})
@@ -721,8 +743,9 @@ class calculate_total_amount(APIView):
         
 class Service_requirment_api(APIView):
     def get_service(self,pk):
-        return  agg_hhc_event_plan_of_care.objects.filter(pk)
-    def get(self,pk):
+        return  agg_hhc_event_plan_of_care.objects.get(eve_poc_id=pk)
+    def get(self,request,pk):
+        print(';;;;;;llllll')
         service = self.get_service(pk)
         if service:
             services =  agg_hhc_add_service_serializer(service)
@@ -732,6 +755,7 @@ class Service_requirment_api(APIView):
         
     def put(self, request, pk):
         service = self.get_service(pk)
+        print(service)
         serializer =  agg_hhc_add_service_serializer(service, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
