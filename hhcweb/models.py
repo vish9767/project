@@ -1712,10 +1712,15 @@ class agg_hhc_bank_details(models.Model):#66
     Amount_with_spero=models.IntegerField(null=True)
     Amount_with_me=models.IntegerField(null=True)
 
+class cancel_fileds(enum.Enum):
+	Spero = 1
+	Customer = 2
+
 class agg_hhc_cancellation_history(models.Model):#67
     canc_his_id=models.AutoField(primary_key=True)
-    #eve_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
+    event_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
     event_code=models.CharField(max_length=50,null=True)
+    cancellation_by = enum.EnumField(cancel_fileds,null=True)
     cancelled_date=models.DateTimeField(null=True)
     can_amt=models.IntegerField(null=True)
     reason=models.CharField(max_length=100,null=True)

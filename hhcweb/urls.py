@@ -70,6 +70,7 @@ urlpatterns = [
     path('service_reschedule/<int:eve_id>/',views.service_reschedule_view.as_view()),
     path('prof_reschedule/<int:eve_id>/', views.Professional_Reschedule_Apiview.as_view()),
     # path('professional_availability_api/<int:srv_id>/',views.get_all_avail_professionals.as_view()),
+    path('service_cancellation/<int:eve_id>', views.ServiceCancellationView.as_view()),
 
     #-------------------------------------------Amit---------------------------------------------------------
     path('Follow_Up_combined_table/', views.agg_hhc_service_enquiry_list_combined_table_view.as_view()),

@@ -358,7 +358,7 @@ class ProfesNameSerializer(serializers.ModelSerializer):
     srv_id = ServiceSerilaizer()
     class Meta:
         model = models.agg_hhc_event_plan_of_care
-        fields = ['start_date','end_date','prof_prefered','eve_id']
+        fields = ['start_date','end_date','prof_prefered','eve_id','srv_id','srv_prof_id']
 
 class SessionStatusSerializer(serializers.ModelSerializer):
     Total_case_count = serializers.SerializerMethodField()
@@ -576,3 +576,123 @@ class Prof_Reschedule_serializer(serializers.ModelSerializer):
 #         fields = ('srv_id','srv_prof_id')
 
 
+# ----------- cancellation service ----------
+
+from .models import status_enum
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import F, ExpressionWrapper, FloatField
+
+class Detail_Event_Plan_of_Care_Staus(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_detailed_event_plan_of_care
+        fields = ['status']
+    
+class Event_Plan_of_Care_Staus(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.agg_hhc_event_plan_of_care
+        fields = ['start_date','status']
+    
+
+class Event_Staus(serializers.ModelSerializer):
+    Total_session = serializers.SerializerMethodField()
+    per_session_cost = serializers.SerializerMethodField()
+    completed_session_amt = serializers.SerializerMethodField()
+    refund_amt = serializers.SerializerMethodField()
+    srv_date = Event_Plan_of_Care_Staus(source='eve_id')
+    class Meta:
+        model = models.agg_hhc_events
+        fields = ['eve_id','Total_cost','status','Total_session','per_session_cost','completed_session_amt','refund_amt','srv_date']
+        # fields = ['eve_id','Total_cost','status','Total_session','per_session_cost','completed_session_amt']
+        
+
+    
+
+    def get_Total_session(self, obj):
+        # queryset = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=obj.eve_id, Session_status=1)
+        queryset = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=obj.eve_id)
+        return queryset.count()
+
+    def get_per_session_cost(self, obj):
+        Total_cost = obj.Total_cost  # Access Total_cost field of the obj
+        Total_session = self.get_Total_session(obj)  # Call the previously defined method
+        return int(Total_cost / Total_session) if Total_session > 0 else 0
+    
+    def get_completed_session_amt(self, obj):
+        queryset = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=obj.eve_id, Session_status=2)
+        # return queryset.count()
+        completed_session = queryset.count()
+        per_session = self.get_per_session_cost(obj)
+        return int(per_session * completed_session)
+    
+    def get_refund_amt(self,obj):
+        total_cost = obj.Total_cost
+        com_ses_amt = self.get_completed_session_amt(obj)
+        ref_amt = total_cost - com_ses_amt
+        current_date = timezone.now().date() 
+        previous_24_hours = timezone.now() - timedelta(hours=24)
+        previous_48_hours = timezone.now() - timedelta(hours=48)
+        previous_24_hours_date = previous_24_hours.date()
+        previous_48_hours_date = previous_48_hours.date()
+
+        refaund_amt = 0
+
+        srv_start_date = models.agg_hhc_event_plan_of_care.objects.filter(eve_id=obj.eve_id)
+        for srv_start_dates in srv_start_date:
+            if srv_start_dates.start_date.date() <= current_date:
+                refaund_amt -= 200
+            elif srv_start_dates.start_date.date() >= previous_24_hours_date:
+                refaund_amt -= 200
+            elif srv_start_dates.start_date.date() >= previous_48_hours_date:
+                refaund_amt -= 0
+        
+        return int(ref_amt - refaund_amt)
+            
+
+
+class ServiceCancellationSerializer(serializers.ModelSerializer):
+    DetaileventStaus = Detail_Event_Plan_of_Care_Staus(source='event_id',read_only=True)
+    eventPlanStaus = Event_Plan_of_Care_Staus(source='event_id',read_only=True)
+    eventStaus = Event_Staus(source='event_id',read_only=True)
+    # cost_per_session = serializers.SerializerMethodField()
+    # # eventStaus['Total_cost']
+    # print(eventStaus['Total_cost'])
+
+    class Meta:
+        model = models.agg_hhc_cancellation_history
+        # fields = ['canc_his_id','event_id','cancellation_by','reason','cancelled_date','DetaileventStaus','eventPlanStaus','eventStaus','cost_per_session']
+        fields = ['canc_his_id','event_id','cancellation_by','reason','cancelled_date','DetaileventStaus','eventPlanStaus','eventStaus']
+
+
+    
+
+
+    def create(self, validated_data):
+        event = validated_data.get('event_id')
+        if event:
+           
+            try:
+               
+
+                detail_event_poc=models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=event)
+                event_poc=models.agg_hhc_event_plan_of_care.objects.filter(eve_id=event)
+                event_model=models.agg_hhc_events.objects.filter(eve_id=event.eve_id)
+                
+                for detail_event_poc_queryset in detail_event_poc:
+                    detail_event_poc_queryset.status= status_enum.Inactive.value
+                    detail_event_poc_queryset.save()
+                
+                for event_poc_queryset in event_poc:
+                    event_poc_queryset.status= status_enum.Inactive.value
+                    event_poc_queryset.save()
+                
+                for event_queryset in event_model:
+                    event_queryset.status= status_enum.Inactive.value
+                    event_queryset.save()
+
+            except models.agg_hhc_detailed_event_plan_of_care.DoesNotExist:
+                print("this is not available")
+                pass  
+        cancellation_history = models.agg_hhc_cancellation_history.objects.create(**validated_data)
+        return cancellation_history

@@ -1003,9 +1003,9 @@ class combined_info(APIView):
     def get(self,request):
         if request.method == 'GET':
             event_data= agg_hhc_events.objects.filter(Q(event_status=1) | Q(event_status=4))
-            agg_hhc_events= agg_hhc_events_serializers1(event_data,many=True)
+            agg_hhc_eve= agg_hhc_events_serializers1(event_data,many=True)
             event=[]
-            for i in agg_hhc_events.data:
+            for i in agg_hhc_eve.data:
                 event_code=i['event_code']#i['eve_id']
                 patient_no=i['agg_sp_pt_id']
                 patient= agg_hhc_patients.objects.get(agg_sp_pt_id=patient_no)
@@ -1091,7 +1091,8 @@ class OngoingServiceView(APIView):
     def get(self, request, format=None):
         data =  agg_hhc_events.objects.all()
         serializer = self.serializer_class(data, many=True)  
-        return Response(serializer.data)
+        filtered_data = [item for item in serializer.data if item is not None]
+        return Response(filtered_data)
     
 # -------------------------------------Amit Rasale---------------------------------------------------------------
 class agg_hhc_enquiry_previous_follow_up_APIView(APIView):
@@ -1283,6 +1284,38 @@ class Professional_Reschedule_Apiview(APIView):
 
 # -------------- Professional Allocation ----------
 
+# class get_all_avail_professionals(APIView):
+#     serializer_class =  avail_prof_serializer
+#     def get(self,request,srv_id):
+
+#         data =  agg_hhc_professional_sub_services.objects.filter(srv_id=srv_id)
+#         serializer =  self.serializer_class(data,many=True)
+#         return Response(serializer.data) 
+
+
+
+# ---------------------  service cancellation ----------
+
+from . serializers import ServiceCancellationSerializer,Event_Staus
+class ServiceCancellationView(APIView):
+    serializer_class = ServiceCancellationSerializer
+
+    serilizer_class2 = Event_Staus
+    def get(self, request, eve_id):
+        data = agg_hhc_events.objects.get(eve_id=eve_id)
+        serializer = self.serilizer_class2(data)
+        return Response(serializer.data)
+
+
+
+    def post(self, request, eve_id):
+        data1 = agg_hhc_events.objects.get(eve_id=eve_id)
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class allocate_api(APIView):
     def post(self,request):
         professional_id=request.data.get('srv_prof_id')
@@ -1316,3 +1349,4 @@ class allocate_api(APIView):
         event_id.event_status=2
         event_id.save()
         return Response({'message':'professional Allocated sucessfully'})
+    
