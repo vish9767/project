@@ -83,7 +83,7 @@ class agg_hhc_updateIDs_event_serializer(serializers.ModelSerializer):
 class agg_hhc_add_service_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_event_plan_of_care
-        fields = ['srv_id', 'sub_srv_id', 'start_date', 'end_date','prof_prefered', 'srv_prof_id']
+        fields = ['eve_poc_id','srv_id', 'sub_srv_id', 'start_date', 'end_date','prof_prefered', 'srv_prof_id']
 
 class agg_hhc_add_discount_serializer(serializers.ModelSerializer):
     class Meta:
@@ -93,7 +93,7 @@ class agg_hhc_add_discount_serializer(serializers.ModelSerializer):
 class Caller_details_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_callers
-        fields = ['phone', 'fname', 'lname', 'caller_rel_id' ]
+        fields = ['phone', 'caller_fullname', 'caller_rel_id' ]
 
 class relation_serializer(serializers.ModelSerializer):
     class Meta:
@@ -103,7 +103,7 @@ class relation_serializer(serializers.ModelSerializer):
 class patient_detail_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_patients
-        fields = ['agg_sp_pt_id','patient_fullname', 'Gender', 'Suffered_from', 'hosp_id', 'dob', 'phone_no', 'email_id']
+        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id']
 
 class hospital_serializer(serializers.ModelSerializer):
     class Meta:
