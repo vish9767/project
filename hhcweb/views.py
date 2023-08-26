@@ -871,7 +871,6 @@ class AggHHCServiceProfessionalListAPIView(generics.ListAPIView):
 
 
 #--------------------------------------Nikita P-----------------------------------------------
-
 class agg_hhc_zone_api(APIView): # List of Zones
 
     def get(self, request, pk, format=None):
@@ -883,7 +882,6 @@ class agg_hhc_zone_api(APIView): # List of Zones
 
 
 class agg_hhc_service_professional_api(APIView): # List of professionals
-
     def get(self, request, format=None):
         zone = request.GET.get('zone')
         title = request.GET.get('title')
@@ -902,7 +900,6 @@ class agg_hhc_service_professional_api(APIView): # List of professionals
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
 class agg_hhc_detailed_event_plan_of_care_api(APIView):
-
     def get(self, request, format=None):
         pro = request.GET.get('pro')
         pro =  agg_hhc_detailed_event_plan_of_care.objects.filter(srv_prof_id=pro)# To display all past & upcoming events.
@@ -1012,9 +1009,10 @@ class combined_info(APIView):
                 patient_no=i['agg_sp_pt_id']
                 patient= agg_hhc_patients.objects.get(agg_sp_pt_id=patient_no)
                 pat_ser= agg_hhc_patients_serializer(patient)
-                patient_name=pat_ser.data.get('patient_fullname')
+                patient_name=pat_ser.data.get('name')
                 patient_number=pat_ser.data.get('phone_no')
-                patient_zone=pat_ser.data.get('zone_id')
+                patient_zone_id=pat_ser.data.get('zone_id')
+                patient_zone=agg_hhc_professional_zone.objects.get(prof_zone_id=patient_zone_id)
                 caller_id=pat_ser.data.get('caller_id')
                 caller_status= agg_hhc_callers.objects.get(caller_id=caller_id)
                 caller_seri= agg_hhc_callers_seralizer(caller_status)
@@ -1028,7 +1026,7 @@ class combined_info(APIView):
                 service= agg_hhc_services.objects.get(srv_id=service_id)
                 service_serializer= agg_hhc_services_serializer(service)
                 service_name=service_serializer.data.get('service_title')
-                even={'event_id':i['eve_id'],'event_code':event_code,'patient_name':patient_name,'patient_number':patient_number,'patient_zone':patient_zone,'event_start_date':event_start_date,'event_end_date':event_end_date,'service_name':service_name,'caller_status':caler_status,'professional_prefered':professional_prefered}
+                even={'event_id':i['eve_id'],'event_code':event_code,'patient_name':patient_name,'patient_number':patient_number,'patient_zone':patient_zone.Name,'event_start_date':event_start_date,'event_end_date':event_end_date,'service_name':service_name,'caller_status':caler_status,'professional_prefered':professional_prefered}
                 event.append(even)
             return Response({'event_code':event,})#'patient_name':patient.name,'patient_number':patient.phone_no,'service_name':service_name.service_title})#add zone from agg_hhc_patient_table
 
@@ -1318,6 +1316,8 @@ class ServiceCancellationView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# This is allocation api .     
 class allocate_api(APIView):
     def post(self,request):
         professional_id=request.data.get('srv_prof_id')
