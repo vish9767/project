@@ -329,7 +329,7 @@ class agg_hhc_add_service_details_api(APIView):
         event= agg_hhc_event_serializer(data=request.data)
         if event.is_valid():
             eventID=event.save().eve_id
-            request.data.pop('status')
+            request.data.pop('event_status')
         else:
             return Response([event.errors,'8'])
         event= agg_hhc_events.objects.filter(eve_id=eventID)
