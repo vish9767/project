@@ -985,6 +985,7 @@ class combined_info(APIView):
     def get(self,request):
         if request.method == 'GET':
             event_data= agg_hhc_events.objects.filter(Q(event_status=1) | Q(event_status=4))
+            print("this is event data ",event_data)
             agg_hhc_eve= agg_hhc_events_serializers1(event_data,many=True)
             event=[]
             for i in agg_hhc_eve.data:
