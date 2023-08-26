@@ -100,10 +100,16 @@ class relation_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_caller_relation
         fields = ['caller_rel_id', 'relation']
 
+class preffered_proffesional(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_doctors_consultants
+        fields = ['cons_fullname','mobile_no']
+
 class patient_detail_serializer(serializers.ModelSerializer):
+    doct_cons_id=preffered_proffesional()
     class Meta:
         model = models.agg_hhc_patients
-        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id']
+        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id','doct_cons_id']
 
 class hospital_serializer(serializers.ModelSerializer):
     class Meta:
@@ -146,7 +152,7 @@ class agg_hhc_callers_serializer(serializers.ModelSerializer):#20
     # fullname=serializers.SerializerMethodField()
     class Meta:
         model=models.agg_hhc_callers
-        fields=('caller_fullname','caller_id','phone','caller_rel_id','age','gender','email','contact_no','alter_contact','Address','save_this_add','profile_pic','caller_status')
+        fields=('caller_fullname','caller_id','phone','caller_rel_id','gender','email','contact_no','alter_contact','Address','save_this_add','profile_pic','caller_status','purp_call_id')
     # def get_name(self,obj):
     #     return f"{obj.fname} {obj.lname}".strip()
 

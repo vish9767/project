@@ -652,13 +652,13 @@ class Caller_details_api(APIView):
         return  agg_hhc_callers.objects.get(caller_id=pk)
             
     def get_relation(self,pk):
-        return  agg_hhc_caller_relation.objects.filter(pk=pk)
+        return  agg_hhc_caller_relation.objects.get(caller_rel_id=pk)
              
-    def get(self,request,pk):   
+    def get(self,request,pk):  
         caller = self.get_object(pk)
         if caller:
             serializer =  Caller_details_serializer(caller)
-            relation=(self.get_relation(serializer.data['caller_rel_id']))[0]
+            relation=(self.get_relation(serializer.data['caller_rel_id']))
             relations= relation_serializer(relation)
             return Response({"caller":serializer.data,"relation":relations.data})
         else:
@@ -743,7 +743,6 @@ class Service_requirment_api(APIView):
     def get_service(self,pk):
         return  agg_hhc_event_plan_of_care.objects.get(eve_poc_id=pk)
     def get(self,request,pk):
-        print(';;;;;;llllll')
         service = self.get_service(pk)
         if service:
             services =  agg_hhc_add_service_serializer(service)
@@ -753,7 +752,6 @@ class Service_requirment_api(APIView):
         
     def put(self, request, pk):
         service = self.get_service(pk)
-        print(service)
         serializer =  agg_hhc_add_service_serializer(service, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

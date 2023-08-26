@@ -285,7 +285,7 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	# lname=models.CharField(max_length=50,null=True)
 	purp_call_id = models.ForeignKey('agg_hhc_purpose_call',on_delete=models.CASCADE,null=True)
 	caller_rel_id=models.ForeignKey('agg_hhc_caller_relation',on_delete=models.CASCADE,null=True)
-	age=models.IntegerField(null=True)
+	Age=models.IntegerField(null=True)
 	gender=models.CharField(max_length=20,null=True)
 	email=models.EmailField(null=True)
 	contact_no=models.BigIntegerField(null=True)
@@ -300,8 +300,8 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	status=enum.EnumField(active_inactive_enum,null=True)
 	caller_status=enum.EnumField(caller_status_enum,null=True)
 
-	def __str__(self):
-		return f"{self.caller_id},{self.caller_fullname}"
+	# def __str__(self):
+	# 	return f"{self.caller_id},{self.caller_fullname}"
 	
 	
 """
@@ -608,6 +608,7 @@ class agg_hhc_assessment_patient_list(models.Model):#4
 
 class agg_hhc_patients(models.Model):#6
 	agg_sp_pt_id = models.AutoField(primary_key = True)
+	doct_cons_id = models.ForeignKey('agg_hhc_doctors_consultants',on_delete=models.CASCADE,null=True)
 	#app_user_id=models.ForeignKey(agg_hhc_app_caller_register,on_delete=models.CASCADE,null=True)
 	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
 	hhc_code = models.CharField(max_length=50,null=True, blank=True)
@@ -662,6 +663,7 @@ class agg_hhc_patients(models.Model):#6
 	def save(self, *args, **kwargs):
 		if not self.hhc_code:
 			last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
+			print(last_pt.hhc_code,'llllllllllllllll')
 			prefix = self.preferred_hosp_id.hospital_short_code if self.preferred_hosp_id else None
 			if not prefix:
 				raise Http404
