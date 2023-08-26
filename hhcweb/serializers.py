@@ -103,7 +103,7 @@ class relation_serializer(serializers.ModelSerializer):
 class preffered_proffesional(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_doctors_consultants
-        fields = ['cons_fullname','mobile_no']
+        fields = ['doct_cons_id','cons_fullname','mobile_no']
 
 class patient_detail_serializer(serializers.ModelSerializer):
     doct_cons_id=preffered_proffesional()
