@@ -343,10 +343,10 @@ class agg_hhc_add_service_details_api(APIView):
         start_date = datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
         end_date = datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
         diff = ((end_date.date() - start_date.date()).days)
-        a=[request.data['sub_srv_id']]
+        
         # for sub_srv in request.data['sub_srv_id']:    for multiple sub services
         event_plane_of_care=[]
-        for sub_srv in a:
+        for sub_srv in request.data['sub_srv_id']:
             request.data['sub_srv_id']=sub_srv 
                 # request.data['start_date']=request.data['actual_StartDate_Time']
                 # request.data['end_date']=request.data['actual_EndDate_Time']
@@ -485,9 +485,8 @@ class agg_hhc_add_service_details_api(APIView):
         start_date = datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
         end_date = datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
         diff = ((end_date.date() - start_date.date()).days)
-        a=[request.data['sub_srv_id']]
         event_plane_of_care=[]
-        for sub_srv in a:
+        for sub_srv in request.data['sub_srv_id']:
             request.data['sub_srv_id']=sub_srv 
             add_service= agg_hhc_add_service_serializer(data=request.data)
             if add_service.is_valid():
