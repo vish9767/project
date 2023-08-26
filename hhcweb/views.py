@@ -365,7 +365,9 @@ class agg_hhc_add_service_details_api(APIView):
                     request.data['actual_StartDate_Time']=start_date_string
                     request.data['actual_EndDate_Time']=datetime.combine(start_date_string.date(),end_date.time())
                     detailPlaneofcare= agg_hhc_add_detail_service_serializer(data=request.data)
+                    print('views')
                     if detailPlaneofcare.is_valid():
+                        print('views1')
                         # detailPlaneofcare.eve_poc_id=service
                         # detailPlaneofcare.eve_id=eventID
                         # detailPlaneofcare.index_of_Session=(i+1)
@@ -1006,6 +1008,7 @@ class combined_info(APIView):
     def get(self,request):
         if request.method == 'GET':
             event_data= agg_hhc_events.objects.filter(Q(event_status=1) | Q(event_status=4))
+            print("this is event data ",event_data)
             agg_hhc_eve= agg_hhc_events_serializers1(event_data,many=True)
             event=[]
             for i in agg_hhc_eve.data:

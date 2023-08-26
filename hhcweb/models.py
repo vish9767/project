@@ -285,7 +285,7 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	# lname=models.CharField(max_length=50,null=True)
 	purp_call_id = models.ForeignKey('agg_hhc_purpose_call',on_delete=models.CASCADE,null=True)
 	caller_rel_id=models.ForeignKey('agg_hhc_caller_relation',on_delete=models.CASCADE,null=True)
-	age=models.IntegerField(null=True)
+	Age=models.IntegerField(null=True)
 	gender=models.CharField(max_length=20,null=True)
 	email=models.EmailField(null=True)
 	contact_no=models.BigIntegerField(null=True)
@@ -663,6 +663,7 @@ class agg_hhc_patients(models.Model):#6
 	def save(self, *args, **kwargs):
 		if not self.hhc_code:
 			last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
+			print(last_pt.hhc_code,'llllllllllllllll')
 			prefix = self.preferred_hosp_id.hospital_short_code if self.preferred_hosp_id else None
 			if not prefix:
 				raise Http404
