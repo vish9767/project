@@ -340,6 +340,11 @@ class PatientSerializer(serializers.ModelSerializer):
         model = models.agg_hhc_patients
         fields = ['patient_fullname', 'phone_no']
 
+class Patient_by_HHCID_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_patients
+        fields = '__all__'
+
 
 
 

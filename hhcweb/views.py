@@ -222,6 +222,19 @@ class agg_hhc_patinet_list_enquiry_put(APIView):
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
 
 # ------------------------------ Sandip Shimpi ---------------------------------------------- 
+class agg_hhc_patient_by_HHCID(APIView):
+
+    def get_patient(self,pk):
+        try:
+            return agg_hhc_patients.objects.get(hhc_code=pk)
+        except agg_hhc_patients.DoesNotExist:
+            return status.HTTP_404_NOT_FOUND        
+
+    def get(self,request,pk):
+        patient = self.get_patient(pk)
+        patient=Patient_by_HHCID_Serializer(patient)
+        return Response(patient.data)
+    
 class agg_hhc_add_service_details_api(APIView):
     def post(self,request):  
         patientID=None  
@@ -555,17 +568,18 @@ class agg_hhc_service_professional_details(APIView):
 
 class agg_hhc_callers_phone_no(APIView):
     def get_object(self,pk):
-        queryset =  agg_hhc_callers.objects.get(phone=pk)#.values_list('caller_id',flat=True)
-        print("This is get:",queryset.caller_id)
-        query_id=queryset.caller_id
-        #print('this is query:',list(queryset))
-        return query_id #8888888888
+        try:
+            queryset =  agg_hhc_callers.objects.get(phone=pk)#.values_list('caller_id',flat=True)
+            query_id=queryset.caller_id
+            #print('this is query:',list(queryset))
+            return query_id #8888888888
+        except agg_hhc_callers.DoesNotExist:
+            return None
     def get(self,request,pk,format=None):
         snippet=self.get_object(pk)
         caller_record= agg_hhc_callers.objects.get(pk=snippet)
-        record= agg_hhc_patients.objects.filter(caller_id=snippet)
-        print(record)
         serialized_caller= agg_hhc_callers(caller_record)
+        record= agg_hhc_patients.objects.filter(caller_id=snippet)
         serialized= agg_hhc_app_patient_by_caller_phone_no(record,many=True)
         return Response({"caller": serialized_caller.data, "patients": serialized.data})
 
