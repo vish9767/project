@@ -454,7 +454,12 @@ class agg_hhc_enquiry_Add_follow_up_create_service_serializer(serializers.ModelS
         fields=('enq_follow_up_id', 'event_id', 'follow_up',  'previous_follow_up_remark')
 
 
+class enquiries_service_serializer(serializers.ModelSerializer):   
+    class Meta:
+        model=models.agg_hhc_enquiry_follow_up
+        fields=('enq_follow_up_id', 'follow_up')
 class services(serializers.ModelSerializer):
+
     class Meta:
         model = models.agg_hhc_services
         fields = ['service_title']
@@ -467,18 +472,18 @@ class ServiceNameSerializer(serializers.ModelSerializer):
 class patient_professional_zone_serializer(serializers.ModelSerializer):
     class Meta:
         model = agg_hhc_professional_zone
-        fields = ['prof_zone_id','city_id', 'Name']
+        fields = ['zone_id','city_id', 'Name']
 
 class EventPatientSerializer(serializers.ModelSerializer):
-    prof_zone_id = patient_professional_zone_serializer()
+    zone_id = patient_professional_zone_serializer()
     class Meta:
         model = models.agg_hhc_patients
-        fields = ['agg_sp_pt_id','patient_fullname','phone_no','Suffered_from','prof_zone_id']
+        fields = ['agg_sp_pt_id','name','phone_no','Suffered_from','zone_id']
 
 class AggHhcPatientListEnquirySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_patient_list_enquiry
-        fields = ['pt_id','eve_id', 'status', 'enquiry_status']
+        fields = ['pt_id','eve_id', 'status', 'enquiry_from']
 
 class caller_serializers(serializers.ModelSerializer):
     class Meta:
@@ -490,10 +495,11 @@ class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
     pt_id = AggHhcPatientListEnquirySerializer()
     agg_sp_pt_id = EventPatientSerializer()
     caller_id = caller_serializers()
+    enq_follow_up_id = enquiries_service_serializer()
     
     class Meta:
         model=models.agg_hhc_events        
-        fields = ('eve_id','event_code','srv_id','agg_sp_pt_id','caller_id' ,'pt_id')
+        fields = ('eve_id','event_code','srv_id','agg_sp_pt_id','caller_id' ,'pt_id', 'enq_follow_up_id')
 # --------------------------------------------------- Sandip Shimpi -------------------------------------------------
 class agg_hhc_callers_createService_serializer(serializers.ModelSerializer):#20
     class Meta:
