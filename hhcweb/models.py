@@ -22,10 +22,11 @@ class enquiry_from_enum(enum.Enum):
 	__default__ = website
 
 class enquiry_status(enum.Enum):
-	Cancelled_Enquiry = 1
 	Follow_up_pending = 2
-	Converted_Into_service = 3
 	Follow_up_Reschedule = 4
+	Converted_Into_service = 3
+	Cancelled_Enquiry = 1
+	__default__= 2
 	
 
 class active_inactive_enum(enum.Enum):
@@ -606,7 +607,7 @@ class agg_hhc_assessment_patient_list(models.Model):#4
 	Discharge_Date = models.CharField(max_length=50,null=True)
 	TimeofDischarge = models.CharField(max_length=50,null=True)
 	DateofDeath = models.CharField(max_length=50,null=True)
-	status = models.CharField(max_length=2,null=True)
+	enquiry_status = enum.EnumField(enquiry_status,null=True)    #sandip shimpi
 	added_date = models.DateField(default=timezone.now,null=True)
 
 class agg_hhc_patients(models.Model):#6
@@ -666,13 +667,14 @@ class agg_hhc_patients(models.Model):#6
 	def save(self, *args, **kwargs):
 		if not self.hhc_code:
 			last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
-			print(last_pt.hhc_code,'llllllllllllllll')
 			prefix = self.preferred_hosp_id.hospital_short_code if self.preferred_hosp_id else None
 			if not prefix:
 				raise Http404
 			last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
 			self.hhc_code = f"{prefix}HC{last_sequence:05d}"
 		return super().save(*args, **kwargs)
+	
+	
 # class agg_hhc_webinar_patient_table(models.Model):#7
 # 	agg_sp_web_pt_li_id = models.AutoField(primary_key = True)
 # 	HHC_no = models.CharField(max_length=20,null=True)
