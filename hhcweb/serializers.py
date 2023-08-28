@@ -68,7 +68,7 @@ class agg_hhc_services_serializer(serializers.ModelSerializer):
 class agg_hhc_event_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_events
-        fields = ['purp_call_id','status']
+        fields = ['purp_call_id','event_status']
 
 class agg_hhc_event_response_serializer(serializers.ModelSerializer):
     class Meta:
@@ -103,7 +103,7 @@ class relation_serializer(serializers.ModelSerializer):
 class preffered_proffesional(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_doctors_consultants
-        fields = ['cons_fullname','mobile_no']
+        fields = ['doct_cons_id','cons_fullname','mobile_no']
 
 class patient_detail_serializer(serializers.ModelSerializer):
     doct_cons_id=preffered_proffesional()
