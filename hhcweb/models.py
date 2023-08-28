@@ -274,10 +274,7 @@ class follow_up_cancel_by(models.TextChoices):
 class follow_up(models.TextChoices):
     Keep_In_Follow_up = 1
     Cancel = 2
-    __default__ = 4
     Create_Service = 3
-	
-    
 # ------------------------------------------------------------------------
 
 class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
@@ -726,7 +723,6 @@ class agg_hhc_events(models.Model):#9
 	event_code = models.CharField(max_length=640,null=True,blank=True)
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
 	caller_id = models.ForeignKey('agg_hhc_callers',on_delete=models.CASCADE,null=True)
-	enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)
 	# relation = models.CharField(max_length=64,null=True)
 	pt_id = models.ForeignKey(agg_hhc_patient_list_enquiry,on_delete=models.CASCADE,null=True)
 	agg_sp_pt_id= models.ForeignKey(agg_hhc_patients,on_delete=models.CASCADE, null=True)
@@ -1915,7 +1911,7 @@ class agg_hhc_emp_spero(models.Model):#80
 
 class agg_hhc_enquiry_follow_up(models.Model):#81
     enq_follow_up_id=models.AutoField(primary_key=True)
-    # event_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE)
+    event_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE)
     # follow_up_date = models.DateField()                              
     # follow_up_time = models.TimeField()   
     follow_up_date_time = models.DateTimeField(null=True)
@@ -2391,12 +2387,12 @@ class agg_hhc_pincode(models.Model):
 	pincode_number=models.PositiveIntegerField(null=True)
 
 class agg_hhc_professional_zone(models.Model):#53 Zones 
-    zone_id=models.AutoField(primary_key=True)
+    prof_zone_id=models.AutoField(primary_key=True)
     city_id=models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)
 	#prof_srv_id=models.ForeignKey(agg_hhc_professional_services,on_delete=models.CASCADE,null=True)
     Name=models.CharField(max_length=50,null=True,unique=True)
     def __str__(self):
-	    return f'{self.zone_id}'
+	    return f'{self.Name}'
 
 
 class  agg_hhc_professional_cancelled_reason(models.Model):
