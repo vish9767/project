@@ -618,8 +618,8 @@ class agg_hhc_patients(models.Model):#6
 	# name = models.CharField(max_length=50,null=True)
 	# middle_name = models.CharField(max_length=50,null=True)
 	pincode=models.PositiveIntegerField(null=True)
-	# Age = models.BigIntegerField(null=True)
-	age = models.BigIntegerField(null=True)
+	Age = models.BigIntegerField(null=True)
+	# age = models.BigIntegerField(null=True)
 	# Gender = models.CharField(max_length=10,null=True)
 	gender_id = models.ForeignKey('agg_hhc_gender',on_delete=models.CASCADE,null=True)
 	patient_email_id = models.EmailField(null=True)
@@ -661,15 +661,15 @@ class agg_hhc_patients(models.Model):#6
 	# 		last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
 	# 		self.hhc_code = f"{prefix}HC{last_sequence:05d}"
 	# 	return super().save(*args, **kwargs)
-	# def save(self, *args, **kwargs):
-	# 	if not self.hhc_code:
-	# 		last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
-	# 		prefix = self.preferred_hosp_id.hospital_short_code if self.preferred_hosp_id else None
-	# 		if not prefix:
-	# 			raise Http404
-	# 		last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
-	# 		self.hhc_code = f"{prefix}HC{last_sequence:05d}"
-	# 	return super().save(*args, **kwargs)
+	def save(self, *args, **kwargs):
+		if not self.hhc_code:
+			last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
+			prefix = self.preferred_hosp_id.hospital_short_code if self.preferred_hosp_id else None
+			if not prefix:
+				raise Http404
+			last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
+			self.hhc_code = f"{prefix}HC{last_sequence:05d}"
+		return super().save(*args, **kwargs)
 	
 	
 # class agg_hhc_webinar_patient_table(models.Model):#7
