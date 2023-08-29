@@ -80,7 +80,19 @@ class agg_hhc_updateIDs_event_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_events
         fields = ['eve_id','agg_sp_pt_id','caller_id','status']
 
+class get_service_name(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_services
+        fields = ['srv_id', 'service_title']
+
+class get_sub_service_name(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_sub_services
+        fields = ['sub_srv_id', 'recommomded_service']
+
 class agg_hhc_add_service_serializer(serializers.ModelSerializer):
+    srv_id = get_service_name()
+    sub_srv_id = get_sub_service_name()
     class Meta:
         model = models.agg_hhc_event_plan_of_care
         fields = ['eve_poc_id','srv_id', 'sub_srv_id', 'start_date', 'end_date', 'prof_prefered']
