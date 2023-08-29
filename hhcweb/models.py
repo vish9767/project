@@ -661,15 +661,15 @@ class agg_hhc_patients(models.Model):#6
 	# 		last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
 	# 		self.hhc_code = f"{prefix}HC{last_sequence:05d}"
 	# 	return super().save(*args, **kwargs)
-	def save(self, *args, **kwargs):
-		if not self.hhc_code:
-			last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
-			prefix = self.preferred_hosp_id.hospital_short_code if self.preferred_hosp_id else None
-			if not prefix:
-				raise Http404
-			last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
-			self.hhc_code = f"{prefix}HC{last_sequence:05d}"
-		return super().save(*args, **kwargs)
+	# def save(self, *args, **kwargs):
+	# 	if not self.hhc_code:
+	# 		last_pt = agg_hhc_patients.objects.order_by('-agg_sp_pt_id').first()
+	# 		prefix = self.preferred_hosp_id.hospital_short_code if self.preferred_hosp_id else None
+	# 		if not prefix:
+	# 			raise Http404
+	# 		last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
+	# 		self.hhc_code = f"{prefix}HC{last_sequence:05d}"
+	# 	return super().save(*args, **kwargs)
 	
 	
 # class agg_hhc_webinar_patient_table(models.Model):#7

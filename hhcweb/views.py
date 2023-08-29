@@ -391,7 +391,7 @@ class agg_hhc_add_service_details_api(APIView):
             # return Response({"Service Created Event Code":[eventID,eventID.agg_sp_pt_id]})
             event=agg_hhc_events.objects.get(eve_id=eventID)
             events=agg_hhc_event_response_serializer(event)
-            return Response({"Service Created Event Code":[eventID,events.data,{"event_plan_of_care_id":event_plane_of_care}]})
+            return Response({"Service Created Event Code":[{"event_id":eventID},events.data,{"event_plan_of_care_id":event_plane_of_care}]})
 
         else:
             return Response({"Service Created Event Code":eventID})
