@@ -360,7 +360,7 @@ class agg_hhc_events_serializers1(serializers.ModelSerializer):
 class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_patients
-        fields = ['patient_fullname', 'phone_no']
+        fields = ['name', 'phone_no']
 
 class Patient_by_HHCID_Serializer(serializers.ModelSerializer):
     class Meta:
