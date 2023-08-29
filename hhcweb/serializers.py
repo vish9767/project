@@ -68,7 +68,7 @@ class agg_hhc_services_serializer(serializers.ModelSerializer):
 class agg_hhc_event_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_events
-        fields = ['purp_call_id','event_status']
+        fields = ['purp_call_id','event_status','Total_cost','discount_type','discount_value','final_amount']
 
 class agg_hhc_event_response_serializer(serializers.ModelSerializer):
     class Meta:
@@ -83,7 +83,7 @@ class agg_hhc_updateIDs_event_serializer(serializers.ModelSerializer):
 class agg_hhc_add_service_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_event_plan_of_care
-        fields = ['eve_poc_id','srv_id', 'sub_srv_id', 'start_date', 'end_date','prof_prefered', 'srv_prof_id']
+        fields = ['eve_poc_id','srv_id', 'sub_srv_id', 'start_date', 'end_date', 'prof_prefered']
 
 class agg_hhc_add_discount_serializer(serializers.ModelSerializer):
     class Meta:

@@ -260,9 +260,8 @@ class agg_hhc_add_service_details_api(APIView):
                 return Response([callers.errors,'5'])
         # print(callerID,'llllsecond')
         if request.data['purp_call_id']==1:
-            # print('4')
+            print('4')
             patient= agg_hhc_patients.objects.filter(phone_no=request.data['phone_no']).first()
-            # print(patient)
             if patient:
                 # patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
                 # patientID=patient.first().agg_sp_pt_id 
