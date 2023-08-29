@@ -897,17 +897,26 @@ class agg_hhc_zone_api(APIView): # List of Zones
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+class agg_hhc_sub_srv(APIView): # List of Sub-Services
+
+    def get(self, request, format=None):
+        sub_srvs =  agg_hhc_sub_services.objects.all()
+        if sub_srvs:
+            serializer = agg_hhc_sub_services_serializer(sub_srvs, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 class agg_hhc_service_professional_api(APIView): # List of professionals
     def get(self, request, format=None):
         zone = request.GET.get('zone')
         title = request.GET.get('title')
         pro = request.GET.get('pro')
-        print(zone)
+        sub_srv = request.GET.get('srv')
         # zone = agg_hhc_service_professionals.objects.filter(prof_zone_id=zone)
         # if zone == None or title == None or pro == None:
         if zone or title:
-            zone = agg_hhc_service_professionals.objects.filter(Q(prof_zone_id=zone) | Q(title=title))
-            print(zone)
+            zone = agg_hhc_service_professionals.objects.filter(Q(prof_zone_id=zone) | Q(title=title) | Q(srv_id=sub_srv))
         elif pro:
             zone = agg_hhc_service_professionals.objects.filter(srv_prof_id=pro)
         else:
@@ -928,7 +937,6 @@ class agg_hhc_detailed_event_plan_of_care_api(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class agg_hhc_detailed_event_plan_of_care_per_day_api(APIView):
-
     def get(self, request, format=None):
         pro = request.GET.get('pro')
         # time = datetime.date.today()
