@@ -390,7 +390,7 @@ class agg_hhc_add_service_details_api(APIView):
             # return Response({"Service Created Event Code":[eventID,eventID.agg_sp_pt_id]})
             event=agg_hhc_events.objects.get(eve_id=eventID)
             events=agg_hhc_event_response_serializer(event)
-            return Response({"Service Created Event Code":[eventID,events.data,{"event_plan_of_care_id":event_plane_of_care}]})
+            return Response({"Service Created Event Code":[{"event_id":eventID},events.data,{"event_plan_of_care_id":event_plane_of_care}]})
 
         else:
             return Response({"Service Created Event Code":eventID})
@@ -888,7 +888,9 @@ class AggHHCServiceProfessionalListAPIView(generics.ListAPIView):
 class agg_hhc_zone_api(APIView): # List of Zones
 
     def get(self, request, pk, format=None):
+        print(pk)
         groups =  agg_hhc_professional_zone.objects.filter(city_id=pk)
+        print(groups)
         if groups:
             serializer = agg_hhc_professional_zone_serializer(groups, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -900,10 +902,12 @@ class agg_hhc_service_professional_api(APIView): # List of professionals
         zone = request.GET.get('zone')
         title = request.GET.get('title')
         pro = request.GET.get('pro')
+        print(zone)
         # zone = agg_hhc_service_professionals.objects.filter(prof_zone_id=zone)
         # if zone == None or title == None or pro == None:
         if zone or title:
             zone = agg_hhc_service_professionals.objects.filter(Q(prof_zone_id=zone) | Q(title=title))
+            print(zone)
         elif pro:
             zone = agg_hhc_service_professionals.objects.filter(srv_prof_id=pro)
         else:
