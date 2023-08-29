@@ -1372,9 +1372,11 @@ class allocate_api(APIView):
             return Response({'message':"detailed_event_plan_of_care not found"},status=404)
         for i in detailed_event_poc:
             i.srv_prof_id=professional_instance
+            i.status=1
             print(i)
             i.save()
         event_id.event_status=2
+        event_id.status=1
         event_id.save()
         return Response({'message':'professional Allocated sucessfully'})
     
