@@ -362,7 +362,7 @@ class agg_hhc_add_service_details_api(APIView):
             request.data['sub_srv_id']=sub_srv 
                 # request.data['start_date']=request.data['actual_StartDate_Time']
                 # request.data['end_date']=request.data['actual_EndDate_Time']
-            add_service= agg_hhc_add_service_serializer(data=request.data)
+            add_service= agg_hhc_create_service_serializer(data=request.data)
             if add_service.is_valid():
                 service=add_service.save().eve_poc_id
                 # print(service)

@@ -95,7 +95,11 @@ class agg_hhc_add_service_serializer(serializers.ModelSerializer):
     sub_srv_id = get_sub_service_name()
     class Meta:
         model = models.agg_hhc_event_plan_of_care
-        fields = ['eve_poc_id','srv_id', 'sub_srv_id', 'start_date', 'end_date', 'prof_prefered']
+        fields = ['eve_poc_id','srv_id', 'sub_srv_id', 'start_date', 'end_date', 'prof_prefered','remark']
+class agg_hhc_create_service_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_event_plan_of_care
+        fields = ['eve_poc_id','srv_id', 'sub_srv_id', 'start_date', 'end_date', 'prof_prefered','remark']
 
 class agg_hhc_add_discount_serializer(serializers.ModelSerializer):
     class Meta:
