@@ -80,6 +80,7 @@ urlpatterns = [
     
 # ------------------------------------------Sandip-------------------------------------------------
     path('agg_hhc_add_service_details_api/', views.agg_hhc_add_service_details_api.as_view()),
+    path('agg_hhc_add_service_form_api/', views.agg_hhc_add_service_form_api.as_view()),
     path('agg_hhc_add_service_details_api/<int:pk>', views.agg_hhc_add_service_details_api.as_view()),
     path('agg_hhc_consultant_api/',views.agg_hhc_consultant_api.as_view()),
     path('agg_hhc_state_api',views.agg_hhc_state_api.as_view()),
