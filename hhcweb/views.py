@@ -1192,7 +1192,7 @@ class combined_info(APIView):
                 caller_seri= agg_hhc_callers_seralizer(caller_status)
                 caler_status=caller_seri.data.get('caller_status')
                 event_plan_of_care =  agg_hhc_event_plan_of_care.objects.filter(eve_id=i['eve_id']).latest('eve_id')
-                event_plan_of_care_serialzer= agg_hhc_add_service_serializer(event_plan_of_care)
+                event_plan_of_care_serialzer= agg_hhc_create_service_serializer(event_plan_of_care)
                 event_start_date=event_plan_of_care_serialzer.data.get('start_date')
                 event_end_date=event_plan_of_care_serialzer.data.get('end_date')
                 professional_prefered=event_plan_of_care_serialzer.data.get('prof_prefered')
@@ -1520,9 +1520,11 @@ class allocate_api(APIView):
             return Response({'message':"detailed_event_plan_of_care not found"},status=404)
         for i in detailed_event_poc:
             i.srv_prof_id=professional_instance
+            i.status=1
             print(i)
             i.save()
         event_id.event_status=2
+        event_id.status=1
         event_id.save()
         return Response({'message':'professional Allocated sucessfully'})
     
