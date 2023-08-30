@@ -49,7 +49,7 @@ class valid_event_enum(enum.Enum):
 	Closure_completed = 3 
 	Incomplete_info=4
 
-class service_status_enum(enum.Enum):
+class service_status_enum1(enum.Enum):
 	Service_about_to_end = 1
 	Acknowledge_pending = 2
 	Acknowledge_by_professional = 3
@@ -877,7 +877,7 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 	remark = models.CharField(max_length=200, null=True)# newly added
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
-	service_status = enum.EnumField(service_status_enum,null=True)
+	service_status = enum.EnumField(service_status_enum1,null=True)
 
 class agg_hhc_event_professional(models.Model):#16 To store professional available details
 	eve_prof_id = models.AutoField(primary_key = True)
