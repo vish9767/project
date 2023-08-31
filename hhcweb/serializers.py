@@ -128,10 +128,10 @@ class patient_get_zone_serializer(serializers.ModelSerializer):
 
 class patient_detail_serializer(serializers.ModelSerializer):
     doct_cons_id=preffered_proffesional()
-    zone_id=patient_get_zone_serializer()
+    prof_zone_id=patient_get_zone_serializer()
     class Meta:
         model = models.agg_hhc_patients
-        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id','doct_cons_id','Age','zone_id']
+        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id','doct_cons_id','Age','prof_zone_id']
 
 class hospital_serializer(serializers.ModelSerializer):
     class Meta:
