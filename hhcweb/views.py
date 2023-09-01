@@ -1129,12 +1129,12 @@ class combined_info(APIView):
                 pat_ser= agg_hhc_patients_serializer(patient)
                 patient_name=pat_ser.data.get('name')
                 patient_number=pat_ser.data.get('phone_no')
-                patient_zone_id=pat_ser.data.get('zone_id')
+                patient_zone_id=pat_ser.data.get('prof_zone_id')
                 patient_zone=agg_hhc_professional_zone.objects.get(prof_zone_id=patient_zone_id)
                 caller_id=pat_ser.data.get('caller_id')
                 caller_status= agg_hhc_callers.objects.get(caller_id=caller_id)
                 caller_seri= agg_hhc_callers_seralizer(caller_status)
-                caler_status=caller_seri.data.get('caller_status')
+                caler_status=i['patient_service_status']
                 event_plan_of_care =  agg_hhc_event_plan_of_care.objects.filter(eve_id=i['eve_id']).latest('eve_id')
                 event_plan_of_care_serialzer= agg_hhc_create_service_serializer(event_plan_of_care)
                 event_start_date=event_plan_of_care_serialzer.data.get('start_date')
@@ -1441,6 +1441,10 @@ class allocate_api(APIView):
         professional_id=request.data.get('srv_prof_id')
         try:
             event_id=agg_hhc_events.objects.get(eve_id=request.data.get('eve_id'))
+            event_serializer=agg_hhc_updateIDs_event_serializer(event_id)
+            event_id_is=event_serializer.data.get('eve_id')
+            caller_id_is=event_serializer.data.get('caller_id')
+            patient_id_is=event_serializer.data.get('agg_sp_pt_id')
         except:
             return Response({'message':'event not found'},status=404)
         try:
@@ -1452,6 +1456,8 @@ class allocate_api(APIView):
         except agg_hhc_service_professionals.DoesNotExist:
             return Response({'message': 'Professional not found'}, status=404)
         event_plan_of_care=agg_hhc_event_plan_of_care.objects.filter(eve_id=event_id).first()
+        event_plan_of_care_serializer=agg_hhc_event_plan_of_care_serializer(event_plan_of_care)
+        event_plan_of_care_id_is=event_plan_of_care_serializer.data.get('eve_poc_id')
         print("event name",event_plan_of_care)
         event_plan_of_care.srv_prof_id=professional_instance #to update and save new field here
         event_plan_of_care.save()
@@ -1470,5 +1476,101 @@ class allocate_api(APIView):
         event_id.event_status=2
         event_id.status=1
         event_id.save()
-        return Response({'message':'professional Allocated sucessfully'})
-    
+        return Response({'eve_id':event_id_is,'caller_id_is':caller_id_is,'agg_sp_pt_id':patient_id_is,'eve_poc_id':event_plan_of_care_id_is,'message':'professional Allocated sucessfully'})
+
+
+
+class Dashboard_enquiry_count_api(APIView):
+    def get(self,request,id):
+        id=id
+        if(id==1):
+            time=timezone.now()
+            print("this is time",time)
+            enquiry=agg_hhc_patient_list_enquiry.objects.filter(added_date=timezone.now())
+            enquiry_count=len(enquiry)
+            App=0
+            Social=0
+            Calls=0
+            Walk_in=0 
+            for i in enquiry:
+                caller_id=agg_hhc_events.objects.get(pt_id=i.pt_id)
+                if(caller_id.patient_service_status==1):
+                    App=App+1
+                elif(caller_id.patient_service_status==2):
+                    Social=Social+1
+                elif(caller_id.patient_service_status==3):
+                    Walk_in=Walk_in+1
+                elif(caller_id.patient_service_status==4):
+                    Calls=Calls+1
+            if(enquiry_count>0):
+                if(App>0):
+                    App_percentage=int(Walk_in)/int(enquiry_count)
+                    App_percentage*=100
+                else:
+                    App_percentage=0
+                if(Social>0):
+                    Social_percantage=int(Social)/int(enquiry_count)
+                    Social_percantage*=100
+                else:
+                    Social_percantage=0
+                if(Calls>0):
+                    Calls_precentage=int(Calls)/int(enquiry_count)
+                    Calls_precentage*=100
+                else:
+                    Calls_precentage=0
+                if(Walk_in>0):
+                    Walk_in_percentage=int(Walk_in)/int(enquiry_count)
+                    Walk_in_percentage*=100
+                else:
+                    Walk_in_percentage=0
+            else:
+                App_percentage=0
+                Social_percantage=0
+                Calls_precentage=0
+                Walk_in_percentage=0
+            return Response({'Total_enquirys':enquiry_count,'App':App,'Socail':Social,'Calls':Calls,'Walk_in':Walk_in,"App_percentage":App_percentage,"Social_percantage":Social_percantage,"Calls_precentage":Calls_precentage,"Walk_in_percentage":Walk_in_percentage})
+        elif(id==2):
+            week_days=timezone.now()-timedelta(days=7)
+            enquiry=agg_hhc_patient_list_enquiry.objects.filter(added_date__gte=week_days)
+            enquiry_count=len(enquiry)
+            App=0
+            Social=0
+            Calls=0
+            Walk_in=0 
+            for i in enquiry:
+                caller_id=agg_hhc_events.objects.get(pt_id=i.pt_id)
+                if(caller_id.patient_service_status==1):
+                    App=App+1
+                elif(caller_id.patient_service_status==2):
+                    Social=Social+1
+                elif(caller_id.patient_service_status==3):
+                    Walk_in=Walk_in+1
+                elif(caller_id.patient_service_status==4):
+                    Calls=Calls+1
+            if(enquiry_count>0):
+                if(App>0):
+                    App_percentage=int(Walk_in)/int(enquiry_count)
+                    App_percentage*=100
+                else:
+                    App_percentage=0
+                if(Social>0):
+                    Social_percantage=int(Social)/int(enquiry_count)
+                    Social_percantage*=100
+                else:
+                    Social_percantage=0
+                if(Calls>0):
+                    Calls_precentage=int(Calls)/int(enquiry_count)
+                    Calls_precentage*=100
+                else:
+                    Calls_precentage=0
+                if(Walk_in>0):
+                    Walk_in_percentage=int(Walk_in)/int(enquiry_count)
+                    Walk_in_percentage*=100
+                else:
+                    Walk_in_percentage=0
+            else:
+                App_percentage=0
+                Social_percantage=0
+                Calls_precentage=0
+                Walk_in_percentage=0
+            return Response({'Total_enquirys':enquiry_count,'App':App,'Socail':Social,'Calls':Calls,'Walk_in':Walk_in,"App_percentage":App_percentage,"Social_percantage":Social_percantage,"Calls_precentage":Calls_precentage,"Walk_in_percentage":Walk_in_percentage})

@@ -75,7 +75,7 @@ class agg_hhc_event_response_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_events
         fields = ['agg_sp_pt_id','caller_id']
 
-class agg_hhc_updateIDs_event_serializer(serializers.ModelSerializer):
+class agg_hhc_updateIDs_event_serializer(serializers.ModelSerializer): #also used to allocate
     class Meta:
         model = models.agg_hhc_events
         fields = ['eve_id','agg_sp_pt_id','caller_id','status']
@@ -128,10 +128,10 @@ class patient_get_zone_serializer(serializers.ModelSerializer):
 
 class patient_detail_serializer(serializers.ModelSerializer):
     doct_cons_id=preffered_proffesional()
-    zone_id=patient_get_zone_serializer()
+    prof_zone_id=patient_get_zone_serializer()
     class Meta:
         model = models.agg_hhc_patients
-        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id','doct_cons_id','Age','zone_id']
+        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id','doct_cons_id','Age','prof_zone_id']
 
 class hospital_serializer(serializers.ModelSerializer):
     class Meta:
@@ -278,15 +278,15 @@ class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
 #--------------------------------------mayank--------------------------------------------
 # class Services_data(serializers.ModelSerializer)
 class AggHHCServiceProfessionalSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
+#     full_name = serializers.SerializerMethodField()
     # Services = Services_data()
 
     class Meta:
         model = models.agg_hhc_service_professionals
-        fields = ('full_name', 'srv_id', 'phone_no','Ratings','Experience','Calendar')
+        fields = ('prof_fullname', 'srv_id', 'phone_no','Ratings','Experience','Calendar')
 
-    def get_full_name(self, obj):
-        return f"{obj.first_name} {obj.middle_name} {obj.last_name}".strip()
+    # def get_full_name(self, obj):
+    #     return f"{obj.first_name} {obj.middle_name} {obj.last_name}".strip()
 
 
 #--------------------------------------agg_hhc_service_professionals------------------
@@ -391,7 +391,7 @@ class ProfesNameSerializer(serializers.ModelSerializer):
     srv_id = ServiceSerilaizer()
     class Meta:
         model = models.agg_hhc_event_plan_of_care
-        fields = ['start_date','end_date','prof_prefered','eve_id','srv_id','srv_prof_id']
+        fields = ['start_date','end_date','prof_prefered','eve_id','srv_id','srv_prof_id','service_status']
 
 class SessionStatusSerializer(serializers.ModelSerializer):
     Total_case_count = serializers.SerializerMethodField()
