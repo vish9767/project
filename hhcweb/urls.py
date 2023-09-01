@@ -17,7 +17,7 @@ urlpatterns = [
     path('agg_hhc_patients_api',views.agg_hhc_patients_api.as_view()),
     path('get_latest_patient_record_from_caller_id_api/<int:pk>/',views.get_latest_patient_record_from_caller_id_api.as_view()),
     # path('agg_hhc_add_'),
-    path('agg_hhc_patinet_list_enquiry_api',views.agg_hhc_patinet_list_enquiry_api.as_view()),#done
+    # path('agg_hhc_patinet_list_enquiry_api',views.agg_hhc_patinet_list_enquiry_api.as_view()),#done
     path('agg_hhc_patinet_list_enquiry_put/<int:pk>/',views.agg_hhc_patinet_list_enquiry_put.as_view()),
     path('agg_hhc_callers_api',views.agg_hhc_callers_api.as_view()),#done
     path('agg_hhc_patient_from_callers_phone_no/<int:pk>/',views.agg_hhc_callers_phone_no.as_view()),#done
@@ -70,13 +70,17 @@ urlpatterns = [
     #-------------------------------------------Amit---------------------------------------------------------
     path('Follow_Up_combined_table/', views.agg_hhc_service_enquiry_list_combined_table_view.as_view()),
     path('previous_follow_up/<int:event_id>/', views.agg_hhc_enquiry_previous_follow_up_APIView.as_view()),
-    # path('previous_follow_up/', views.agg_hhc_enquiry_previous_follow_up_APIView.as_view()),
     path('Add_follow_up/', views.agg_hhc_enquiry_Add_follow_up_APIView.as_view()),
-    path('cancel_spero_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Spero_APIView.as_view()),
-    # path('cancel_patent_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Patent_APIView.as_view()),
     path('cancellation_reason_follow_up_list/<int:pk>', views.agg_hhc_enquiry_followUp_cancellation_api.as_view()),
     path('cancel_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_APIView.as_view()),
     path('create_service_follow_up/', views.agg_hhc_enquiry_Add_follow_up_create_service_APIView.as_view()),
+    # path('previous_follow_up/', views.agg_hhc_enquiry_previous_follow_up_APIView.as_view()),
+    
+
+    # path('cancel_spero_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Spero_APIView.as_view()),
+    # path('cancel_patent_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Patent_APIView.as_view()),
+    
+   
     
 # ------------------------------------------Sandip-------------------------------------------------
     path('agg_hhc_add_service_details_api/', views.agg_hhc_add_service_details_api.as_view()),
