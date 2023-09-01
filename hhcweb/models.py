@@ -314,7 +314,7 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	last_modified_date=models.DateField(null=True)
 	profile_pic=models.ImageField(null=True)# profile picture
 	status=enum.EnumField(active_inactive_enum,null=True)
-	caller_status=enum.EnumField(caller_status_enum,null=True)
+	#caller_status=enum.EnumField(caller_status_enum,null=True)
 
 	# def __str__(self):
 	# 	return f"{self.caller_id},{self.caller_fullname}"
