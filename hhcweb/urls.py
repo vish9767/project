@@ -94,8 +94,5 @@ urlpatterns = [
     path('Dashboard_enquiry_count_api/<int:id>',views.Dashboard_enquiry_count_api.as_view())
 
 
-
-
-
 ]
 
