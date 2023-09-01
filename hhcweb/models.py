@@ -314,7 +314,7 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	last_modified_date=models.DateField(null=True)
 	profile_pic=models.ImageField(null=True)# profile picture
 	status=enum.EnumField(active_inactive_enum,null=True)
-	# caller_status=enum.EnumField(caller_status_enum,null=True)
+	caller_status=enum.EnumField(caller_status_enum,null=True)
 
 	# def __str__(self):
 	# 	return f"{self.caller_id},{self.caller_fullname}"
@@ -340,7 +340,7 @@ class agg_hhc_patient_list_enquiry(models.Model):#1
 	# consultat_fname = models.CharField(max_length=50,null=True)
 	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
 	# hhc_code = models.CharField(max_length=50,null=True, blank=True)
-	eve_id = models.ForeignKey('agg_hhc_events',to_field='eve_id', on_delete=models.CASCADE,null=True)
+	#eve_id = models.ForeignKey('agg_hhc_events',to_field='eve_id', on_delete=models.CASCADE,null=True)
 	name = models.CharField(max_length=50,null=True)
 	phone_no = models.CharField(max_length=20,null=True)
 	call_type=models.CharField(max_length=50,null=True)
@@ -361,7 +361,6 @@ class agg_hhc_patient_list_enquiry(models.Model):#1
 	#zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,to_field='Name',null=True)
 	# sub_service = models.CharField(max_length=11,null=True)
 	Start_Date_and_Time=models.DateTimeField(null=True)
-	
 	# End_Date_and_Time=models.DateTimeField(null=True)
 	# Professional_Preferred=models.CharField(max_length=100,null=True)
 	# note = models.CharField(max_length=50,null=True)
@@ -800,7 +799,7 @@ class agg_hhc_events(models.Model):#9
 		return super().save(*args, **kwargs)
 	# def save(self, *args, **kwargs):
 	# 	if not self.eve_id:
-	# 		last_pt = agg_hhc_events.objects.order_by('-eve_id').first()
+	# 		last_pt = agg_hhc_events.objects.ord888er_by('-eve_id').first()
 	# 		prefix = str(date.today()).replace('-', '')
 	# 		if last_pt and last_pt.event_code[:-4] == prefix:
 	# 			last_sequence = int(last_pt.event_code[-4:]) + 1
