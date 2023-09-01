@@ -1190,7 +1190,7 @@ class combined_info(APIView):
                 caller_id=pat_ser.data.get('caller_id')
                 caller_status= agg_hhc_callers.objects.get(caller_id=caller_id)
                 caller_seri= agg_hhc_callers_seralizer(caller_status)
-                caler_status=caller_seri.data.get('caller_status')
+                caler_status=i['patient_service_status']
                 event_plan_of_care =  agg_hhc_event_plan_of_care.objects.filter(eve_id=i['eve_id']).latest('eve_id')
                 event_plan_of_care_serialzer= agg_hhc_create_service_serializer(event_plan_of_care)
                 event_start_date=event_plan_of_care_serialzer.data.get('start_date')
