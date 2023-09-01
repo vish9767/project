@@ -1630,3 +1630,49 @@ class Dashboard_enquiry_count_api(APIView):
                 Calls_precentage=0
                 Walk_in_percentage=0
             return Response({'Total_enquirys':enquiry_count,'App':App,'Socail':Social,'Calls':Calls,'Walk_in':Walk_in,"App_percentage":App_percentage,"Social_percantage":Social_percantage,"Calls_precentage":Calls_precentage,"Walk_in_percentage":Walk_in_percentage})
+        elif(id==3):
+            month=timezone.now()
+            month=month.replace(day=1)
+            enquiry=agg_hhc_patient_list_enquiry.objects.filter(added_date__gte=month)
+            enquiry_count=len(enquiry)
+            App=0
+            Social=0
+            Calls=0
+            Walk_in=0 
+            for i in enquiry:
+                caller_id=agg_hhc_events.objects.get(pt_id=i.pt_id)
+                if(caller_id.patient_service_status==1):
+                    App=App+1
+                elif(caller_id.patient_service_status==2):
+                    Social=Social+1
+                elif(caller_id.patient_service_status==3):
+                    Walk_in=Walk_in+1
+                elif(caller_id.patient_service_status==4):
+                    Calls=Calls+1
+            if(enquiry_count>0):
+                if(App>0):
+                    App_percentage=int(Walk_in)/int(enquiry_count)
+                    App_percentage*=100
+                else:
+                    App_percentage=0
+                if(Social>0):
+                    Social_percantage=int(Social)/int(enquiry_count)
+                    Social_percantage*=100
+                else:
+                    Social_percantage=0
+                if(Calls>0):
+                    Calls_precentage=int(Calls)/int(enquiry_count)
+                    Calls_precentage*=100
+                else:
+                    Calls_precentage=0
+                if(Walk_in>0):
+                    Walk_in_percentage=int(Walk_in)/int(enquiry_count)
+                    Walk_in_percentage*=100
+                else:
+                    Walk_in_percentage=0
+            else:
+                App_percentage=0
+                Social_percantage=0
+                Calls_precentage=0
+                Walk_in_percentage=0
+            return Response({'Total_enquirys':enquiry_count,'App':App,'Socail':Social,'Calls':Calls,'Walk_in':Walk_in,"App_percentage":App_percentage,"Social_percantage":Social_percantage,"Calls_precentage":Calls_precentage,"Walk_in_percentage":Walk_in_percentage})
