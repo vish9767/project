@@ -1185,7 +1185,7 @@ class combined_info(APIView):
                 pat_ser= agg_hhc_patients_serializer(patient)
                 patient_name=pat_ser.data.get('name')
                 patient_number=pat_ser.data.get('phone_no')
-                patient_zone_id=pat_ser.data.get('zone_id')
+                patient_zone_id=pat_ser.data.get('prof_zone_id')
                 patient_zone=agg_hhc_professional_zone.objects.get(prof_zone_id=patient_zone_id)
                 caller_id=pat_ser.data.get('caller_id')
                 caller_status= agg_hhc_callers.objects.get(caller_id=caller_id)
