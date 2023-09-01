@@ -186,22 +186,22 @@ class agg_hhc_callers_api(APIView):
             return Response(serialized.data,status=status.HTTP_201_CREATED)
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
     
-class AddPatientOrCheckCallerExist(APIView):
-    def post(self, request):
-        serialized =  serializers.AddPatientOrCheckCallerExistSerializer.model1
+# class AddPatientOrCheckCallerExist(APIView):
+#     def post(self, request):
+#         serialized =  serializers.AddPatientOrCheckCallerExistSerializer.model1
 ####_______________________________agg_hhc_patinet_list_enquiry_______________##
 
-class agg_hhc_patinet_list_enquiry_api(APIView):
-    def post(self,request):
-        serialized= agg_hhc_patinet_list_enquiry_serializer(data=request.data)
-        if(serialized.is_valid()):
-            serialized.save()
-            return Response(serialized.data,status=status.HTTP_201_CREATED)
-        return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
-    def get(self,request):
-        record= agg_hhc_patient_list_enquiry.objects.all()
-        serialized= agg_hhc_patinet_list_enquiry_serializer(record,many=True)
-        return Response(serialized.data)
+# class agg_hhc_patinet_list_enquiry_api(APIView):
+#     def post(self,request):
+#         serialized= agg_hhc_patinet_list_enquiry_serializer(data=request.data)
+#         if(serialized.is_valid()):
+#             serialized.save()
+#             return Response(serialized.data,status=status.HTTP_201_CREATED)
+#         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
+#     def get(self,request):
+#         record= agg_hhc_patient_list_enquiry.objects.all()
+#         serialized= agg_hhc_patinet_list_enquiry_serializer(record,many=True)
+#         return Response(serialized.data)
     
 class agg_hhc_patinet_list_enquiry_put(APIView):
     def get_object(self,request,pk):
@@ -236,6 +236,38 @@ class agg_hhc_patient_by_HHCID(APIView):
         return Response(patient.data)
     
 class agg_hhc_add_service_details_api(APIView):
+    
+    def get_event(self,pk):
+        try:
+            event = agg_hhc_events.objects.get(eve_id=pk)
+            return Response(event)
+        except agg_hhc_events.DoesNotExist:
+            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
+        
+        
+    def get_caller(self,phone):
+        try:
+            return agg_hhc_callers.objects.get(phone=phone)
+        except agg_hhc_callers.DoesNotExist:
+            return None
+
+    def get_patient(self,phone_no):
+        try:
+            return agg_hhc_patients.objects.get(phone_no=phone_no)
+        except agg_hhc_patients.DoesNotExist:
+            return None
+
+
+    def get(self,request,pk):
+        event = self.get_event(pk)
+        if not event:
+            return Response(status.HTTP_404_NOT_FOUND)
+        callerserializer =  add_service_get_caller_serializer(event.data.caller_id)
+        patientserializer = add_service_get_patient_serializer(event.data.pt_id)
+        plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
+        plan_of_care_serializer = add_service_get_POC_serializer(plan_of_care,many=True)
+        return Response({'caller_details':callerserializer.data,'patient_details':patientserializer.data,'POC':plan_of_care_serializer.data})
+
     def post(self,request):  
         patientID=None  
         caller = agg_hhc_callers.objects.filter(phone=request.data['phone']).first()
@@ -395,11 +427,13 @@ class agg_hhc_add_service_details_api(APIView):
         else:
             return Response({"Service Created Event Code":eventID})
         
-    def get_event(self,event):
+    def get_event(self,pk):
         try:
-            return agg_hhc_events.objects.get(eve_id=event)
+            event = agg_hhc_events.objects.filter(eve_id=pk)[0]
+            return Response(event)
         except agg_hhc_events.DoesNotExist:
-            return Response('please enter valid event id')
+            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
+        
         
     def get_caller(self,phone):
         try:
@@ -476,13 +510,17 @@ class agg_hhc_add_service_details_api(APIView):
         #     eventID=event.save().eve_id
         # else:
         #     return Response([event.errors,'8'])
-        event=self.get_event(event=pk)
+        print(pk,'llllllllllll')
+        event=self.get_event(pk)
         # if request.data['purp_call_id']==1:
         data={'agg_sp_pt_id':patientID,'caller_id':callerID,'status':1}
-        eventSerializer= agg_hhc_updateIDs_event_serializer(event,data=data)
+        eventSerializer= agg_hhc_updateIDs_event_serializer(event.data,data=data)
         if eventSerializer.is_valid():
-            eventID=eventSerializer.save().eve_id
-
+           eventID=eventSerializer.save().eve_id
+            # print(eventSerializer.validated_data)
+            # eventSerializer.save()
+        else:
+            return Response(eventSerializer.errors)
 
             
         # event.update(agg_sp_pt_id=patientID,caller_id=callerID)
@@ -532,51 +570,6 @@ class agg_hhc_add_service_details_api(APIView):
 
 
 # =================================================================================================================
- 
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 class agg_hhc_add_service_form_api(APIView):
     def post(self,request):  
@@ -632,55 +625,6 @@ class agg_hhc_add_service_form_api(APIView):
         plan_O_C= agg_hhc_event_plan_of_care.objects.filter(eve_poc_id=service)
         plan_O_C.update(eve_id=eventID)
         return Response({"Service Created Event Code":eventID})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-    
 # =================================================================================================================
 
     
@@ -1316,10 +1260,10 @@ class agg_hhc_enquiry_Add_follow_up_create_service_APIView(APIView):
 
 class agg_hhc_service_enquiry_list_combined_table_view(APIView):
     def get(self, request, eve_id=None, *args, **kwargs):
-        queryset =  agg_hhc_events.objects.all()
+        queryset =  agg_hhc_events.objects.filter(purp_call_id=2)
         if eve_id is not None:
             queryset = queryset.filter(eve_id=eve_id)
-        serializer =  agg_hhc_service_enquiry_list_serializer1(queryset, many=True)
+        serializer =  agg_hhc_service_enquiry_list_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     

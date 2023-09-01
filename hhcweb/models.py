@@ -290,6 +290,9 @@ class follow_up(models.TextChoices):
     Keep_In_Follow_up = 1
     Cancel = 2
     Create_Service = 3
+    follow_up_pending = 4
+	
+    __deafult__ = 4
 # ------------------------------------------------------------------------
 
 class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
@@ -349,7 +352,7 @@ class agg_hhc_patient_list_enquiry(models.Model):#1
 	Age = models.CharField(max_length=2,null=True)
 	patient_date_of_birth=models.DateField(null=True)
 	gender_id = models.ForeignKey('agg_hhc_gender',on_delete=models.CASCADE,null=True)
-	suffered_from=models.CharField(max_length=200,null=True)
+	Suffered_from=models.CharField(max_length=200,null=True)
 	hospital_name=models.CharField(max_length=150,null=True)
 	patient_add = models.CharField(max_length=200,null=True)
 	patient_Locality=models.CharField(max_length=250,null=True)
@@ -373,7 +376,7 @@ class agg_hhc_patient_list_enquiry(models.Model):#1
 	pincode = models.IntegerField(null=True,blank=True)		#sandip
 	refer_by = enum.EnumField(refer_by_enum,null=True)  #sandip
 	sub_location = models.CharField(max_length=50,null=True)
-	zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)   #Amit
+	prof_zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)   #Amit
 
 class agg_hhc_assessment_patient(models.Model):#2
 	ass_pt_id = models.AutoField(primary_key = True)
