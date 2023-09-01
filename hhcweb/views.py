@@ -1497,6 +1497,10 @@ class allocate_api(APIView):
         professional_id=request.data.get('srv_prof_id')
         try:
             event_id=agg_hhc_events.objects.get(eve_id=request.data.get('eve_id'))
+            event_serializer=agg_hhc_updateIDs_event_serializer(event_id)
+            event_id_is=event_serializer.data.get('eve_id')
+            caller_id_is=event_serializer.data.get('caller_id')
+            patient_id_is=event_serializer.data.get('agg_sp_pt_id')
         except:
             return Response({'message':'event not found'},status=404)
         try:
@@ -1508,6 +1512,8 @@ class allocate_api(APIView):
         except agg_hhc_service_professionals.DoesNotExist:
             return Response({'message': 'Professional not found'}, status=404)
         event_plan_of_care=agg_hhc_event_plan_of_care.objects.filter(eve_id=event_id).first()
+        event_plan_of_care_serializer=agg_hhc_event_plan_of_care_serializer(event_plan_of_care)
+        event_plan_of_care_id_is=event_plan_of_care_serializer.data.get('eve_poc_id')
         print("event name",event_plan_of_care)
         event_plan_of_care.srv_prof_id=professional_instance #to update and save new field here
         event_plan_of_care.save()
@@ -1526,7 +1532,7 @@ class allocate_api(APIView):
         event_id.event_status=2
         event_id.status=1
         event_id.save()
-        return Response({'message':'professional Allocated sucessfully'})
+        return Response({'eve_id':event_id_is,'caller_id_is':caller_id_is,'agg_sp_pt_id':patient_id_is,'eve_poc_id':event_plan_of_care_id_is,'message':'professional Allocated sucessfully'})
 
 
 

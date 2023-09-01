@@ -75,7 +75,7 @@ class agg_hhc_event_response_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_events
         fields = ['agg_sp_pt_id','caller_id']
 
-class agg_hhc_updateIDs_event_serializer(serializers.ModelSerializer):
+class agg_hhc_updateIDs_event_serializer(serializers.ModelSerializer): #also used to allocate
     class Meta:
         model = models.agg_hhc_events
         fields = ['eve_id','agg_sp_pt_id','caller_id','status']
