@@ -825,12 +825,12 @@ class calculate_discount_api(APIView):
         total_amt=total_amt
         if dtype == 1:
             if amount >= 50:
-                return Response({"Data":"Discount should not be Greter than 50%"})
+                return Response({"final_amount":0})
             final= (total_amt-(total_amt*amount)/100)
             return Response({"final_amount":final})
         elif dtype == 2:
             if amount >= (total_amt/2):
-                return Response({"Data":"Discount should not be Greter than 50%"})
+                return Response({"final_amount":0})
             final = (total_amt-amount)
             return Response({"final_amount":final})
         else: return Response({"final_amount":total_amt})
