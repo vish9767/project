@@ -509,7 +509,7 @@ class patient_professional_zone_serializer(serializers.ModelSerializer):
 
 class AggHhcPatientListEnquirySerializer(serializers.ModelSerializer):
     prof_zone_id = patient_professional_zone_serializer()
-    class Meta:
+    class Meta: 
         model = models.agg_hhc_patient_list_enquiry
         fields = [ 'pt_id',  'name', 'phone_no', 'Suffered_from', 'prof_zone_id']    #sandip
         # fields = ['pt_id','eve_id', 'status', 'enquiry_from']   # amit
