@@ -1412,17 +1412,28 @@ class Professional_Reschedule_Apiview(APIView):
 
 
 
-# ---------------------  service cancellation ----------
+#--------------------------------------cancellation service------------------
 
-from . serializers import ServiceCancellationSerializer,Event_Staus
 class ServiceCancellationView(APIView):
     serializer_class = ServiceCancellationSerializer
 
+   
+
     serilizer_class2 = Event_Staus
+    ev_serializer_class = Event_Plan_of_Care_Staus
     def get(self, request, eve_id):
         data = agg_hhc_events.objects.get(eve_id=eve_id)
-        serializer = self.serilizer_class2(data)
-        return Response(serializer.data)
+        event_serializer = self.serilizer_class2(data)
+
+        event_plan_data = agg_hhc_event_plan_of_care.objects.get(eve_id=eve_id)
+        event_plan_serializer = self.ev_serializer_class(event_plan_data)
+
+        response_data = {
+            "event_data": event_serializer.data,
+            "Service_date": event_plan_serializer.data
+        }
+
+        return Response(response_data)
 
 
 
@@ -1434,6 +1445,19 @@ class ServiceCancellationView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    
+# ------------------------------------- Professional Availibilty for cancellation according to srv id -------------------
+class get_all_avail_professionals(APIView):
+    serializer_class = avail_prof_serializer
+    def get(self,request,srv_id):
+
+        data = agg_hhc_professional_sub_services.objects.filter(srv_id=srv_id)
+        serializer =  self.serializer_class(data,many=True)
+        return Response(serializer.data)
+
+# ----- ----------------------------------------------------------------------
 
 # This is allocation api .     
 class allocate_api(APIView):
