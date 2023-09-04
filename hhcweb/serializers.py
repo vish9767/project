@@ -701,8 +701,7 @@ class ServiceCancellationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_cancellation_history
         # fields = ['canc_his_id','event_id','cancellation_by','reason','cancelled_date','DetaileventStaus','eventPlanStaus','eventStaus','cost_per_session']
-        fields = ['canc_his_id','event_id','cancellation_by','reason','cancelled_date','DetaileventStaus','eventPlanStaus','eventStaus']
-
+        fields = ['canc_his_id','event_id','cancellation_by','reason','remark','DetaileventStaus','eventPlanStaus','eventStaus']
 
     
 

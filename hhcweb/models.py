@@ -1742,14 +1742,15 @@ class cancel_fileds(enum.Enum):
 	Customer = 2
 
 class agg_hhc_cancellation_history(models.Model):#67
-    canc_his_id=models.AutoField(primary_key=True)
-    event_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
-    event_code=models.CharField(max_length=50,null=True)
-    cancellation_by = enum.EnumField(cancel_fileds,null=True)
-    cancelled_date=models.DateTimeField(null=True)
-    can_amt=models.IntegerField(null=True)
-    reason=models.CharField(max_length=100,null=True)
-    status=enum.EnumField(is_delet_enum,null=True)
+	canc_his_id=models.AutoField(primary_key=True)
+	event_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
+	event_code=models.CharField(max_length=50,null=True)
+	cancellation_by = enum.EnumField(cancel_fileds,null=True)
+	cancelled_date=models.DateTimeField(null=True)
+	can_amt=models.IntegerField(null=True)
+	remark=models.CharField(max_length=100,null=True)
+	reason = models.ForeignKey('agg_hhc_enquiry_follow_up_cancellation_reason', on_delete=models.CASCADE,null=True)
+	status=enum.EnumField(is_delet_enum,null=True)
 
 class agg_hhc_change_status(models.Model):#68
     cng_stat_id=models.IntegerField(null=True)
@@ -1940,7 +1941,6 @@ class agg_hhc_enquiry_follow_up(models.Model):#81
     cancel_by = models.CharField(max_length=255,choices=follow_up_cancel_by.choices)              # Amit Rasale __ Add follow_up field
     canclation_reason = models.CharField(max_length=255)              				# Amit Rasale __ Add follow_up field   
     follow_up = models.CharField(max_length=255,choices=follow_up.choices)
-    
     # follow_up_date1=models.DateField(null=True)
     # follow_up_time1=models.CharField(max_length=255,null=True)
     follow_up_desc=models.CharField(max_length=500,null=True)

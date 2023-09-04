@@ -1644,3 +1644,88 @@ class Dashboard_enquiry_count_api(APIView):
                 Calls_precentage=0
                 Walk_in_percentage=0
             return Response({'Total_enquirys':enquiry_count,'App':App,'Socail':Social,'Calls':Calls,'Walk_in':Walk_in,"App_percentage":App_percentage,"Social_percantage":Social_percantage,"Calls_precentage":Calls_precentage,"Walk_in_percentage":Walk_in_percentage})
+class Dashboard_enquiry_status_count_api(APIView):
+    def get(self,request,id):
+        id=id
+        if(id==1):
+            enquiry_follow_up=agg_hhc_enquiry_follow_up.objects.filter(added_date=timezone.now())
+            in_follow_up=0
+            converted_to_service=0
+            for i in enquiry_follow_up:
+                if(i.follow_up==1):
+                    in_follow_up+=1
+                elif(i.follow_up==3):
+                    converted_to_service+=1
+            total=in_follow_up+converted_to_service
+            if(total>0):
+                if(in_follow_up>0):
+                    in_follow_up_percentage=in_follow_up/total
+                    in_follow_up_percentage*=100
+                else:
+                    in_follow_up_percentage=0
+                if(converted_to_service>0):
+                    converted_to_service_percentage=converted_to_service/total
+                    converted_to_service_percentage*=100
+                else:
+                    converted_to_service_percentage=0
+            else:
+                in_follow_up_percentage=0
+                converted_to_service_percentage=0
+            return Response({'in_follow_up':in_follow_up,'converted_to_service':converted_to_service,'in_follow_up_percentage':in_follow_up_percentage,'converted_to_service_percentage':converted_to_service_percentage})    
+            
+        elif(id==2):
+            week=timezone.now()-timedelta(days=7)
+            enquiry_follow_up=agg_hhc_enquiry_follow_up.objects.filter(added_date__gte=week)
+            in_follow_up=0
+            converted_to_service=0
+            for i in enquiry_follow_up:
+                if(i.follow_up==1):
+                    in_follow_up+=1
+                elif(i.follow_up==3):
+                    converted_to_service+=1
+            total=in_follow_up+converted_to_service
+            if(total>0):
+                if(in_follow_up>0):
+                    in_follow_up_percentage=in_follow_up/total
+                    in_follow_up_percentage*=100
+                else:
+                    in_follow_up_percentage=0
+                if(converted_to_service>0):
+                    converted_to_service_percentage=converted_to_service/total
+                    converted_to_service_percentage*=100
+                else:
+                    converted_to_service_percentage=0
+            else:
+                in_follow_up_percentage=0
+                converted_to_service_percentage=0
+            return Response({'in_follow_up':in_follow_up,'converted_to_service':converted_to_service,'in_follow_up_percentage':in_follow_up_percentage,'converted_to_service_percentage':converted_to_service_percentage})    
+            
+        elif(id==3):
+            month=timezone.now()
+            month=month.replace(day=1)
+            print(month)
+            enquiry_follow_up=agg_hhc_enquiry_follow_up.objects.filter(added_date__gte=month)
+            in_follow_up=0
+            converted_to_service=0
+            for i in enquiry_follow_up:
+                if(i.follow_up==1):
+                    in_follow_up+=1
+                elif(i.follow_up==3):
+                    converted_to_service+=1
+            total=in_follow_up+converted_to_service
+            if(total>0):
+                if(in_follow_up>0):
+                    in_follow_up_percentage=in_follow_up/total
+                    in_follow_up_percentage*=100
+                else:
+                    in_follow_up_percentage=0
+                if(converted_to_service>0):
+                    converted_to_service_percentage=converted_to_service/total
+                    converted_to_service_percentage*=100
+                else:
+                    converted_to_service_percentage=0
+            else:
+                in_follow_up_percentage=0
+                converted_to_service_percentage=0
+            return Response({'in_follow_up':in_follow_up,'converted_to_service':converted_to_service,'in_follow_up_percentage':in_follow_up_percentage,'converted_to_service_percentage':converted_to_service_percentage})    
+            
