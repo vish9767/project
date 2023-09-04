@@ -1546,17 +1546,28 @@ class Professional_Reschedule_Apiview(APIView):
 
 
 
-# ---------------------  service cancellation ----------
+#--------------------------------------cancellation service------------------
 
-from . serializers import ServiceCancellationSerializer,Event_Staus
 class ServiceCancellationView(APIView):
     serializer_class = ServiceCancellationSerializer
 
+   
+
     serilizer_class2 = Event_Staus
+    ev_serializer_class = Event_Plan_of_Care_Staus
     def get(self, request, eve_id):
         data = agg_hhc_events.objects.get(eve_id=eve_id)
-        serializer = self.serilizer_class2(data)
-        return Response(serializer.data)
+        event_serializer = self.serilizer_class2(data)
+
+        event_plan_data = agg_hhc_event_plan_of_care.objects.get(eve_id=eve_id)
+        event_plan_serializer = self.ev_serializer_class(event_plan_data)
+
+        response_data = {
+            "event_data": event_serializer.data,
+            "Service_date": event_plan_serializer.data
+        }
+
+        return Response(response_data)
 
 
 
@@ -1568,6 +1579,19 @@ class ServiceCancellationView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    
+# ------------------------------------- Professional Availibilty for cancellation according to srv id -------------------
+class get_all_avail_professionals(APIView):
+    serializer_class = avail_prof_serializer
+    def get(self,request,srv_id):
+
+        data = agg_hhc_professional_sub_services.objects.filter(srv_id=srv_id)
+        serializer =  self.serializer_class(data,many=True)
+        return Response(serializer.data)
+
+# ----- ----------------------------------------------------------------------
 
 # This is allocation api .     
 class allocate_api(APIView):
@@ -1708,3 +1732,134 @@ class Dashboard_enquiry_count_api(APIView):
                 Calls_precentage=0
                 Walk_in_percentage=0
             return Response({'Total_enquirys':enquiry_count,'App':App,'Socail':Social,'Calls':Calls,'Walk_in':Walk_in,"App_percentage":App_percentage,"Social_percantage":Social_percantage,"Calls_precentage":Calls_precentage,"Walk_in_percentage":Walk_in_percentage})
+        elif(id==3):
+            month=timezone.now()
+            month=month.replace(day=1)
+            enquiry=agg_hhc_patient_list_enquiry.objects.filter(added_date__gte=month)
+            enquiry_count=len(enquiry)
+            App=0
+            Social=0
+            Calls=0
+            Walk_in=0 
+            for i in enquiry:
+                caller_id=agg_hhc_events.objects.get(pt_id=i.pt_id)
+                if(caller_id.patient_service_status==1):
+                    App=App+1
+                elif(caller_id.patient_service_status==2):
+                    Social=Social+1
+                elif(caller_id.patient_service_status==3):
+                    Walk_in=Walk_in+1
+                elif(caller_id.patient_service_status==4):
+                    Calls=Calls+1
+            if(enquiry_count>0):
+                if(App>0):
+                    App_percentage=int(Walk_in)/int(enquiry_count)
+                    App_percentage*=100
+                else:
+                    App_percentage=0
+                if(Social>0):
+                    Social_percantage=int(Social)/int(enquiry_count)
+                    Social_percantage*=100
+                else:
+                    Social_percantage=0
+                if(Calls>0):
+                    Calls_precentage=int(Calls)/int(enquiry_count)
+                    Calls_precentage*=100
+                else:
+                    Calls_precentage=0
+                if(Walk_in>0):
+                    Walk_in_percentage=int(Walk_in)/int(enquiry_count)
+                    Walk_in_percentage*=100
+                else:
+                    Walk_in_percentage=0
+            else:
+                App_percentage=0
+                Social_percantage=0
+                Calls_precentage=0
+                Walk_in_percentage=0
+            return Response({'Total_enquirys':enquiry_count,'App':App,'Socail':Social,'Calls':Calls,'Walk_in':Walk_in,"App_percentage":App_percentage,"Social_percantage":Social_percantage,"Calls_precentage":Calls_precentage,"Walk_in_percentage":Walk_in_percentage})
+class Dashboard_enquiry_status_count_api(APIView):
+    def get(self,request,id):
+        id=id
+        if(id==1):
+            enquiry_follow_up=agg_hhc_enquiry_follow_up.objects.filter(added_date=timezone.now())
+            in_follow_up=0
+            converted_to_service=0
+            for i in enquiry_follow_up:
+                if(i.follow_up==1):
+                    in_follow_up+=1
+                elif(i.follow_up==3):
+                    converted_to_service+=1
+            total=in_follow_up+converted_to_service
+            if(total>0):
+                if(in_follow_up>0):
+                    in_follow_up_percentage=in_follow_up/total
+                    in_follow_up_percentage*=100
+                else:
+                    in_follow_up_percentage=0
+                if(converted_to_service>0):
+                    converted_to_service_percentage=converted_to_service/total
+                    converted_to_service_percentage*=100
+                else:
+                    converted_to_service_percentage=0
+            else:
+                in_follow_up_percentage=0
+                converted_to_service_percentage=0
+            return Response({'in_follow_up':in_follow_up,'converted_to_service':converted_to_service,'in_follow_up_percentage':in_follow_up_percentage,'converted_to_service_percentage':converted_to_service_percentage})    
+            
+        elif(id==2):
+            week=timezone.now()-timedelta(days=7)
+            enquiry_follow_up=agg_hhc_enquiry_follow_up.objects.filter(added_date__gte=week)
+            in_follow_up=0
+            converted_to_service=0
+            for i in enquiry_follow_up:
+                if(i.follow_up==1):
+                    in_follow_up+=1
+                elif(i.follow_up==3):
+                    converted_to_service+=1
+            total=in_follow_up+converted_to_service
+            if(total>0):
+                if(in_follow_up>0):
+                    in_follow_up_percentage=in_follow_up/total
+                    in_follow_up_percentage*=100
+                else:
+                    in_follow_up_percentage=0
+                if(converted_to_service>0):
+                    converted_to_service_percentage=converted_to_service/total
+                    converted_to_service_percentage*=100
+                else:
+                    converted_to_service_percentage=0
+            else:
+                in_follow_up_percentage=0
+                converted_to_service_percentage=0
+            return Response({'in_follow_up':in_follow_up,'converted_to_service':converted_to_service,'in_follow_up_percentage':in_follow_up_percentage,'converted_to_service_percentage':converted_to_service_percentage})    
+            
+        elif(id==3):
+            month=timezone.now()
+            month=month.replace(day=1)
+            print(month)
+            enquiry_follow_up=agg_hhc_enquiry_follow_up.objects.filter(added_date__gte=month)
+            in_follow_up=0
+            converted_to_service=0
+            for i in enquiry_follow_up:
+                if(i.follow_up==1):
+                    in_follow_up+=1
+                elif(i.follow_up==3):
+                    converted_to_service+=1
+            total=in_follow_up+converted_to_service
+            if(total>0):
+                if(in_follow_up>0):
+                    in_follow_up_percentage=in_follow_up/total
+                    in_follow_up_percentage*=100
+                else:
+                    in_follow_up_percentage=0
+                if(converted_to_service>0):
+                    converted_to_service_percentage=converted_to_service/total
+                    converted_to_service_percentage*=100
+                else:
+                    converted_to_service_percentage=0
+            else:
+                in_follow_up_percentage=0
+                converted_to_service_percentage=0
+            return Response({'in_follow_up':in_follow_up,'converted_to_service':converted_to_service,'in_follow_up_percentage':in_follow_up_percentage,'converted_to_service_percentage':converted_to_service_percentage})    
+            

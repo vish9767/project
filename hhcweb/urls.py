@@ -66,8 +66,8 @@ urlpatterns = [
     path('ongoing_service', views.OngoingServiceView.as_view()),
     path('service_reschedule/<int:eve_id>/',views.service_reschedule_view.as_view()),
     path('prof_reschedule/<int:eve_id>/', views.Professional_Reschedule_Apiview.as_view()),
-    # path('professional_availability_api/<int:srv_id>/',views.get_all_avail_professionals.as_view()),
     path('service_cancellation/<int:eve_id>', views.ServiceCancellationView.as_view()),
+    path('professional_availability_api/<int:srv_id>/',views.get_all_avail_professionals.as_view()),    
 
     #-------------------------------------------Amit---------------------------------------------------------
     path('Follow_Up_combined_table/', views.agg_hhc_service_enquiry_list_combined_table_view.as_view()),
@@ -97,7 +97,8 @@ urlpatterns = [
     path('coupon_code_post_api/<str:code>/<int:total_amt>',views.coupon_code_post_api.as_view()),
     path('coupon_code_api',views.coupon_code_api.as_view()),
     path('allocate_api',views.allocate_api.as_view()),
-    path('Dashboard_enquiry_count_api/<int:id>',views.Dashboard_enquiry_count_api.as_view())
+    path('Dashboard_enquiry_count_api/<int:id>',views.Dashboard_enquiry_count_api.as_view()),
+    path('Dashboard_enquiry_status_count_api/<int:id>',views.Dashboard_enquiry_status_count_api.as_view())
 
 
 ]

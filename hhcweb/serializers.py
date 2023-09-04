@@ -509,7 +509,7 @@ class patient_professional_zone_serializer(serializers.ModelSerializer):
 
 class AggHhcPatientListEnquirySerializer(serializers.ModelSerializer):
     prof_zone_id = patient_professional_zone_serializer()
-    class Meta:
+    class Meta: 
         model = models.agg_hhc_patient_list_enquiry
         fields = [ 'pt_id',  'name', 'phone_no', 'Suffered_from', 'prof_zone_id']    #sandip
         # fields = ['pt_id','eve_id', 'status', 'enquiry_from']   # amit
@@ -621,7 +621,6 @@ class Prof_Reschedule_serializer(serializers.ModelSerializer):
 
 
 # ----------- cancellation service ----------
-
 from .models import status_enum
 from django.utils import timezone
 from datetime import timedelta
@@ -644,14 +643,12 @@ class Event_Staus(serializers.ModelSerializer):
     per_session_cost = serializers.SerializerMethodField()
     completed_session_amt = serializers.SerializerMethodField()
     refund_amt = serializers.SerializerMethodField()
-    srv_date = Event_Plan_of_Care_Staus(source='eve_id')
+    
+
     class Meta:
         model = models.agg_hhc_events
-        fields = ['eve_id','Total_cost','status','Total_session','per_session_cost','completed_session_amt','refund_amt','srv_date']
-        # fields = ['eve_id','Total_cost','status','Total_session','per_session_cost','completed_session_amt']
-        
-
-    
+        fields = ['eve_id','Total_cost','status','Total_session','per_session_cost','completed_session_amt','refund_amt']
+       
 
     def get_Total_session(self, obj):
         # queryset = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=obj.eve_id, Session_status=1)
@@ -685,11 +682,11 @@ class Event_Staus(serializers.ModelSerializer):
         srv_start_date = models.agg_hhc_event_plan_of_care.objects.filter(eve_id=obj.eve_id)
         for srv_start_dates in srv_start_date:
             if srv_start_dates.start_date.date() <= current_date:
-                refaund_amt -= 200
+                refaund_amt = 200
             elif srv_start_dates.start_date.date() >= previous_24_hours_date:
-                refaund_amt -= 200
+                refaund_amt = 200
             elif srv_start_dates.start_date.date() >= previous_48_hours_date:
-                refaund_amt -= 0
+                refaund_amt = 0
         
         return int(ref_amt - refaund_amt)
             
@@ -699,15 +696,12 @@ class ServiceCancellationSerializer(serializers.ModelSerializer):
     DetaileventStaus = Detail_Event_Plan_of_Care_Staus(source='event_id',read_only=True)
     eventPlanStaus = Event_Plan_of_Care_Staus(source='event_id',read_only=True)
     eventStaus = Event_Staus(source='event_id',read_only=True)
-    # cost_per_session = serializers.SerializerMethodField()
-    # # eventStaus['Total_cost']
-    # print(eventStaus['Total_cost'])
+ 
 
     class Meta:
         model = models.agg_hhc_cancellation_history
         # fields = ['canc_his_id','event_id','cancellation_by','reason','cancelled_date','DetaileventStaus','eventPlanStaus','eventStaus','cost_per_session']
-        fields = ['canc_his_id','event_id','cancellation_by','reason','cancelled_date','DetaileventStaus','eventPlanStaus','eventStaus']
-
+        fields = ['canc_his_id','event_id','cancellation_by','reason','remark','DetaileventStaus','eventPlanStaus','eventStaus']
 
     
 
@@ -741,8 +735,20 @@ class ServiceCancellationSerializer(serializers.ModelSerializer):
         cancellation_history = models.agg_hhc_cancellation_history.objects.create(**validated_data)
         return cancellation_history
     
-#-----------------------------------------------------------------------------------------------------------------
-#                                                                
+
+#-------------------------------------- professional availibility for cancellation---------------------------------------------------------------------------
+
+class prof_name(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_service_professionals
+        fields = ['srv_prof_id','prof_fullname']
+class avail_prof_serializer(serializers.ModelSerializer):
+    srv_prof_id = prof_name()
+    class Meta:
+        model=models.agg_hhc_professional_sub_services
+        fields=('srv_prof_id','srv_id')         
+
+
 #-----------------------------------------------------------------------------------------------------------------
 class get_gender(serializers.ModelSerializer):
     class Meta:
