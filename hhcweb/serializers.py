@@ -212,7 +212,7 @@ class agg_hhc_callers_details_serializer(serializers.ModelSerializer):#20
     # fullname = serializers.SerializerMethodField()
     class Meta:
         model=models.agg_hhc_callers
-        fields=('caller_fullname','caller_id','phone','caller_rel_id','Age','gender','email','contact_no','alter_contact','Address','save_this_add','profile_pic','caller_status')
+        fields=('caller_fullname','caller_id','phone','caller_rel_id','Age','gender','email','contact_no','alter_contact','Address','save_this_add','profile_pic')
     # def get_fullname(self, obj):
     #     return f"{obj.fname} {obj.lname}".strip()
 #------------------------------------agg_hhc_hospitals_serializer_____________
@@ -800,5 +800,6 @@ class add_service_get_caller_serializer(serializers.ModelSerializer):
 
 class add_service_get_patient_serializer(serializers.ModelSerializer):
     class Meta:
-        model = models.agg_hhc_patients
-        fields = ['agg_sp_pt_id','name','gender_id','Age','preferred_hosp_id','Suffered_from','phone_no','patient_email_id','doct_cons_id','state_id','city_id','prof_zone_id','address']
+        model = models.agg_hhc_patient_list_enquiry
+        fields = ['pt_id','name','gender_id','Age','preferred_hosp_id','Suffered_from','phone_no','patient_email_id','doct_cons_id','state_id','city_id','prof_zone_id','address']
+        

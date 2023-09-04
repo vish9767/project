@@ -14,15 +14,20 @@ from django.contrib.auth import authenticate
 from hhcweb.renders import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import generics
 # from .models import agg_hhc_service_professionals, agg_hhc_professional_sub_services
 # from .serializers import AggHHCServiceProfessionalSerializer
 # from .serializers import *
-from rest_framework.decorators import api_view
 from rest_framework import generics
 # from .models import agg_hhc_service_professionals
 # from .serializers import AggHHCServiceProfessionalSerializer
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view  # mayank
+from django.views.decorators.csrf import csrf_exempt # mayank
+from django.http import JsonResponse  # mayank
+from urllib.parse import quote # mayank
+import requests as Req #mayank
+
+
+
 
 
 # Create your views here.
@@ -510,7 +515,7 @@ class agg_hhc_add_service_details_api(APIView):
         #     eventID=event.save().eve_id
         # else:
         #     return Response([event.errors,'8'])
-        print(pk,'llllllllllll')
+        # print(pk,'llllllllllll')
         event=self.get_event(pk)
         # if request.data['purp_call_id']==1:
         data={'agg_sp_pt_id':patientID,'caller_id':callerID,'status':1}
@@ -838,7 +843,9 @@ class calculate_total_amount(APIView):
         print(start_date_string)     
         try:
             start_date = datetime.strptime(str(start_date_string), '%Y-%m-%d %H:%M').date()
-            end_date = datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').date()            
+            end_date = datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').date() 
+            if start_date>end_date:
+                return Response({'days_difference':0})           
             diff = (end_date - start_date).days 
             total = (diff+1) * cost          
             return Response({'days_difference': total})
@@ -960,7 +967,8 @@ class last_patient_service_info(APIView):
         
 
 
-#------------------------------mayank---------------------------------------
+#---------------------------------------------------mayank------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------
 
 @api_view(['GET'])
 def total_services(request, service_professional_id):  # Adjust the parameter name here
@@ -973,6 +981,132 @@ def total_services(request, service_professional_id):  # Adjust the parameter na
 class AggHHCServiceProfessionalListAPIView(generics.ListAPIView):
     queryset = agg_hhc_service_professionals.objects.all()
     serializer_class = AggHHCServiceProfessionalSerializer
+
+#----------------------------------------------Payment----------------------------------------------------
+
+from datetime import datetime
+import requests as Req
+import json
+from urllib.parse import quote
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(['POST'])
+def create_payment_url(request):
+    url = "https://test.cashfree.com/api/v1/order/create"
+
+    # Auto-generate the order ID date-wise
+    order_id = "order_id_SPERO" + datetime.now().strftime("%d%m%Y%H%M%S")
+    phone_no = request.data['customerPhone'][-10:]
+
+    amount = request.data['orderAmount']
+    name = request.data['customerName']
+    email = request.data['customerEmail']
+    
+    payload = {
+        "appId": "15581934423f8e9e947db8c600918551",
+        "secretKey": "052b44487a4f0f1646614204b83679c68c3d41fb",
+        "orderId": order_id,
+        "orderAmount": amount,
+        "orderCurrency": "INR",
+        "orderNote": "HII",
+        "customerName": name,
+        "customerEmail": email,
+        "customerPhone": phone_no,  
+        "returnUrl": "https://payments-test.cashfree.com/links/response",  
+        "notifyUrl": "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID="
+    }
+
+    response = Req.request("POST", url, data=payload)
+
+    if response.status_code == 200:
+        try:
+            d = response.json()
+            status = d.get('status')
+            if status == 'OK':
+                payment_link = d.get('paymentLink')
+            else:
+                payment_link = None
+        except json.JSONDecodeError:
+            payment_link = None
+    else:
+        payment_link = None
+
+    # Properly encode the content parameter for the WhatsApp API request
+    if payment_link:
+        api_key = "c27d7fa6-292c-4534-8dc4-a0dd28e7d7e3"
+        msg = f"this is your payment link: {payment_link}"
+    
+        encoded_msg = quote(msg)
+    
+        # URL for sending WhatsApp message - You should check and update this URL
+        wa_url = f"https://wa.chatmybot.in/gateway/waunofficial/v1/api/v1/sendmessage?access-token={api_key}&phone={phone_no}&content={encoded_msg}&fileName&caption&contentType=1"
+    
+        try:
+            wa_response = Req.get(wa_url)
+            wa_response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
+            print("WhatsApp API Response:", wa_response.text)
+        except Req.exceptions.RequestException as e:
+            print("Error occurred while hitting the WhatsApp URL:", e)
+
+    # ... Your existing code ...
+    payment_status = d.get('paymentStatus') if d else None
+
+    # Save payment record to the database
+    payment_record = PaymentRecord.objects.create(
+        order_id=order_id,
+        order_amount=payload['orderAmount'],
+        order_currency=payload['orderCurrency'],
+        order_note=payload['orderNote'],
+        customer_name=payload['customerName'],
+        customer_email=payload['customerEmail'],
+        customer_phone=payload['customerPhone'],
+        payment_status=payment_status,
+    )
+
+    # Return the payment link and payment status in the API response
+    data = {
+        'payment_link': payment_link,
+        'payment_status': payment_status,
+    }
+    return Response(data)
+
+#--------------------------------------------------------------------------------
+
+@csrf_exempt  # Disable CSRF protection for this view (for simplicity; consider better security measures)
+def cashfree_webhook(request):
+    if request.method == 'POST':
+        try:
+            # Parse the JSON data sent by Cashfree
+            payload = json.loads(request.body.decode('utf-8'))
+            
+            # Extract payment status and order ID from the payload
+            payment_status = payload.get('paymentStatus')
+            order_id = payload.get('orderId')
+            
+            # Update the payment record in your database based on payment status and order ID
+            try:
+                payment_record = PaymentRecord.objects.get(order_id=order_id)
+                payment_record.payment_status = payment_status
+                payment_record.save()
+            except PaymentRecord.DoesNotExist:
+                # Handle the case where the order ID is not found in your database
+                pass
+            
+            # Send a response to acknowledge receipt of the webhook
+            return JsonResponse({'message': 'Webhook received and processed'}, status=200)
+        except json.JSONDecodeError:
+            # Handle JSON decoding error
+            return JsonResponse({'message': 'Invalid JSON payload'}, status=400)
+    else:
+        # Handle non-POST requests (e.g., GET)
+        return JsonResponse({'message': 'Invalid request method'}, status=405)
+
+
+
+#---------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------
+
 
 
 
