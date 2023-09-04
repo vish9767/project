@@ -58,6 +58,8 @@ urlpatterns = [
     #-----------------------------mayank-----------------------------
     # path('service-professionals/', AggHHCServiceProfessionalAPIView.as_view(), name='service-professional-api'),
     path('total_services/', views.total_services, name='total-services-list'),
+    path('create_payment/', views.create_payment_url, name='create_payment_url'),
+    path('cashfree-webhook/', views.cashfree_webhook, name='cashfree_webhook'),
 
     # -------------------- vinayak ------------------
                         

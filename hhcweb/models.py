@@ -2644,5 +2644,18 @@ class agg_hhc_enquiry_follow_up_cancellation_reason(models.Model):
 	cancelation_reason_id = models.AutoField(primary_key=True)
 	cancelation_reason = models.CharField(max_length=300,null=True)
 	cancel_by_id= enum.EnumField(cancel_from,null=True)
-
-	
+#----------------------------------- Mayank Bhatt -------------------------------------------------------------
+class PaymentRecord(models.Model):
+    order_id = models.CharField(max_length=100,null=True)
+    order_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+    order_currency = models.CharField(max_length=10,null=True)
+    order_note = models.CharField(max_length=255, null=True, blank=True)
+    customer_name = models.CharField(max_length=100,null=True)
+    customer_email = models.EmailField(max_length=100,null=True)
+    customer_phone = models.CharField(max_length=20,null=True)
+    payment_status = models.CharField(max_length=20, blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    
+    def __str__(self):
+        return f"Payment: {self.order_amount} INR for Order ID: {self.order_id}"
+#----------------------------------------------------------------------------------------------------------------

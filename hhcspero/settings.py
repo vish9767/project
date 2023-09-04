@@ -35,8 +35,17 @@ INSTALLED_APPS = [
     'hhcweb',
     'rest_framework',
     "corsheaders",
+    'cashfree_sdk'
     
 ]
+
+CASHFREE_APP_ID = '14488793d80bb1531ab0b02e71788441'
+CASHFREE_SECRET_KEY = 'b7a69a2bc9443e3108c9026cf2120bab4516ef40'
+CASHFREE_MODE = 'TEST'  # Set it to 'PROD' for production mode
+
+SECRET_KEY = 'b7a69a2bc9443e3108c9026cf2120bab4516ef40'
+DEBUG = False
+ALLOWED_HOSTS = ['*']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
