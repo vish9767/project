@@ -212,7 +212,7 @@ class agg_hhc_callers_details_serializer(serializers.ModelSerializer):#20
     # fullname = serializers.SerializerMethodField()
     class Meta:
         model=models.agg_hhc_callers
-        fields=('caller_fullname','caller_id','phone','caller_rel_id','Age','gender','email','contact_no','alter_contact','Address','save_this_add','profile_pic','caller_status')
+        fields=('caller_fullname','caller_id','phone','caller_rel_id','Age','gender','email','contact_no','alter_contact','Address','save_this_add','profile_pic')
     # def get_fullname(self, obj):
     #     return f"{obj.fname} {obj.lname}".strip()
 #------------------------------------agg_hhc_hospitals_serializer_____________

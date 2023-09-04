@@ -1745,7 +1745,7 @@ class agg_hhc_cancellation_history(models.Model):#67
 	canc_his_id=models.AutoField(primary_key=True)
 	event_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
 	event_code=models.CharField(max_length=50,null=True)
-	cancellation_by = enum.EnumField(cancel_fileds,null=True)
+	cancellation_by = enum.EnumField(cancel_from,null=True)
 	cancelled_date=models.DateTimeField(null=True)
 	can_amt=models.IntegerField(null=True)
 	remark=models.CharField(max_length=100,null=True)
