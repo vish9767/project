@@ -165,18 +165,20 @@ class agg_hhc_patients_api(APIView):
 
 #_________________________________________get_latest_patient_record_from_caller_id__________________
 class get_latest_patient_record_from_caller_id_api(APIView):
-    def get_object(self,pk):
+    def get_object(self, pk):
         try:
-            a= agg_hhc_patients.objects.filter(caller_id=pk).latest('pk')
-            # print("this is last patient ",a)
+            a = agg_hhc_patients.objects.filter(caller_id=pk).latest('pk')
             return a
-        except  agg_hhc_patients.DoesNotExist:
-            raise status.HTTP_404_NOT_FOUND
-    def get(self, request, pk, format=None):
-        snippet= self.get_object(pk)
-        serialized = get_latest_patient_record_from_caller_id(snippet)
-        return Response(serialized.data)
+        except agg_hhc_patients.DoesNotExist:
+            raise Http404("Patient record not found for the given caller_id")
 
+    def get(self, request, pk, format=None):
+        try:
+            snippet = self.get_object(pk)
+            serialized = get_latest_patient_record_from_caller_id(snippet)
+            return Response(serialized.data)
+        except Http404 as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 ######___________________________agg_hhc_callers_Api__________________#########
 
 class agg_hhc_callers_api(APIView):
