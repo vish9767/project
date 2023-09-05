@@ -1508,26 +1508,27 @@ class service_reschedule_view(APIView):
 
 
 # ------------------ Professional Reschedule ------------------
-
-# from . models import Session_status_enum
+from . models import Session_status_enum
 class Professional_Reschedule_Apiview(APIView):
-    # serializer_class =  Prof_Reschedule_serializer
+    serializer_class = Prof_Reschedule_serializer
 
     # def get(self, request, eve_id,index_of_session):
         
-    #     data =  agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
+    #     data = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
     #     serializer = self.serializer_class(data, many=True)
     #     return Response(serializer.data)
     
     # def get(self, request, eve_id, index_of_session):
     def get(self, request,eve_id):
         try:
-            # record =  agg_hhc_detailed_event_plan_of_care.objects.get(eve_id=eve_id, index_of_Session=index_of_session,Session_status=Session_status_enum.Pending)
-            record =  agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
-            serializer = self. Prof_Reschedule_serializer(record, many=True)
+            # record = models.agg_hhc_detailed_event_plan_of_care.objects.get(eve_id=eve_id, index_of_Session=index_of_session,Session_status=Session_status_enum.Pending)
+            record = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
+            serializer = self.serializer_class(record, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except  agg_hhc_detailed_event_plan_of_care.DoesNotExist:
-            return Response({'error': 'No record found for the given eve_id and index_of_session'}, status=status.HTTP_404_NOT_FOUND)
+        # except models.agg_hhc_detailed_event_plan_of_care.DoesNotExist:
+        #     return Response({'error': 'No record found for the given eve_id and index_of_session'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
 
 
     def patch(self, request, eve_id):
@@ -1538,7 +1539,7 @@ class Professional_Reschedule_Apiview(APIView):
 
             # If start_date and end_date are the same, update the specific record
             if start_date == end_date:
-                record =  agg_hhc_detailed_event_plan_of_care.objects.get(
+                record = models.agg_hhc_detailed_event_plan_of_care.objects.get(
                     eve_id=eve_id, start_date=start_date, end_date=end_date
                 )
                 serializer = self.serializer_class(record, data=request.data, partial=True)
@@ -1546,10 +1547,10 @@ class Professional_Reschedule_Apiview(APIView):
                     serializer.save()
             else:
                 
-                service_professional =  agg_hhc_service_professionals.objects.get(pk=srv_prof_id)
+                service_professional = models.agg_hhc_service_professionals.objects.get(pk=srv_prof_id)
                 
                 
-                records_to_update =  agg_hhc_detailed_event_plan_of_care.objects.filter(
+                records_to_update = models.agg_hhc_detailed_event_plan_of_care.objects.filter(
                     eve_id=eve_id, start_date__gte=start_date, end_date__lte=end_date
                 )
                 for record in records_to_update:
@@ -1557,8 +1558,10 @@ class Professional_Reschedule_Apiview(APIView):
                     record.save()
 
             return Response({'message': 'Records updated successfully'}, status=status.HTTP_200_OK)
-        except  agg_hhc_detailed_event_plan_of_care.DoesNotExist:
-            return Response({'error': 'No matching session found or session is less than date'}, status=status.HTTP_404_NOT_FOUND)
+        # except models.agg_hhc_detailed_event_plan_of_care.DoesNotExist:
+        #     return Response({'error': 'No matching session found or session is less than date'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
 
 
 # -------------- Professional Allocation ----------
