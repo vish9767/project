@@ -1696,9 +1696,8 @@ class Dashboard_enquiry_count_api(APIView):
             Social = 0
             Calls = 0
             Walk_in = 0
-
             for i in enquiry:
-                caller_id = agg_hhc_events.objects.get(pt_id=i.pt_id)
+                caller_id = agg_hhc_events.objects.filter(pt_id=i.pt_id).first()
                 if caller_id.patient_service_status == 1:
                     App += 1
                 elif caller_id.patient_service_status == 2:
