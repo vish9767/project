@@ -20,7 +20,7 @@ urlpatterns = [
     # path('agg_hhc_patinet_list_enquiry_api',views.agg_hhc_patinet_list_enquiry_api.as_view()),#done
     path('agg_hhc_patinet_list_enquiry_put/<int:pk>/',views.agg_hhc_patinet_list_enquiry_put.as_view()),
     path('agg_hhc_callers_api',views.agg_hhc_callers_api.as_view()),#done
-    path('agg_hhc_patient_from_callers_phone_no/<int:pk>/',views.agg_hhc_callers_phone_no.as_view()),#done
+    path('agg_hhc_patient_from_callers_phone_no/<int:pk>/',views.agg_hhc_callers_phone_no.as_view()),#find all patients from caller number 
     path('agg_hhc_add_service_details_api', views.agg_hhc_add_service_details_api.as_view()),
     path('agg_hhc_hospitals_api',views.agg_hhc_hospitals_api.as_view()),#done
     path('agg_hhc_callers_phone_no_status_mobile_api',views.agg_hhc_callers_phone_no_status_mobile_api.as_view()),
