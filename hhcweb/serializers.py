@@ -601,10 +601,16 @@ class AggservicedetailSerializer(serializers.ModelSerializer):
 
 # ------------------ Professional Reschedule -------------------
 
+# class Prof_Reschedule_serializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.agg_hhc_detailed_event_plan_of_care
+#         fields = ['eve_id','start_date','end_date','srv_prof_id','Session_status']
+
 class Prof_Reschedule_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_detailed_event_plan_of_care
-        fields = ['eve_id','start_date','end_date','srv_prof_id','Session_status']
+        # fields = ['agg_sp_dt_eve_poc_id','eve_id','index_of_Session','start_date','end_date','srv_prof_id','Session_status']
+        fields = ['agg_sp_dt_eve_poc_id','eve_id','start_date','end_date','srv_prof_id','Session_status','remark']
 
 
 # ----------------- prof avail ------------

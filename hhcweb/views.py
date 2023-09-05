@@ -1511,7 +1511,7 @@ class service_reschedule_view(APIView):
 
 # from . models import Session_status_enum
 class Professional_Reschedule_Apiview(APIView):
-    # serializer_class =  Prof_Reschedule_serializer
+    serializer_class =  Prof_Reschedule_serializer
 
     # def get(self, request, eve_id,index_of_session):
         
@@ -1524,10 +1524,13 @@ class Professional_Reschedule_Apiview(APIView):
         try:
             # record =  agg_hhc_detailed_event_plan_of_care.objects.get(eve_id=eve_id, index_of_Session=index_of_session,Session_status=Session_status_enum.Pending)
             record =  agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
-            serializer = self. Prof_Reschedule_serializer(record, many=True)
+            serializer = self.serializer_class(record, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except  agg_hhc_detailed_event_plan_of_care.DoesNotExist:
-            return Response({'error': 'No record found for the given eve_id and index_of_session'}, status=status.HTTP_404_NOT_FOUND)
+        # except  agg_hhc_detailed_event_plan_of_care.DoesNotExist:
+        #     return Response({'error': 'No record found for the given eve_id and index_of_session'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+
 
 
     def patch(self, request, eve_id):
@@ -1557,8 +1560,11 @@ class Professional_Reschedule_Apiview(APIView):
                     record.save()
 
             return Response({'message': 'Records updated successfully'}, status=status.HTTP_200_OK)
-        except  agg_hhc_detailed_event_plan_of_care.DoesNotExist:
-            return Response({'error': 'No matching session found or session is less than date'}, status=status.HTTP_404_NOT_FOUND)
+        # except  agg_hhc_detailed_event_plan_of_care.DoesNotExist:
+        #     return Response({'error': 'No matching session found or session is less than date'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+
 
 
 # -------------- Professional Allocation ----------
