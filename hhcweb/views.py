@@ -1255,36 +1255,59 @@ class CashfreeCreateOrder(APIView):
 
 
 class combined_info(APIView):
-    def get(self,request):
-        if request.method == 'GET':
-            event_data= agg_hhc_events.objects.filter(Q(event_status=1) | Q(event_status=4))
-            agg_hhc_eve= agg_hhc_events_serializers1(event_data,many=True)
-            event=[]
-            for i in agg_hhc_eve.data:
-                event_code=i['event_code']#i['eve_id']
-                patient_no=i['agg_sp_pt_id']
-                patient= agg_hhc_patients.objects.get(agg_sp_pt_id=patient_no)
-                pat_ser= agg_hhc_patients_serializer(patient)
-                patient_name=pat_ser.data.get('name')
-                patient_number=pat_ser.data.get('phone_no')
-                patient_zone_id=pat_ser.data.get('prof_zone_id')
-                patient_zone=agg_hhc_professional_zone.objects.get(prof_zone_id=patient_zone_id)
-                caller_id=pat_ser.data.get('caller_id')
-                caller_status= agg_hhc_callers.objects.get(caller_id=caller_id)
-                caller_seri= agg_hhc_callers_seralizer(caller_status)
-                caler_status=i['patient_service_status']
-                event_plan_of_care =  agg_hhc_event_plan_of_care.objects.filter(eve_id=i['eve_id']).latest('eve_id')
-                event_plan_of_care_serialzer= agg_hhc_create_service_serializer(event_plan_of_care)
-                event_start_date=event_plan_of_care_serialzer.data.get('start_date')
-                event_end_date=event_plan_of_care_serialzer.data.get('end_date')
-                professional_prefered=event_plan_of_care_serialzer.data.get('prof_prefered')
-                service_id=event_plan_of_care_serialzer.data.get('srv_id')
-                service= agg_hhc_services.objects.get(srv_id=service_id)
-                service_serializer= agg_hhc_services_serializer(service)
-                service_name=service_serializer.data.get('service_title')
-                even={'event_id':i['eve_id'],'event_code':event_code,'patient_name':patient_name,'patient_number':patient_number,'patient_zone':patient_zone.Name,'event_start_date':event_start_date,'event_end_date':event_end_date,'service_name':service_name,'caller_status':caler_status,'professional_prefered':professional_prefered}
-                event.append(even)
-            return Response({'event_code':event,})#'patient_name':patient.name,'patient_number':patient.phone_no,'service_name':service_name.service_title})#add zone from agg_hhc_patient_table
+    def get(self, request):
+        try:
+            if request.method == 'GET':
+                event_data = agg_hhc_events.objects.filter(Q(event_status=1) | Q(event_status=4))
+                agg_hhc_eve = agg_hhc_events_serializers1(event_data, many=True)
+                event = []
+                for i in agg_hhc_eve.data:
+                    event_code = i.get('event_code')
+                    if event_code is None:
+                        raise Exception("event_code is missing")
+
+                    patient_no = i.get('agg_sp_pt_id')
+                    if patient_no is None:
+                        raise Exception("agg_sp_pt_id is missing")
+
+                    patient = agg_hhc_patients.objects.get(agg_sp_pt_id=patient_no)
+                    pat_ser = agg_hhc_patients_serializer(patient)
+                    patient_name = pat_ser.data.get('name')
+                    patient_number = pat_ser.data.get('phone_no')
+                    patient_zone_id = pat_ser.data.get('prof_zone_id')
+                    patient_zone = agg_hhc_professional_zone.objects.get(prof_zone_id=patient_zone_id)
+
+                    caller_id = pat_ser.data.get('caller_id')
+                    caller_status = agg_hhc_callers.objects.get(caller_id=caller_id)
+                    caller_seri = agg_hhc_callers_seralizer(caller_status)
+                    caler_status = i.get('patient_service_status')
+
+                    event_plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=i.get('eve_id')).latest('eve_id')
+                    event_plan_of_care_serialzer = agg_hhc_create_service_serializer(event_plan_of_care)
+                    event_start_date = event_plan_of_care_serialzer.data.get('start_date')
+                    event_end_date = event_plan_of_care_serialzer.data.get('end_date')
+                    professional_prefered = event_plan_of_care_serialzer.data.get('prof_prefered')
+                    service_id = event_plan_of_care_serialzer.data.get('srv_id')
+                    service = agg_hhc_services.objects.get(srv_id=service_id)
+                    service_serializer = agg_hhc_services_serializer(service)
+                    service_name = service_serializer.data.get('service_title')
+
+                    even = {
+                        'event_id': i.get('eve_id'),
+                        'event_code': event_code,
+                        'patient_name': patient_name,
+                        'patient_number': patient_number,
+                        'patient_zone': patient_zone.Name,
+                        'event_start_date': event_start_date,
+                        'event_end_date': event_end_date,
+                        'service_name': service_name,
+                        'caller_status': caler_status,
+                        'professional_prefered': professional_prefered
+                    }
+                    event.append(even)
+                return Response({'event_code': event})
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)#'patient_name':patient.name,'patient_number':patient.phone_no,'service_name':service_name.service_title})#add zone from agg_hhc_patient_table
 
 
 
@@ -1485,26 +1508,27 @@ class service_reschedule_view(APIView):
 
 
 # ------------------ Professional Reschedule ------------------
-
-# from . models import Session_status_enum
+from . models import Session_status_enum
 class Professional_Reschedule_Apiview(APIView):
-    # serializer_class =  Prof_Reschedule_serializer
+    serializer_class = Prof_Reschedule_serializer
 
     # def get(self, request, eve_id,index_of_session):
         
-    #     data =  agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
+    #     data = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
     #     serializer = self.serializer_class(data, many=True)
     #     return Response(serializer.data)
     
     # def get(self, request, eve_id, index_of_session):
     def get(self, request,eve_id):
         try:
-            # record =  agg_hhc_detailed_event_plan_of_care.objects.get(eve_id=eve_id, index_of_Session=index_of_session,Session_status=Session_status_enum.Pending)
-            record =  agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
-            serializer = self. Prof_Reschedule_serializer(record, many=True)
+            # record = models.agg_hhc_detailed_event_plan_of_care.objects.get(eve_id=eve_id, index_of_Session=index_of_session,Session_status=Session_status_enum.Pending)
+            record = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
+            serializer = self.serializer_class(record, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except  agg_hhc_detailed_event_plan_of_care.DoesNotExist:
-            return Response({'error': 'No record found for the given eve_id and index_of_session'}, status=status.HTTP_404_NOT_FOUND)
+        # except models.agg_hhc_detailed_event_plan_of_care.DoesNotExist:
+        #     return Response({'error': 'No record found for the given eve_id and index_of_session'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
 
 
     def patch(self, request, eve_id):
@@ -1515,7 +1539,7 @@ class Professional_Reschedule_Apiview(APIView):
 
             # If start_date and end_date are the same, update the specific record
             if start_date == end_date:
-                record =  agg_hhc_detailed_event_plan_of_care.objects.get(
+                record = models.agg_hhc_detailed_event_plan_of_care.objects.get(
                     eve_id=eve_id, start_date=start_date, end_date=end_date
                 )
                 serializer = self.serializer_class(record, data=request.data, partial=True)
@@ -1523,10 +1547,10 @@ class Professional_Reschedule_Apiview(APIView):
                     serializer.save()
             else:
                 
-                service_professional =  agg_hhc_service_professionals.objects.get(pk=srv_prof_id)
+                service_professional = models.agg_hhc_service_professionals.objects.get(pk=srv_prof_id)
                 
                 
-                records_to_update =  agg_hhc_detailed_event_plan_of_care.objects.filter(
+                records_to_update = models.agg_hhc_detailed_event_plan_of_care.objects.filter(
                     eve_id=eve_id, start_date__gte=start_date, end_date__lte=end_date
                 )
                 for record in records_to_update:
@@ -1534,8 +1558,10 @@ class Professional_Reschedule_Apiview(APIView):
                     record.save()
 
             return Response({'message': 'Records updated successfully'}, status=status.HTTP_200_OK)
-        except  agg_hhc_detailed_event_plan_of_care.DoesNotExist:
-            return Response({'error': 'No matching session found or session is less than date'}, status=status.HTTP_404_NOT_FOUND)
+        # except models.agg_hhc_detailed_event_plan_of_care.DoesNotExist:
+        #     return Response({'error': 'No matching session found or session is less than date'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
 
 
 # -------------- Professional Allocation ----------
