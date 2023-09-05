@@ -254,20 +254,20 @@ class agg_hhc_add_service_details_api(APIView):
         try:
             return agg_hhc_callers.objects.get(phone=phone)
         except agg_hhc_callers.DoesNotExist:
-            return None
+            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
 
     def get_patient(self,phone_no):
         try:
             return agg_hhc_patients.objects.get(phone_no=phone_no)
         except agg_hhc_patients.DoesNotExist:
-            return None
+            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
 
 
     def get(self,request,pk):
         event = self.get_event(pk)
         if not event:
             return Response(status.HTTP_404_NOT_FOUND)
-        callerserializer =  add_service_get_caller_serializer(event.data.caller_id)
+        callerserializer = add_service_get_caller_serializer(event.data.caller_id)
         patientserializer = add_service_get_patient_serializer(event.data.pt_id)
         plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
         plan_of_care_serializer = add_service_get_POC_serializer(plan_of_care,many=True)
@@ -432,25 +432,25 @@ class agg_hhc_add_service_details_api(APIView):
         else:
             return Response({"Service Created Event Code":eventID})
         
-    def get_event(self,pk):
-        try:
-            event = agg_hhc_events.objects.filter(eve_id=pk)[0]
-            return Response(event)
-        except agg_hhc_events.DoesNotExist:
-            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
+    # def get_event(self,pk):
+    #     try:
+    #         event = agg_hhc_events.objects.filter(eve_id=pk)[0]
+    #         return Response(event)
+    #     except agg_hhc_events.DoesNotExist:
+    #         return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
         
         
-    def get_caller(self,phone):
-        try:
-            return agg_hhc_callers.objects.get(phone=phone)
-        except agg_hhc_callers.DoesNotExist:
-            return None
+    # def get_caller(self,phone):
+    #     try:
+    #         return agg_hhc_callers.objects.get(phone=phone)
+    #     except agg_hhc_callers.DoesNotExist:
+    #         return None
 
-    def get_patient(self,phone_no):
-        try:
-            return agg_hhc_patients.objects.get(phone_no=phone_no)
-        except agg_hhc_patients.DoesNotExist:
-            return None
+    # def get_patient(self,phone_no):
+    #     try:
+    #         return agg_hhc_patients.objects.get(phone_no=phone_no)
+    #     except agg_hhc_patients.DoesNotExist:
+    #         return None
 
 
     def put(self,request,pk):    
@@ -1508,14 +1508,13 @@ class service_reschedule_view(APIView):
 
 
 # ------------------ Professional Reschedule ------------------
-
-# from . models import Session_status_enum
+from . models import Session_status_enum
 class Professional_Reschedule_Apiview(APIView):
     serializer_class =  Prof_Reschedule_serializer
 
     # def get(self, request, eve_id,index_of_session):
         
-    #     data =  agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
+    #     data = models.agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=eve_id,Session_status=Session_status_enum.Pending)
     #     serializer = self.serializer_class(data, many=True)
     #     return Response(serializer.data)
     
@@ -1541,7 +1540,7 @@ class Professional_Reschedule_Apiview(APIView):
 
             # If start_date and end_date are the same, update the specific record
             if start_date == end_date:
-                record =  agg_hhc_detailed_event_plan_of_care.objects.get(
+                record = models.agg_hhc_detailed_event_plan_of_care.objects.get(
                     eve_id=eve_id, start_date=start_date, end_date=end_date
                 )
                 serializer = self.serializer_class(record, data=request.data, partial=True)
@@ -1549,10 +1548,10 @@ class Professional_Reschedule_Apiview(APIView):
                     serializer.save()
             else:
                 
-                service_professional =  agg_hhc_service_professionals.objects.get(pk=srv_prof_id)
+                service_professional = models.agg_hhc_service_professionals.objects.get(pk=srv_prof_id)
                 
                 
-                records_to_update =  agg_hhc_detailed_event_plan_of_care.objects.filter(
+                records_to_update = models.agg_hhc_detailed_event_plan_of_care.objects.filter(
                     eve_id=eve_id, start_date__gte=start_date, end_date__lte=end_date
                 )
                 for record in records_to_update:

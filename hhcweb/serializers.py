@@ -792,7 +792,7 @@ class add_service_get_event_serializer(serializers.ModelSerializer):
 class add_service_get_POC_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_event_plan_of_care
-        fields = ['srv_id','sub_srv_id','actual_StartDate_Time','actual_EndDate_Time','prof_prefered','remark']
+        fields = ['eve_poc_id','srv_id']#,'sub_srv_id','actual_StartDate_Time','actual_EndDate_Time','prof_prefered','remark']
 class Purpose_of_call(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_purpose_call
@@ -802,10 +802,11 @@ class add_service_get_caller_serializer(serializers.ModelSerializer):
     purp_call_id = Purpose_of_call()
     class Meta:
         model = models.agg_hhc_callers
-        fields = ['caller_id','caller_fullname','purp_call_id']
+        fields = ['caller_id','caller_fullname','purp_call_id','phone']
 
 class add_service_get_patient_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_patient_list_enquiry
         fields = ['pt_id','name','gender_id','Age','preferred_hosp_id','Suffered_from','phone_no','patient_email_id','doct_cons_id','state_id','city_id','prof_zone_id','address']
+        # fields = ['pt_id','name','gender_id','Age','preferred_hosp_id']#,'Suffered_from','phone_no','patient_email','doct_cons_id','state_id','city_id','prof_zone_id','address']
         

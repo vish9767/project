@@ -337,7 +337,7 @@ class agg_hhc_callers(models.Model):#20
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)"""
 
-class agg_hhc_patient_list_enquiry(models.Model):#1
+class agg_hhc_patient_list_enquiry(models.Model):#1  demos
 	pt_id = models.AutoField(primary_key = True)
 	doct_cons_id = models.ForeignKey('agg_hhc_doctors_consultants',on_delete=models.CASCADE,null=True)
 	# consultat_fname = models.CharField(max_length=50,null=True)
@@ -348,6 +348,7 @@ class agg_hhc_patient_list_enquiry(models.Model):#1
 	phone_no = models.CharField(max_length=20,null=True)
 	call_type=models.CharField(max_length=50,null=True)
 	relation = models.CharField(max_length=20,null=True)
+	preferred_hosp_id=models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# Sandip
 	# patient_fname = models.CharField(max_length=50,null=True)
 	Age = models.CharField(max_length=2,null=True)
 	patient_date_of_birth=models.DateField(null=True)
@@ -358,7 +359,7 @@ class agg_hhc_patient_list_enquiry(models.Model):#1
 	patient_Locality=models.CharField(max_length=250,null=True)
 	google_location = models.CharField(max_length=200,null=True)
 	patient_contact = models.CharField(max_length=10,null=True)
-	patient_email=models.EmailField(null=True)
+	patient_email_id = models.EmailField(null=True)
 	srv_id=models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)#added by vishal
 	Patient_status_at_present=enum.EnumField(patient_present_at_enum,null=True)#added by vishal
 	#zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,to_field='Name',null=True)
@@ -625,7 +626,7 @@ class agg_hhc_assessment_patient_list(models.Model):#4
 	enquiry_status = enum.EnumField(enquiry_status,null=True)    #sandip shimpi
 	added_date = models.DateField(default=timezone.now,null=True)
 
-class agg_hhc_patients(models.Model):#6
+class agg_hhc_patients(models.Model):#6    demo
 	agg_sp_pt_id = models.AutoField(primary_key = True)
 	doct_cons_id = models.ForeignKey('agg_hhc_doctors_consultants',on_delete=models.CASCADE,null=True)
 	#app_user_id=models.ForeignKey(agg_hhc_app_caller_register,on_delete=models.CASCADE,null=True)
