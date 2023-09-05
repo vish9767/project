@@ -254,20 +254,20 @@ class agg_hhc_add_service_details_api(APIView):
         try:
             return agg_hhc_callers.objects.get(phone=phone)
         except agg_hhc_callers.DoesNotExist:
-            return None
+            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
 
     def get_patient(self,phone_no):
         try:
             return agg_hhc_patients.objects.get(phone_no=phone_no)
         except agg_hhc_patients.DoesNotExist:
-            return None
+            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
 
 
     def get(self,request,pk):
         event = self.get_event(pk)
         if not event:
             return Response(status.HTTP_404_NOT_FOUND)
-        callerserializer =  add_service_get_caller_serializer(event.data.caller_id)
+        callerserializer = add_service_get_caller_serializer(event.data.caller_id)
         patientserializer = add_service_get_patient_serializer(event.data.pt_id)
         plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
         plan_of_care_serializer = add_service_get_POC_serializer(plan_of_care,many=True)
@@ -432,25 +432,25 @@ class agg_hhc_add_service_details_api(APIView):
         else:
             return Response({"Service Created Event Code":eventID})
         
-    def get_event(self,pk):
-        try:
-            event = agg_hhc_events.objects.filter(eve_id=pk)[0]
-            return Response(event)
-        except agg_hhc_events.DoesNotExist:
-            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
+    # def get_event(self,pk):
+    #     try:
+    #         event = agg_hhc_events.objects.filter(eve_id=pk)[0]
+    #         return Response(event)
+    #     except agg_hhc_events.DoesNotExist:
+    #         return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
         
         
-    def get_caller(self,phone):
-        try:
-            return agg_hhc_callers.objects.get(phone=phone)
-        except agg_hhc_callers.DoesNotExist:
-            return None
+    # def get_caller(self,phone):
+    #     try:
+    #         return agg_hhc_callers.objects.get(phone=phone)
+    #     except agg_hhc_callers.DoesNotExist:
+    #         return None
 
-    def get_patient(self,phone_no):
-        try:
-            return agg_hhc_patients.objects.get(phone_no=phone_no)
-        except agg_hhc_patients.DoesNotExist:
-            return None
+    # def get_patient(self,phone_no):
+    #     try:
+    #         return agg_hhc_patients.objects.get(phone_no=phone_no)
+    #     except agg_hhc_patients.DoesNotExist:
+    #         return None
 
 
     def put(self,request,pk):    
