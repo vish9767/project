@@ -665,22 +665,24 @@ class agg_hhc_service_professional_details(APIView):
 #--------------------------get all patients from caller id -----------------------------
 
 class agg_hhc_callers_phone_no(APIView):
-    def get_object(self,pk):
+    def get_object(self, pk):
         try:
-            queryset =  agg_hhc_callers.objects.get(phone=pk)#.values_list('caller_id',flat=True)
-            query_id=queryset.caller_id
-            #print('this is query:',list(queryset))
-            return query_id #8888888888
+            queryset = agg_hhc_callers.objects.get(phone=pk)
+            query_id = queryset.caller_id
+            return query_id
         except agg_hhc_callers.DoesNotExist:
-            return None
-    def get(self,request,pk,format=None):
-        snippet=self.get_object(pk)
-        caller_record= agg_hhc_callers.objects.get(pk=snippet)
-        record= agg_hhc_patients.objects.filter(caller_id=snippet)
-        print(record)
-        serialized_caller= agg_hhc_callers_details_serializer(caller_record)
-        serialized= agg_hhc_app_patient_by_caller_phone_no(record,many=True)
-        return Response({"caller": serialized_caller.data, "patients": serialized.data})
+            raise Http404("Caller record not found for the given phone number")
+
+    def get(self, request, pk, format=None):
+        try:
+            snippet = self.get_object(pk)
+            caller_record = agg_hhc_callers.objects.get(pk=snippet)
+            record = agg_hhc_patients.objects.filter(caller_id=snippet)
+            serialized_caller = agg_hhc_callers_details_serializer(caller_record)
+            serialized = agg_hhc_app_patient_by_caller_phone_no(record, many=True)
+            return Response({"caller": serialized_caller.data, "patients": serialized.data})
+        except Http404 as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
 #----------patients from callers_enum status---------------------
 class agg_hhc_callers_phone_no_status_mobile_api(APIView):#staus=1
