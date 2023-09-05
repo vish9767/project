@@ -241,7 +241,28 @@ class agg_hhc_patient_by_HHCID(APIView):
         patient = self.get_patient(pk)
         patient=Patient_by_HHCID_Serializer(patient)
         return Response(patient.data)
-    
+
+class agg_hhc_srv_req_prof_allocate(APIView):
+
+    def get_event(self,pk):
+        try:
+            event = agg_hhc_events.objects.get(eve_id=pk)
+            return Response(event)
+        except agg_hhc_events.DoesNotExist:
+            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
+
+    def get(self,request,pk):
+        event = self.get_event(pk)
+        if not event:
+            return Response(status.HTTP_404_NOT_FOUND)
+        callerserializer = prof_allocate_get_callerID_serializer(event.data.caller_id)
+        print(callerserializer.data)
+        patientserializer = prof_allocate_get_patientID_serializer(event.data.pt_id)
+        plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
+        plan_of_care_serializer = prof_allocate_get_POCID_serializer(plan_of_care,many=True)
+        return Response({'caller_details':callerserializer.data,'patient_details':patientserializer.data,'POC':plan_of_care_serializer.data})
+
+
 class agg_hhc_add_service_details_api(APIView):
     
     def get_event(self,pk):
