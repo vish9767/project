@@ -256,7 +256,6 @@ class agg_hhc_srv_req_prof_allocate(APIView):
         if not event:
             return Response(status.HTTP_404_NOT_FOUND)
         callerserializer = prof_allocate_get_callerID_serializer(event.data.caller_id)
-        print(callerserializer.data)
         patientserializer = prof_allocate_get_patientID_serializer(event.data.pt_id)
         plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
         plan_of_care_serializer = prof_allocate_get_POCID_serializer(plan_of_care,many=True)
@@ -321,6 +320,7 @@ class agg_hhc_add_service_details_api(APIView):
         # print(callerID,'llllsecond')
         if request.data['purp_call_id']==1:
             # print('4')
+            request.data['event_status']=1             
             patient= agg_hhc_patients.objects.filter(phone_no=request.data['phone_no']).first()
             if patient:
                 # patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
@@ -342,7 +342,7 @@ class agg_hhc_add_service_details_api(APIView):
                     # patientID=patientID.agg_sp_pt_id
                 else:
                     return Response([patient.errors])
-                # print('4.6')                
+                # print('4.6')   
         elif request.data['purp_call_id']==2:
             patient= agg_hhc_patient_list_enquiry.objects.filter(phone_no=request.data['phone_no']).first()
             request.data['caller_id']=callerID
@@ -397,11 +397,10 @@ class agg_hhc_add_service_details_api(APIView):
         #         return Response(patient.errors)
         # print(callerID,'ll;;;l')
         # print(patientID,'ll;;;l')
-        request.data['event_status']=1
+        # request.data['event_status']=1
         event= agg_hhc_event_serializer(data=request.data)
         if event.is_valid():
             eventID=event.save().eve_id
-            request.data.pop('event_status')
         else:
             return Response([event.errors])
         event= agg_hhc_events.objects.filter(eve_id=eventID)
