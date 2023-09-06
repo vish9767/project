@@ -256,7 +256,6 @@ class agg_hhc_srv_req_prof_allocate(APIView):
         if not event:
             return Response(status.HTTP_404_NOT_FOUND)
         callerserializer = prof_allocate_get_callerID_serializer(event.data.caller_id)
-        print(callerserializer.data)
         patientserializer = prof_allocate_get_patientID_serializer(event.data.pt_id)
         plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
         plan_of_care_serializer = prof_allocate_get_POCID_serializer(plan_of_care,many=True)
@@ -290,6 +289,7 @@ class agg_hhc_add_service_details_api(APIView):
         event = self.get_event(pk)
         if not event:
             return Response(status.HTTP_404_NOT_FOUND)
+        print(event.data.caller_id,'dddddddddddd')
         callerserializer = add_service_get_caller_serializer(event.data.caller_id)
         patientserializer = add_service_get_patient_serializer(event.data.pt_id)
         plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
@@ -321,6 +321,7 @@ class agg_hhc_add_service_details_api(APIView):
         # print(callerID,'llllsecond')
         if request.data['purp_call_id']==1:
             # print('4')
+            request.data['event_status']=1             
             patient= agg_hhc_patients.objects.filter(phone_no=request.data['phone_no']).first()
             if patient:
                 # patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
@@ -342,7 +343,7 @@ class agg_hhc_add_service_details_api(APIView):
                     # patientID=patientID.agg_sp_pt_id
                 else:
                     return Response([patient.errors])
-                # print('4.6')                
+                # print('4.6')   
         elif request.data['purp_call_id']==2:
             patient= agg_hhc_patient_list_enquiry.objects.filter(phone_no=request.data['phone_no']).first()
             request.data['caller_id']=callerID
@@ -397,11 +398,10 @@ class agg_hhc_add_service_details_api(APIView):
         #         return Response(patient.errors)
         # print(callerID,'ll;;;l')
         # print(patientID,'ll;;;l')
-        request.data['event_status']=1
+        # request.data['event_status']=1
         event= agg_hhc_event_serializer(data=request.data)
         if event.is_valid():
             eventID=event.save().eve_id
-            request.data.pop('event_status')
         else:
             return Response([event.errors])
         event= agg_hhc_events.objects.filter(eve_id=eventID)
@@ -1557,38 +1557,42 @@ class Professional_Reschedule_Apiview(APIView):
 
 
 
+
     def patch(self, request, eve_id):
         try:
-            start_date = request.data.get('start_date')
-            end_date = request.data.get('end_date')
+            start_date_str = request.data.get('start_date')
+            end_date_str = request.data.get('end_date')
             srv_prof_id = request.data.get('srv_prof_id')
+
+            # Convert date strings to datetime objects
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
             # If start_date and end_date are the same, update the specific record
             if start_date == end_date:
-                record = models.agg_hhc_detailed_event_plan_of_care.objects.get(
-                    eve_id=eve_id, start_date=start_date, end_date=end_date
+                record = agg_hhc_detailed_event_plan_of_care.objects.get(
+                    eve_id=eve_id, start_date__date=start_date, end_date__date=end_date
                 )
                 serializer = self.serializer_class(record, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
             else:
-                
-                service_professional = models.agg_hhc_service_professionals.objects.get(pk=srv_prof_id)
-                
-                
-                records_to_update = models.agg_hhc_detailed_event_plan_of_care.objects.filter(
-                    eve_id=eve_id, start_date__gte=start_date, end_date__lte=end_date
+                service_professional = agg_hhc_service_professionals.objects.get(pk=srv_prof_id)
+
+                records_to_update = agg_hhc_detailed_event_plan_of_care.objects.filter(
+                    eve_id=eve_id, start_date__date__gte=start_date, end_date__date__lte=end_date
                 )
-                for record in records_to_update:
-                    record.srv_prof_id = service_professional
-                    record.save()
 
-            return Response({'message': 'Records updated successfully'}, status=status.HTTP_200_OK)
-        # except  agg_hhc_detailed_event_plan_of_care.DoesNotExist:
-        #     return Response({'error': 'No matching session found or session is less than date'}, status=status.HTTP_404_NOT_FOUND)
+                if not records_to_update.exists():
+                    return JsonResponse({'error': 'No matching records found'}, status=404)
+
+                records_to_update.update(srv_prof_id=service_professional)
+
+            return JsonResponse({'message': 'Records updated successfully'}, status=200)
+        except agg_hhc_detailed_event_plan_of_care.DoesNotExist:
+            return JsonResponse({'error': 'No matching session found or session is less than date'}, status=404)
         except Exception as e:
-            return Response({'error': str(e)}, status=500)
-
+            return JsonResponse({'error': str(e)}, status=500)
 
 
 # -------------- Professional Allocation ----------
