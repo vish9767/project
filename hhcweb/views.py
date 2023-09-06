@@ -290,6 +290,7 @@ class agg_hhc_add_service_details_api(APIView):
         event = self.get_event(pk)
         if not event:
             return Response(status.HTTP_404_NOT_FOUND)
+        print(event.data.caller_id,'dddddddddddd')
         callerserializer = add_service_get_caller_serializer(event.data.caller_id)
         patientserializer = add_service_get_patient_serializer(event.data.pt_id)
         plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
