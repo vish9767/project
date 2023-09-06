@@ -80,10 +80,7 @@ urlpatterns = [
     
 
     # path('cancel_spero_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Spero_APIView.as_view()),
-    # path('cancel_patent_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Patent_APIView.as_view()),
-    
-   
-    
+    # path('cancel_patent_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Patent_APIView.as_view()),    
 # ------------------------------------------Sandip-------------------------------------------------
     path('agg_hhc_add_service_details_api/', views.agg_hhc_add_service_details_api.as_view()),
     path('agg_hhc_add_service_form_api/', views.agg_hhc_add_service_form_api.as_view()),
