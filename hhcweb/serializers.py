@@ -809,4 +809,18 @@ class add_service_get_patient_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_patient_list_enquiry
         fields = ['pt_id','name','gender_id','Age','preferred_hosp_id','Suffered_from','phone_no','patient_email_id','doct_cons_id','state_id','city_id','prof_zone_id','address']
         # fields = ['pt_id','name','gender_id','Age','preferred_hosp_id']#,'Suffered_from','phone_no','patient_email','doct_cons_id','state_id','city_id','prof_zone_id','address']
-        
+
+class prof_allocate_get_callerID_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_callers
+        fields = ['caller_id']     
+
+class prof_allocate_get_patientID_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_patient_list_enquiry
+        fields = ['pt_id']
+
+class prof_allocate_get_POCID_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_event_plan_of_care
+        fields = ['eve_poc_id']

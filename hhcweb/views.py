@@ -165,18 +165,20 @@ class agg_hhc_patients_api(APIView):
 
 #_________________________________________get_latest_patient_record_from_caller_id__________________
 class get_latest_patient_record_from_caller_id_api(APIView):
-    def get_object(self,pk):
+    def get_object(self, pk):
         try:
-            a= agg_hhc_patients.objects.filter(caller_id=pk).latest('pk')
-            # print("this is last patient ",a)
+            a = agg_hhc_patients.objects.filter(caller_id=pk).latest('pk')
             return a
-        except  agg_hhc_patients.DoesNotExist:
-            raise status.HTTP_404_NOT_FOUND
-    def get(self, request, pk, format=None):
-        snippet= self.get_object(pk)
-        serialized = get_latest_patient_record_from_caller_id(snippet)
-        return Response(serialized.data)
+        except agg_hhc_patients.DoesNotExist:
+            raise Http404("Patient record not found for the given caller_id")
 
+    def get(self, request, pk, format=None):
+        try:
+            snippet = self.get_object(pk)
+            serialized = get_latest_patient_record_from_caller_id(snippet)
+            return Response(serialized.data)
+        except Http404 as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 ######___________________________agg_hhc_callers_Api__________________#########
 
 class agg_hhc_callers_api(APIView):
@@ -239,7 +241,28 @@ class agg_hhc_patient_by_HHCID(APIView):
         patient = self.get_patient(pk)
         patient=Patient_by_HHCID_Serializer(patient)
         return Response(patient.data)
-    
+
+class agg_hhc_srv_req_prof_allocate(APIView):
+
+    def get_event(self,pk):
+        try:
+            event = agg_hhc_events.objects.get(eve_id=pk)
+            return Response(event)
+        except agg_hhc_events.DoesNotExist:
+            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
+
+    def get(self,request,pk):
+        event = self.get_event(pk)
+        if not event:
+            return Response(status.HTTP_404_NOT_FOUND)
+        callerserializer = prof_allocate_get_callerID_serializer(event.data.caller_id)
+        print(callerserializer.data)
+        patientserializer = prof_allocate_get_patientID_serializer(event.data.pt_id)
+        plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
+        plan_of_care_serializer = prof_allocate_get_POCID_serializer(plan_of_care,many=True)
+        return Response({'caller_details':callerserializer.data,'patient_details':patientserializer.data,'POC':plan_of_care_serializer.data})
+
+
 class agg_hhc_add_service_details_api(APIView):
     
     def get_event(self,pk):
@@ -663,22 +686,24 @@ class agg_hhc_service_professional_details(APIView):
 #--------------------------get all patients from caller id -----------------------------
 
 class agg_hhc_callers_phone_no(APIView):
-    def get_object(self,pk):
+    def get_object(self, pk):
         try:
-            queryset =  agg_hhc_callers.objects.get(phone=pk)#.values_list('caller_id',flat=True)
-            query_id=queryset.caller_id
-            #print('this is query:',list(queryset))
-            return query_id #8888888888
+            queryset = agg_hhc_callers.objects.get(phone=pk)
+            query_id = queryset.caller_id
+            return query_id
         except agg_hhc_callers.DoesNotExist:
-            return None
-    def get(self,request,pk,format=None):
-        snippet=self.get_object(pk)
-        caller_record= agg_hhc_callers.objects.get(pk=snippet)
-        record= agg_hhc_patients.objects.filter(caller_id=snippet)
-        print(record)
-        serialized_caller= agg_hhc_callers_details_serializer(caller_record)
-        serialized= agg_hhc_app_patient_by_caller_phone_no(record,many=True)
-        return Response({"caller": serialized_caller.data, "patients": serialized.data})
+            raise Http404("Caller record not found for the given phone number")
+
+    def get(self, request, pk, format=None):
+        try:
+            snippet = self.get_object(pk)
+            caller_record = agg_hhc_callers.objects.get(pk=snippet)
+            record = agg_hhc_patients.objects.filter(caller_id=snippet)
+            serialized_caller = agg_hhc_callers_details_serializer(caller_record)
+            serialized = agg_hhc_app_patient_by_caller_phone_no(record, many=True)
+            return Response({"caller": serialized_caller.data, "patients": serialized.data})
+        except Http404 as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
 #----------patients from callers_enum status---------------------
 class agg_hhc_callers_phone_no_status_mobile_api(APIView):#staus=1
@@ -1675,145 +1700,66 @@ class allocate_api(APIView):
 
 
 class Dashboard_enquiry_count_api(APIView):
-    def get(self,request,id):
-        id=id
-        if(id==1):
-            time=timezone.now()
-            print("this is time",time)
-            enquiry=agg_hhc_patient_list_enquiry.objects.filter(added_date=timezone.now())
-            enquiry_count=len(enquiry)
-            App=0
-            Social=0
-            Calls=0
-            Walk_in=0 
-            for i in enquiry:
-                caller_id=agg_hhc_events.objects.get(pt_id=i.pt_id)
-                if(caller_id.patient_service_status==1):
-                    App=App+1
-                elif(caller_id.patient_service_status==2):
-                    Social=Social+1
-                elif(caller_id.patient_service_status==3):
-                    Walk_in=Walk_in+1
-                elif(caller_id.patient_service_status==4):
-                    Calls=Calls+1
-            if(enquiry_count>0):
-                if(App>0):
-                    App_percentage=int(Walk_in)/int(enquiry_count)
-                    App_percentage*=100
-                else:
-                    App_percentage=0
-                if(Social>0):
-                    Social_percantage=int(Social)/int(enquiry_count)
-                    Social_percantage*=100
-                else:
-                    Social_percantage=0
-                if(Calls>0):
-                    Calls_precentage=int(Calls)/int(enquiry_count)
-                    Calls_precentage*=100
-                else:
-                    Calls_precentage=0
-                if(Walk_in>0):
-                    Walk_in_percentage=int(Walk_in)/int(enquiry_count)
-                    Walk_in_percentage*=100
-                else:
-                    Walk_in_percentage=0
+    def get(self, request, id):
+        try:
+            if id == 1:
+                time = timezone.now()
+                enquiry = agg_hhc_patient_list_enquiry.objects.filter(added_date=timezone.now())
+            elif id == 2:
+                week_days = timezone.now() - timedelta(days=7)
+                enquiry = agg_hhc_patient_list_enquiry.objects.filter(added_date__gte=week_days)
+                print("this is enquiry",enquiry)
+            elif id == 3:
+                month = timezone.now()
+                month = month.replace(day=1)
+                enquiry = agg_hhc_patient_list_enquiry.objects.filter(added_date__gte=month)
             else:
-                App_percentage=0
-                Social_percantage=0
-                Calls_precentage=0
-                Walk_in_percentage=0
-            return Response({'Total_enquirys':enquiry_count,'App':App,'Socail':Social,'Calls':Calls,'Walk_in':Walk_in,"App_percentage":App_percentage,"Social_percantage":Social_percantage,"Calls_precentage":Calls_precentage,"Walk_in_percentage":Walk_in_percentage})
-        elif(id==2):
-            week_days=timezone.now()-timedelta(days=7)
-            enquiry=agg_hhc_patient_list_enquiry.objects.filter(added_date__gte=week_days)
-            enquiry_count=len(enquiry)
-            App=0
-            Social=0
-            Calls=0
-            Walk_in=0 
+                raise Http404("Invalid ID")
+
+            enquiry_count = len(enquiry)
+            App = 0
+            Social = 0
+            Calls = 0
+            Walk_in = 0
             for i in enquiry:
-                caller_id=agg_hhc_events.objects.get(pt_id=i.pt_id)
-                if(caller_id.patient_service_status==1):
-                    App=App+1
-                elif(caller_id.patient_service_status==2):
-                    Social=Social+1
-                elif(caller_id.patient_service_status==3):
-                    Walk_in=Walk_in+1
-                elif(caller_id.patient_service_status==4):
-                    Calls=Calls+1
-            if(enquiry_count>0):
-                if(App>0):
-                    App_percentage=int(Walk_in)/int(enquiry_count)
-                    App_percentage*=100
-                else:
-                    App_percentage=0
-                if(Social>0):
-                    Social_percantage=int(Social)/int(enquiry_count)
-                    Social_percantage*=100
-                else:
-                    Social_percantage=0
-                if(Calls>0):
-                    Calls_precentage=int(Calls)/int(enquiry_count)
-                    Calls_precentage*=100
-                else:
-                    Calls_precentage=0
-                if(Walk_in>0):
-                    Walk_in_percentage=int(Walk_in)/int(enquiry_count)
-                    Walk_in_percentage*=100
-                else:
-                    Walk_in_percentage=0
+                caller_id = agg_hhc_events.objects.filter(pt_id=i.pt_id).first()
+                if caller_id.patient_service_status == 1:
+                    App += 1
+                elif caller_id.patient_service_status == 2:
+                    Social += 1
+                elif caller_id.patient_service_status == 3:
+                    Walk_in += 1
+                elif caller_id.patient_service_status == 4:
+                    Calls += 1
+
+            if enquiry_count > 0:
+                App_percentage = (Walk_in / enquiry_count) * 100 if App > 0 else 0
+                Social_percentage = (Social / enquiry_count) * 100 if Social > 0 else 0
+                Calls_percentage = (Calls / enquiry_count) * 100 if Calls > 0 else 0
+                Walk_in_percentage = (Walk_in / enquiry_count) * 100 if Walk_in > 0 else 0
             else:
-                App_percentage=0
-                Social_percantage=0
-                Calls_precentage=0
-                Walk_in_percentage=0
-            return Response({'Total_enquirys':enquiry_count,'App':App,'Socail':Social,'Calls':Calls,'Walk_in':Walk_in,"App_percentage":App_percentage,"Social_percantage":Social_percantage,"Calls_precentage":Calls_precentage,"Walk_in_percentage":Walk_in_percentage})
-        elif(id==3):
-            month=timezone.now()
-            month=month.replace(day=1)
-            enquiry=agg_hhc_patient_list_enquiry.objects.filter(added_date__gte=month)
-            enquiry_count=len(enquiry)
-            App=0
-            Social=0
-            Calls=0
-            Walk_in=0 
-            for i in enquiry:
-                caller_id=agg_hhc_events.objects.get(pt_id=i.pt_id)
-                if(caller_id.patient_service_status==1):
-                    App=App+1
-                elif(caller_id.patient_service_status==2):
-                    Social=Social+1
-                elif(caller_id.patient_service_status==3):
-                    Walk_in=Walk_in+1
-                elif(caller_id.patient_service_status==4):
-                    Calls=Calls+1
-            if(enquiry_count>0):
-                if(App>0):
-                    App_percentage=int(Walk_in)/int(enquiry_count)
-                    App_percentage*=100
-                else:
-                    App_percentage=0
-                if(Social>0):
-                    Social_percantage=int(Social)/int(enquiry_count)
-                    Social_percantage*=100
-                else:
-                    Social_percantage=0
-                if(Calls>0):
-                    Calls_precentage=int(Calls)/int(enquiry_count)
-                    Calls_precentage*=100
-                else:
-                    Calls_precentage=0
-                if(Walk_in>0):
-                    Walk_in_percentage=int(Walk_in)/int(enquiry_count)
-                    Walk_in_percentage*=100
-                else:
-                    Walk_in_percentage=0
-            else:
-                App_percentage=0
-                Social_percantage=0
-                Calls_precentage=0
-                Walk_in_percentage=0
-            return Response({'Total_enquirys':enquiry_count,'App':App,'Socail':Social,'Calls':Calls,'Walk_in':Walk_in,"App_percentage":App_percentage,"Social_percantage":Social_percantage,"Calls_precentage":Calls_precentage,"Walk_in_percentage":Walk_in_percentage})
+                App_percentage = 0
+                Social_percentage = 0
+                Calls_percentage = 0
+                Walk_in_percentage = 0
+
+            return Response({
+                'Total_enquiries': enquiry_count,
+                'App': App,
+                'Social': Social,
+                'Calls': Calls,
+                'Walk_in': Walk_in,
+                "App_percentage": App_percentage,
+                "Social_percentage": Social_percentage,
+                "Calls_percentage": Calls_percentage,
+                "Walk_in_percentage": Walk_in_percentage
+            })
+
+        except Http404 as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 class Dashboard_enquiry_status_count_api(APIView):
     def get(self,request,id):
         id=id

@@ -20,7 +20,7 @@ urlpatterns = [
     # path('agg_hhc_patinet_list_enquiry_api',views.agg_hhc_patinet_list_enquiry_api.as_view()),#done
     path('agg_hhc_patinet_list_enquiry_put/<int:pk>/',views.agg_hhc_patinet_list_enquiry_put.as_view()),
     path('agg_hhc_callers_api',views.agg_hhc_callers_api.as_view()),#done
-    path('agg_hhc_patient_from_callers_phone_no/<int:pk>/',views.agg_hhc_callers_phone_no.as_view()),#done
+    path('agg_hhc_patient_from_callers_phone_no/<int:pk>/',views.agg_hhc_callers_phone_no.as_view()),#find all patients from caller number 
     path('agg_hhc_add_service_details_api', views.agg_hhc_add_service_details_api.as_view()),
     path('agg_hhc_hospitals_api',views.agg_hhc_hospitals_api.as_view()),#done
     path('agg_hhc_callers_phone_no_status_mobile_api',views.agg_hhc_callers_phone_no_status_mobile_api.as_view()),
@@ -80,10 +80,7 @@ urlpatterns = [
     
 
     # path('cancel_spero_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Spero_APIView.as_view()),
-    # path('cancel_patent_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Patent_APIView.as_view()),
-    
-   
-    
+    # path('cancel_patent_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Patent_APIView.as_view()),    
 # ------------------------------------------Sandip-------------------------------------------------
     path('agg_hhc_add_service_details_api/', views.agg_hhc_add_service_details_api.as_view()),
     path('agg_hhc_add_service_form_api/', views.agg_hhc_add_service_form_api.as_view()),
@@ -92,6 +89,7 @@ urlpatterns = [
     path('agg_hhc_state_api',views.agg_hhc_state_api.as_view()),
     path('agg_hhc_city_api/<int:pk>',views.agg_hhc_city_api.as_view()),
     path('agg_hhc_patient_by_HHCID/<str:pk>',views.agg_hhc_patient_by_HHCID.as_view()),
+    path('agg_hhc_srv_req_prof_allocate/<int:pk>',views.agg_hhc_srv_req_prof_allocate.as_view()),
 
 #------------------------------------------Vishal-----------------------------------------------_
     path('coupon_code_post_api/<str:code>/<int:total_amt>',views.coupon_code_post_api.as_view()),
