@@ -253,10 +253,12 @@ class agg_hhc_srv_req_prof_allocate(APIView):
 
     def get(self,request,pk):
         event = self.get_event(pk)
+        print(pk,'jjjjjjjjjjjjjjj')
         if not event:
             return Response(status.HTTP_404_NOT_FOUND)
         callerserializer = prof_allocate_get_callerID_serializer(event.data.caller_id)
-        patientserializer = prof_allocate_get_patientID_serializer(event.data.pt_id)
+        patientserializer = prof_allocate_get_patientID_serializer(event.data.agg_sp_pt_id)
+        print(event.data.agg_sp_pt_id,'kkkkkkkkkkkkkkkk')
         plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
         plan_of_care_serializer = prof_allocate_get_POCID_serializer(plan_of_care,many=True)
         return Response({'caller_details':callerserializer.data,'patient_details':patientserializer.data,'POC':plan_of_care_serializer.data})
@@ -289,7 +291,7 @@ class agg_hhc_add_service_details_api(APIView):
         event = self.get_event(pk)
         if not event:
             return Response(status.HTTP_404_NOT_FOUND)
-        print(event.data.caller_id,'dddddddddddd')
+        # print(event.data.caller_id,'dddddddddddd')
         callerserializer = add_service_get_caller_serializer(event.data.caller_id)
         patientserializer = add_service_get_patient_serializer(event.data.pt_id)
         plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)

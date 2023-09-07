@@ -817,8 +817,8 @@ class prof_allocate_get_callerID_serializer(serializers.ModelSerializer):
 
 class prof_allocate_get_patientID_serializer(serializers.ModelSerializer):
     class Meta:
-        model = models.agg_hhc_patient_list_enquiry
-        fields = ['pt_id']
+        model = models.agg_hhc_patients
+        fields = ['agg_sp_pt_id']
 
 class prof_allocate_get_POCID_serializer(serializers.ModelSerializer):
     class Meta:
