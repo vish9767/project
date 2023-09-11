@@ -60,6 +60,7 @@ urlpatterns = [
     path('total_services/', views.total_services, name='total-services-list'),
     path('create_payment/', views.create_payment_url, name='create_payment_url'),
     path('cashfree-webhook/', views.cashfree_webhook, name='cashfree_webhook'),
+    path('payment-detail/',views.PaymentDetailAPIView.as_view(), name='payment-detail-api'),
 
     # -------------------- vinayak ------------------
                         

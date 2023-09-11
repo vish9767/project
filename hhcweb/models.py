@@ -2122,15 +2122,29 @@ class agg_hhc_payments(models.Model):#93
     #hosp_id=models.ForeignKey(agg_hhc_hospitals,on_delete=models.CASCADE)
     status=enum.EnumField(status_enum,null=True)
 
+# class agg_hhc_payment_details(models.Model):#94
+#     pay_dt_id=models.AutoField(primary_key=True)
+#     eve_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
+#     #event_requrement_id=models.ForeignKey(agg_hhc_event_requirements,on_delete=models.CASCADE,null=True)
+#     amount=models.IntegerField(null=True)
+#     pay_recived_by_prof_id= models.ForeignKey(agg_hhc_payments,on_delete=models.CASCADE,null=True)
+#     # hosp_id=models.ForeignKey(agg_hhc_hospitals,on_delete=models.CASCADE,null=True)
+#     date=models.DateTimeField(null=True)
+#     status=enum.EnumField(is_delet_enum,null=True)
+
 class agg_hhc_payment_details(models.Model):#94
-    pay_dt_id=models.AutoField(primary_key=True)
-    #eve_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
-    #event_requrement_id=models.ForeignKey(agg_hhc_event_requirements,on_delete=models.CASCADE,null=True)
-    amount=models.IntegerField(null=True)
-    pay_recived_by_prof_id= models.ForeignKey(agg_hhc_payments,on_delete=models.CASCADE,null=True)
-    hosp_id=models.ForeignKey(agg_hhc_hospitals,on_delete=models.CASCADE,null=True)
-    date=models.DateTimeField(null=True)
-    status=enum.EnumField(is_delet_enum,null=True)
+	pay_dt_id=models.AutoField(primary_key=True)
+	eve_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
+	#event_requrement_id=models.ForeignKey(agg_hhc_event_requirements,on_delete=models.CASCADE,null=True)
+	Total_cost=models.IntegerField(null=True) # change field name amount to this by Sandip
+	paid_by = models.CharField(max_length=50, null = True)    #mayank
+	amount_paid = models.IntegerField(null=True)    #mayank
+	amount_remaining  = models.IntegerField(null=True)   #mayank
+	pay_recived_by_prof_id= models.ForeignKey(agg_hhc_payments,on_delete=models.CASCADE,null=True)
+	# hosp_id=models.ForeignKey(agg_hhc_hospitals,on_delete=models.CASCADE,null=True)
+	date = models.DateTimeField(auto_now_add=True, null=True)
+	status=enum.EnumField(is_delet_enum,null=True)
+	mode  = enum.EnumField(Payment_mode_enum, null=True) #mayank
 
 """
 class sp_payment_response(models.Model):#95

@@ -288,7 +288,10 @@ class AggHHCServiceProfessionalSerializer(serializers.ModelSerializer):
     # def get_full_name(self, obj):
     #     return f"{obj.first_name} {obj.middle_name} {obj.last_name}".strip()
 
-
+class PaymentDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_payment_details
+        fields = ['pay_dt_id','eve_id', 'Total_cost', 'paid_by', 'amount_paid', 'amount_remaining', 'date','mode']
 #--------------------------------------agg_hhc_service_professionals------------------
 
 class agg_hhc_service_professionals_zone_serializer(serializers.ModelSerializer):

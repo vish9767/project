@@ -253,15 +253,13 @@ class agg_hhc_srv_req_prof_allocate(APIView):
 
     def get(self,request,pk):
         event = self.get_event(pk)
-        print(pk,'jjjjjjjjjjjjjjj')
         if not event:
             return Response(status.HTTP_404_NOT_FOUND)
         callerserializer = prof_allocate_get_callerID_serializer(event.data.caller_id)
         patientserializer = prof_allocate_get_patientID_serializer(event.data.agg_sp_pt_id)
-        print(event.data.agg_sp_pt_id,'kkkkkkkkkkkkkkkk')
         plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
         plan_of_care_serializer = prof_allocate_get_POCID_serializer(plan_of_care,many=True)
-        return Response({'caller_details':callerserializer.data,'patient_details':patientserializer.data,'POC':plan_of_care_serializer.data})
+        return Response({'Event_ID':pk,'caller_details':callerserializer.data,'patient_details':patientserializer.data,'POC':plan_of_care_serializer.data})
 
 
 class agg_hhc_add_service_details_api(APIView):
@@ -837,7 +835,7 @@ class patient_detail_info_api(APIView):
         serializer.save()
         return Response(serializer.data)
 
-# ----------------------------------------------professional availability details name and skills -----
+# ------------------------------------------professional availability details name and skills ------------------
 class  agg_hhc_service_professionals_api(APIView):
     def get(self,request,formate=None):
         professional= agg_hhc_service_professionals.objects.filter(status=1)
@@ -1012,6 +1010,19 @@ def total_services(request, service_professional_id):  # Adjust the parameter na
 class AggHHCServiceProfessionalListAPIView(generics.ListAPIView):
     queryset = agg_hhc_service_professionals.objects.all()
     serializer_class = AggHHCServiceProfessionalSerializer
+
+class PaymentDetailAPIView(APIView):
+    @csrf_exempt
+    def post(self, request, format=None):
+        serializer = PaymentDetailSerializer(data=request.data)
+
+        if serializer.is_valid():
+            # Save the data to the database
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
 
 #----------------------------------------------Payment----------------------------------------------------
 
