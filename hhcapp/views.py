@@ -27,31 +27,27 @@ def send_otp(mobile,msg):
 
 class OTPLOGIN(APIView):
     def post(self,request):
-        number=request.body
+        number = request.data.get('phone')
+        print("number",number)
         otp=str(random.randint(1000 , 9999))
-        ja=io.BytesIO(number)
-        da=JSONParser().parse(ja)#we are converting our data in dictionary
         msg = f"Use {otp} as your verification code on Spero Application. The OTP expires within 10 mins, {otp} Team Spero"
-        user_available=webmodel.agg_hhc_callers.objects.filter(phone=da['phone']).first()
+        user_available=webmodel.agg_hhc_callers.objects.filter(phone=number).first()
         if(user_available):#(old user data )
             compl=webmodel.agg_hhc_callers()
-            compl.phone=da['phone']
+            compl.phone=number
             compl.otp=otp
             compl.otp_expire_time=datetime.now()+timedelta(minutes=10)
             compl.caller_id=user_available.caller_id
             compl.save()
-            send_otp(da['phone'],msg)
-            da['otp']=otp
-            da['otp_expire_time']=datetime.now()+timedelta(minutes=10)
-            se=serializer.webserializers(data=da)
-            if se.is_valid():
-                return Response(se.data)
+            send_otp(number,msg)
+            se=serializer.webserializers(compl)
+            return Response(se.data)
         else:#(new user registration)
-            webmodel.agg_hhc_callers.objects.create(phone=da['phone'],otp=otp,otp_expire_time=datetime.now()+timedelta(minutes=2))
-            se=serializer.webserializers(data=da)
-            if(se.is_valid()):
-                send_otp(da['phone'],msg)
-                return Response(se.data)
+            new_user=webmodel.agg_hhc_callers.objects.create(phone=number,otp=otp,otp_expire_time=datetime.now()+timedelta(minutes=2))
+            new_user.save()
+            send_otp(number,msg)
+            se=serializer.webserializers(new_user)
+            return Response(se.data)
     def get(self,request):
         user=webmodel.agg_hhc_callers.objects.all()
         ser=serializer.webserializers(user,many=True)
