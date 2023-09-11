@@ -287,12 +287,12 @@ class follow_up_cancel_by(models.TextChoices):
     
 
 class follow_up(models.TextChoices):
-    Keep_In_Follow_up = 1
-    Cancel = 2
+    Follow_up_Reschedule = 4
+    Cancel = 1
     Create_Service = 3
-    follow_up_pending = 4
+    follow_up_pending = 2
 	
-    __deafult__ = 4
+    __deafult__ = 2
 # ------------------------------------------------------------------------
 
 class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
@@ -1941,7 +1941,7 @@ class agg_hhc_enquiry_follow_up(models.Model):#81
     previous_follow_up_remark = models.CharField(max_length=500)
     cancel_by = models.CharField(max_length=255,choices=follow_up_cancel_by.choices)              # Amit Rasale __ Add follow_up field
     canclation_reason = models.CharField(max_length=255)              				# Amit Rasale __ Add follow_up field   
-    follow_up = models.CharField(max_length=255,choices=follow_up.choices)
+    follow_up = models.CharField(max_length=255,choices=follow_up.choices, editable=True)
     # follow_up_date1=models.DateField(null=True)
     # follow_up_time1=models.CharField(max_length=255,null=True)
     follow_up_desc=models.CharField(max_length=500,null=True)

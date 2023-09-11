@@ -488,7 +488,7 @@ class agg_hhc_enquiry_Add_follow_up_create_service_serializer(serializers.ModelS
 class enquiries_service_serializer(serializers.ModelSerializer):   
     class Meta:
         model=models.agg_hhc_enquiry_follow_up
-        fields=('enq_follow_up_id', 'follow_up')
+        fields=('enq_follow_up_id', 'event_id', 'follow_up')
 class services(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_services
@@ -531,7 +531,7 @@ class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
     
     class Meta:
         model=models.agg_hhc_events        
-        fields = ('eve_id','event_code', 'pt_id','srv_id', 'enq_follow_up_id', 'patient_service_status')     #sandip
+        fields = ('eve_id','event_code', 'patient_service_status', 'pt_id','srv_id', 'enq_follow_up_id')     #sandip
         # fields = ('eve_id','event_code','srv_id','agg_sp_pt_id','caller_id' ,'pt_id')   #amit
 
 
