@@ -410,7 +410,7 @@ class agg_hhc_add_service_details_api(APIView):
             event.update(agg_sp_pt_id=patientID,caller_id=callerID,patient_service_status=3)
         elif request.data['purp_call_id']==2:
             # print('enquiry')
-            event.update(pt_id=patientID,caller_id=callerID)
+            event.update(pt_id=patientID,caller_id=callerID,patient_service_status=3)
         # data=request.data['sub_srv_id']
         start_date = datetime.strptime(str(request.data['start_date']), '%Y-%m-%d %H:%M:%S')
         end_date = datetime.strptime(str(request.data['end_date']), '%Y-%m-%d %H:%M:%S')
@@ -632,11 +632,11 @@ class agg_hhc_add_service_form_api(APIView):
                     patientID=patientID.pt_id
                 else:
                     return Response([patient.errors])
-        request.data['event_status']=1
+        # request.data['event_status']=1
         event= agg_hhc_event_serializer(data=request.data)
         if event.is_valid():
             eventID=event.save().eve_id
-            request.data.pop('event_status')
+            # request.data.pop('event_status')
         else:
             return Response([event.errors])
         event= agg_hhc_events.objects.filter(eve_id=eventID) 
@@ -894,7 +894,7 @@ class Service_requirment_api(APIView):
         
     def put(self, request, pk):
         service = self.get_service(pk)
-        serializer =  agg_hhc_add_service_serializer(service, data=request.data)
+        serializer =  agg_hhc_add_service_put_serializer(service, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
