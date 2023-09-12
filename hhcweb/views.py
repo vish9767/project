@@ -1457,13 +1457,42 @@ class agg_hhc_enquiry_Add_follow_up_create_service_APIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   
 
+# class agg_hhc_service_enquiry_list_combined_table_view(APIView):
+#     def get(self, request, eve_id=None, *args, **kwargs):
+#         queryset =  agg_hhc_events.objects.filter(purp_call_id=2)
+#         if eve_id is not None:
+#             queryset = queryset.filter(eve_id=eve_id)
+#         serializer =  agg_hhc_service_enquiry_list_serializer(queryset, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+from .models import agg_hhc_events
+from .serializers import agg_hhc_service_enquiry_list_serializer
+
 class agg_hhc_service_enquiry_list_combined_table_view(APIView):
     def get(self, request, eve_id=None, *args, **kwargs):
-        queryset =  agg_hhc_events.objects.filter(purp_call_id=2)
+        # Make sure eve_id is a valid integer or None
+        try:
+            eve_id = int(eve_id)
+        except (TypeError, ValueError):
+            eve_id = None
+
+        # Filter the queryset based on eve_id
+        queryset = agg_hhc_events.objects.filter(purp_call_id=2)
         if eve_id is not None:
             queryset = queryset.filter(eve_id=eve_id)
-        serializer =  agg_hhc_service_enquiry_list_serializer(queryset, many=True)
+
+        # Serialize the queryset
+        serializer = agg_hhc_service_enquiry_list_serializer(queryset, many=True)
+
+        # Check if there are any matching records
+        if not serializer.data:
+            return Response({"detail": "No matching records found"}, status=status.HTTP_404_NOT_FOUND)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+    
 
     
 #------------------------------------coupon--code----------------------------------------------------------

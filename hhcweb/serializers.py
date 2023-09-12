@@ -510,35 +510,32 @@ class patient_professional_zone_serializer(serializers.ModelSerializer):
         model = agg_hhc_professional_zone
         fields = ['prof_zone_id','city_id', 'Name']
 
-# class EventPatientSerializer(serializers.ModelSerializer):
-#     prof_zone_id = patient_professional_zone_serializer()
-#     class Meta:
-#         model = models.agg_hhc_patients
-#         fields = ['agg_sp_pt_id','name','phone_no','Suffered_from','prof_zone_id']
-
 class AggHhcPatientListEnquirySerializer(serializers.ModelSerializer):
     prof_zone_id = patient_professional_zone_serializer()
     class Meta: 
         model = models.agg_hhc_patient_list_enquiry
         fields = [ 'pt_id',  'name', 'phone_no', 'Suffered_from', 'prof_zone_id']    #sandip
-        # fields = ['pt_id','eve_id', 'status', 'enquiry_from']   # amit
-
-# class caller_serializers(serializers.ModelSerializer):
-#     class Meta:
-#         model = models.agg_hhc_callers
-#         fields = ['caller_id', 'status']
 
 class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
     srv_id = ServiceNameSerializer(many=True, source = 'event_id')
     pt_id = AggHhcPatientListEnquirySerializer()
-    # agg_sp_pt_id = EventPatientSerializer()
-    # caller_id = caller_serializers()
-    enq_follow_up_id = enquiries_service_serializer()
-    
+    # enq_follow_up_id = enquiries_service_serializer(many=True)
+    folloup_id = serializers.SerializerMethodField()
+
     class Meta:
-        model=models.agg_hhc_events        
-        fields = ('eve_id','event_code', 'patient_service_status', 'pt_id','srv_id', 'enq_follow_up_id')     #sandip
-        # fields = ('eve_id','event_code','srv_id','agg_sp_pt_id','caller_id' ,'pt_id')   #amit
+        model=models.agg_hhc_events
+        fields = ('eve_id','event_code', 'patient_service_status', 'pt_id','srv_id', 'folloup_id')     #amit
+
+    def get_folloup_id(self, obj):
+        queryset = models.agg_hhc_enquiry_follow_up.objects.filter(event_id = obj.eve_id)
+        print(queryset)
+        serializer = enquiries_service_serializer(queryset, many=True)
+        respose_data = {
+            'data': serializer.data
+        }
+        return serializer.data
+
+
 
 
 # --------------------------------------------------- Sandip Shimpi -------------------------------------------------
