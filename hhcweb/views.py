@@ -827,11 +827,14 @@ class patient_detail_info_api(APIView):
         
     def put(self, request, pk):
         patient = self.get_patient(pk)
+        request.data['last_modified_date'] = timezone.now()
         serializer =  update_patient_detail_serializer(patient, data=request.data)
         # serializer.is_valid(raise_exception=True)
-        serializer.validated_data['last_modified_date'] = timezone.now() #old_patient.hhc_code
-        serializer.save()
-        return Response(serializer.data)
+        # serializer.validated_data['last_modified_date'] = timezone.now() #old_patient.hhc_code
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else: return Response(serializer.errors)
 
 # ------------------------------------------professional availability details name and skills ------------------
 class  agg_hhc_service_professionals_api(APIView):
