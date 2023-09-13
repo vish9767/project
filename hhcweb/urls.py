@@ -63,7 +63,7 @@ urlpatterns = [
     path('payment-detail/',views.PaymentDetailAPIView.as_view(), name='payment-detail-api'),
 
     # -------------------- vinayak ------------------
-                        
+
     path('ongoing_service', views.OngoingServiceView.as_view()),
     path('service_reschedule/<int:eve_id>/',views.service_reschedule_view.as_view()),
     path('prof_reschedule/<int:eve_id>/', views.Professional_Reschedule_Apiview.as_view()),

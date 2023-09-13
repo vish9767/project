@@ -673,9 +673,7 @@ class agg_hhc_consultant_api(APIView):
         consultant= agg_hhc_doctors_consultants.objects.filter(status=1)
         consultantSerializer= agg_hhc_doctors_consultants_serializer(consultant,many=True)
         return Response(consultantSerializer.data)
-# ----------------------------------------------------------------------------------------------------
-
-        
+# ---------------------------------------------------------------------------------------------------- 
 
 class agg_hhc_service_professional_details(APIView):
     def get(self,request):
@@ -787,22 +785,22 @@ class Caller_details_api(APIView):
     def get_object(self,pk):
         return  agg_hhc_callers.objects.get(caller_id=pk)
             
-    def get_relation(self,pk):
-        return  agg_hhc_caller_relation.objects.get(caller_rel_id=pk)
+    # def get_relation(self,pk):
+    #     return  agg_hhc_caller_relation.objects.get(caller_rel_id=pk)
              
     def get(self,request,pk):  
         caller = self.get_object(pk)
         if caller:
             serializer =  Caller_details_serializer(caller)
-            relation=(self.get_relation(serializer.data['caller_rel_id']))
-            relations= relation_serializer(relation)
-            return Response({"caller":serializer.data,"relation":relations.data})
+            # relation=(self.get_relation(serializer.data['caller_rel_id']))
+            # relations= relation_serializer(relation)
+            return Response({"caller":serializer.data})
         else:
             return Response({"error": 'user not found'})
         
     def put(self,request,pk):
         caller = self.get_object(pk)
-        callerSerializer =  Caller_details_serializer(caller,data = request.data)
+        callerSerializer =  Update_Caller_details_serializer(caller,data = request.data)
         if callerSerializer.is_valid():
             callerSerializer.validated_data['last_modified_date']=timezone.now()
             callerSerializer.save()
@@ -829,8 +827,8 @@ class patient_detail_info_api(APIView):
         
     def put(self, request, pk):
         patient = self.get_patient(pk)
-        serializer =  patient_detail_serializer(patient, data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer =  update_patient_detail_serializer(patient, data=request.data)
+        # serializer.is_valid(raise_exception=True)
         serializer.validated_data['last_modified_date'] = timezone.now() #old_patient.hhc_code
         serializer.save()
         return Response(serializer.data)
@@ -849,13 +847,13 @@ class calculate_discount_api(APIView):
         amount=damount
         total_amt=total_amt
         if dtype == 1:
-            if amount >= 50:
-                return Response({"final_amount":0})
+            if amount >= 20:
+                return Response({"final_amount":0},status=status.HTTP_406_NOT_ACCEPTABLE)
             final= (total_amt-(total_amt*amount)/100)
             return Response({"final_amount":final})
         elif dtype == 2:
-            if amount >= (total_amt/2):
-                return Response({"final_amount":0})
+            if amount >= ((total_amt/20)*100):
+                return Response({"final_amount":0},status=status.HTTP_406_NOT_ACCEPTABLE)
             final = (total_amt-amount)
             return Response({"final_amount":final})
         else: return Response({"final_amount":total_amt})

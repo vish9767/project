@@ -112,15 +112,23 @@ class agg_hhc_add_discount_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_events
         fields = ['discount_type', 'discount','total_cost','final_cost']
 
-class Caller_details_serializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.agg_hhc_callers
-        fields = ['phone', 'caller_fullname', 'caller_rel_id' ]
-
 class relation_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_caller_relation
         fields = ['caller_rel_id', 'relation']
+
+class Caller_details_serializer(serializers.ModelSerializer):
+    caller_rel_id=relation_serializer()
+    class Meta:
+        model = models.agg_hhc_callers
+        fields = ['phone', 'caller_fullname', 'caller_rel_id' ]
+
+class Update_Caller_details_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_callers
+        fields = ['phone', 'caller_fullname', 'caller_rel_id' ]
+
+
 
 class preffered_proffesional(serializers.ModelSerializer):
     class Meta:
@@ -135,6 +143,11 @@ class patient_get_zone_serializer(serializers.ModelSerializer):
 class patient_detail_serializer(serializers.ModelSerializer):
     doct_cons_id=preffered_proffesional()
     prof_zone_id=patient_get_zone_serializer()
+    class Meta:
+        model = models.agg_hhc_patients
+        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id','doct_cons_id','Age','prof_zone_id']
+
+class update_patient_detail_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_patients
         fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id','doct_cons_id','Age','prof_zone_id']
@@ -828,7 +841,7 @@ class prof_allocate_get_callerID_serializer(serializers.ModelSerializer):
 class prof_allocate_get_patientID_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_patients
-        fields = ['agg_sp_pt_id']
+        fields = ['agg_sp_pt_id','city_id']
 
 class prof_allocate_get_POCID_serializer(serializers.ModelSerializer):
     class Meta:
