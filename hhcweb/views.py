@@ -895,7 +895,7 @@ class Service_requirment_api(APIView):
         
     def put(self, request, pk):
         service = self.get_service(pk)
-        serializer =  agg_hhc_add_service_put_serializer(service, data=request.data)
+        serializer =  put_agg_hhc_add_service_put_serializer(service, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
@@ -1024,6 +1024,22 @@ class PaymentDetailAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+class get_payment_details(APIView):
+    def get_event(self,pk):
+        try:
+            event = agg_hhc_payment_details.objects.filter(eve_id=pk)
+            return Response(event)
+        except agg_hhc_events.DoesNotExist:
+            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
+
+    def get(self,request,pk):
+        event = self.get_event(pk)
+        print(event.data)
+        payment_serializer=GetPaymentDetailSerializer(event.data,many=True)
+        print(payment_serializer)
+        # print(payment_serializer.data['amount_paid'])
+        return Response(payment_serializer.data[0])
+
 
 
 #----------------------------------------------Payment----------------------------------------------------

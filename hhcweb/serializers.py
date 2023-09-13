@@ -102,6 +102,11 @@ class agg_hhc_add_service_put_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_event_plan_of_care
         fields = ['eve_poc_id','srv_id', 'sub_srv_id', 'start_date', 'end_date', 'prof_prefered','remark']
 
+class put_agg_hhc_add_service_put_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_event_plan_of_care
+        fields = ['eve_poc_id','srv_id', 'sub_srv_id', 'prof_prefered','remark']
+
 class agg_hhc_create_service_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_event_plan_of_care
@@ -312,6 +317,11 @@ class PaymentDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_payment_details
         fields = ['pay_dt_id','eve_id', 'Total_cost', 'paid_by', 'amount_paid', 'amount_remaining', 'date','mode']
+
+class GetPaymentDetailSerializer(serializers.ModelSerializer):  
+    class Meta:
+        model = models.agg_hhc_payment_details
+        fields = ['eve_id', 'Total_cost', 'amount_paid', 'amount_remaining']
 #--------------------------------------agg_hhc_service_professionals------------------
 
 class agg_hhc_service_professionals_zone_serializer(serializers.ModelSerializer):
