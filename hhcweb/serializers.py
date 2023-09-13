@@ -145,17 +145,30 @@ class patient_get_zone_serializer(serializers.ModelSerializer):
         model = agg_hhc_professional_zone
         fields = ['prof_zone_id', 'Name']
 
+class agg_hhc_state(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_state
+        fields = ['state_id','state_name']
+
+class agg_hhc_city(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_city
+        fields = ['city_id','city_name']
+
 class patient_detail_serializer(serializers.ModelSerializer):
     doct_cons_id=preffered_proffesional()
     prof_zone_id=patient_get_zone_serializer()
+    state_id = agg_hhc_state()
+    city_id = agg_hhc_city() 
     class Meta:
         model = models.agg_hhc_patients
-        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id','doct_cons_id','Age','prof_zone_id']
+        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'phone_no', 'patient_email_id','doct_cons_id','Age', 'state_id' ,'city_id' ,'address' ,'pincode' ,'prof_zone_id']
 
 class update_patient_detail_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_patients
-        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id','doct_cons_id','Age','prof_zone_id']
+        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'phone_no', 'patient_email_id','doct_cons_id','Age', 'state_id' ,'city_id' ,'address' ,'pincode' ,'prof_zone_id']
+        # fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'phone_no', 'patient_email_id','doct_cons_id','Age','state_id' ,'city_id' ,'address' ,'pincode' ,'prof_zone_id']
 
 class hospital_serializer(serializers.ModelSerializer):
     class Meta:

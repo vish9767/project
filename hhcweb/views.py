@@ -1038,7 +1038,7 @@ class get_payment_details(APIView):
         payment_serializer=GetPaymentDetailSerializer(event.data,many=True)
         print(payment_serializer)
         # print(payment_serializer.data['amount_paid'])
-        return Response(payment_serializer.data[0])
+        return Response(payment_serializer.data[-1])
 
 
 
