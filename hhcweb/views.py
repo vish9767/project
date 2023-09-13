@@ -673,9 +673,7 @@ class agg_hhc_consultant_api(APIView):
         consultant= agg_hhc_doctors_consultants.objects.filter(status=1)
         consultantSerializer= agg_hhc_doctors_consultants_serializer(consultant,many=True)
         return Response(consultantSerializer.data)
-# ----------------------------------------------------------------------------------------------------
-
-        
+# ---------------------------------------------------------------------------------------------------- 
 
 class agg_hhc_service_professional_details(APIView):
     def get(self,request):
@@ -787,22 +785,22 @@ class Caller_details_api(APIView):
     def get_object(self,pk):
         return  agg_hhc_callers.objects.get(caller_id=pk)
             
-    def get_relation(self,pk):
-        return  agg_hhc_caller_relation.objects.get(caller_rel_id=pk)
+    # def get_relation(self,pk):
+    #     return  agg_hhc_caller_relation.objects.get(caller_rel_id=pk)
              
     def get(self,request,pk):  
         caller = self.get_object(pk)
         if caller:
             serializer =  Caller_details_serializer(caller)
-            relation=(self.get_relation(serializer.data['caller_rel_id']))
-            relations= relation_serializer(relation)
-            return Response({"caller":serializer.data,"relation":relations.data})
+            # relation=(self.get_relation(serializer.data['caller_rel_id']))
+            # relations= relation_serializer(relation)
+            return Response({"caller":serializer.data})
         else:
             return Response({"error": 'user not found'})
         
     def put(self,request,pk):
         caller = self.get_object(pk)
-        callerSerializer =  Caller_details_serializer(caller,data = request.data)
+        callerSerializer =  Update_Caller_details_serializer(caller,data = request.data)
         if callerSerializer.is_valid():
             callerSerializer.validated_data['last_modified_date']=timezone.now()
             callerSerializer.save()
@@ -829,11 +827,14 @@ class patient_detail_info_api(APIView):
         
     def put(self, request, pk):
         patient = self.get_patient(pk)
-        serializer =  patient_detail_serializer(patient, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.validated_data['last_modified_date'] = timezone.now() #old_patient.hhc_code
-        serializer.save()
-        return Response(serializer.data)
+        request.data['last_modified_date'] = timezone.now()
+        serializer =  update_patient_detail_serializer(patient, data=request.data)
+        # serializer.is_valid(raise_exception=True)
+        # serializer.validated_data['last_modified_date'] = timezone.now() #old_patient.hhc_code
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else: return Response(serializer.errors)
 
 # ------------------------------------------professional availability details name and skills ------------------
 class  agg_hhc_service_professionals_api(APIView):
@@ -849,13 +850,13 @@ class calculate_discount_api(APIView):
         amount=damount
         total_amt=total_amt
         if dtype == 1:
-            if amount >= 50:
-                return Response({"final_amount":0})
+            if amount >= 20:
+                return Response({"final_amount":0},status=status.HTTP_406_NOT_ACCEPTABLE)
             final= (total_amt-(total_amt*amount)/100)
             return Response({"final_amount":final})
         elif dtype == 2:
-            if amount >= (total_amt/2):
-                return Response({"final_amount":0})
+            if amount >= ((total_amt/20)*100):
+                return Response({"final_amount":0},status=status.HTTP_406_NOT_ACCEPTABLE)
             final = (total_amt-amount)
             return Response({"final_amount":final})
         else: return Response({"final_amount":total_amt})
@@ -894,7 +895,7 @@ class Service_requirment_api(APIView):
         
     def put(self, request, pk):
         service = self.get_service(pk)
-        serializer =  agg_hhc_add_service_put_serializer(service, data=request.data)
+        serializer =  put_agg_hhc_add_service_put_serializer(service, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
@@ -1023,6 +1024,22 @@ class PaymentDetailAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+class get_payment_details(APIView):
+    def get_event(self,pk):
+        try:
+            event = agg_hhc_payment_details.objects.filter(eve_id=pk)
+            return Response(event)
+        except agg_hhc_events.DoesNotExist:
+            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
+
+    def get(self,request,pk):
+        event = self.get_event(pk)
+        print(event.data)
+        payment_serializer=GetPaymentDetailSerializer(event.data,many=True)
+        print(payment_serializer)
+        # print(payment_serializer.data['amount_paid'])
+        return Response(payment_serializer.data[-1])
+
 
 
 #----------------------------------------------Payment----------------------------------------------------
@@ -1458,13 +1475,42 @@ class agg_hhc_enquiry_Add_follow_up_create_service_APIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   
 
+# class agg_hhc_service_enquiry_list_combined_table_view(APIView):
+#     def get(self, request, eve_id=None, *args, **kwargs):
+#         queryset =  agg_hhc_events.objects.filter(purp_call_id=2)
+#         if eve_id is not None:
+#             queryset = queryset.filter(eve_id=eve_id)
+#         serializer =  agg_hhc_service_enquiry_list_serializer(queryset, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+from .models import agg_hhc_events
+from .serializers import agg_hhc_service_enquiry_list_serializer
+
 class agg_hhc_service_enquiry_list_combined_table_view(APIView):
     def get(self, request, eve_id=None, *args, **kwargs):
-        queryset =  agg_hhc_events.objects.filter(purp_call_id=2)
+        # Make sure eve_id is a valid integer or None
+        try:
+            eve_id = int(eve_id)
+        except (TypeError, ValueError):
+            eve_id = None
+
+        # Filter the queryset based on eve_id
+        queryset = agg_hhc_events.objects.filter(purp_call_id=2)
         if eve_id is not None:
             queryset = queryset.filter(eve_id=eve_id)
-        serializer =  agg_hhc_service_enquiry_list_serializer(queryset, many=True)
+
+        # Serialize the queryset
+        serializer = agg_hhc_service_enquiry_list_serializer(queryset, many=True)
+
+        # Check if there are any matching records
+        if not serializer.data:
+            return Response({"detail": "No matching records found"}, status=status.HTTP_404_NOT_FOUND)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+    
 
     
 #------------------------------------coupon--code----------------------------------------------------------

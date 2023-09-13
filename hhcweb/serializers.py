@@ -102,6 +102,11 @@ class agg_hhc_add_service_put_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_event_plan_of_care
         fields = ['eve_poc_id','srv_id', 'sub_srv_id', 'start_date', 'end_date', 'prof_prefered','remark']
 
+class put_agg_hhc_add_service_put_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_event_plan_of_care
+        fields = ['eve_poc_id','srv_id', 'sub_srv_id', 'prof_prefered','remark']
+
 class agg_hhc_create_service_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_event_plan_of_care
@@ -112,15 +117,23 @@ class agg_hhc_add_discount_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_events
         fields = ['discount_type', 'discount','total_cost','final_cost']
 
-class Caller_details_serializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.agg_hhc_callers
-        fields = ['phone', 'caller_fullname', 'caller_rel_id' ]
-
 class relation_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_caller_relation
         fields = ['caller_rel_id', 'relation']
+
+class Caller_details_serializer(serializers.ModelSerializer):
+    caller_rel_id=relation_serializer()
+    class Meta:
+        model = models.agg_hhc_callers
+        fields = ['phone', 'caller_fullname', 'caller_rel_id' ]
+
+class Update_Caller_details_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_callers
+        fields = ['phone', 'caller_fullname', 'caller_rel_id' ]
+
+
 
 class preffered_proffesional(serializers.ModelSerializer):
     class Meta:
@@ -132,12 +145,30 @@ class patient_get_zone_serializer(serializers.ModelSerializer):
         model = agg_hhc_professional_zone
         fields = ['prof_zone_id', 'Name']
 
+class agg_hhc_state(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_state
+        fields = ['state_id','state_name']
+
+class agg_hhc_city(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_city
+        fields = ['city_id','city_name']
+
 class patient_detail_serializer(serializers.ModelSerializer):
     doct_cons_id=preffered_proffesional()
     prof_zone_id=patient_get_zone_serializer()
+    state_id = agg_hhc_state()
+    city_id = agg_hhc_city() 
     class Meta:
         model = models.agg_hhc_patients
-        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'dob', 'phone_no', 'patient_email_id','doct_cons_id','Age','prof_zone_id']
+        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'phone_no', 'patient_email_id','doct_cons_id','Age', 'state_id' ,'city_id' ,'address' ,'pincode' ,'prof_zone_id']
+
+class update_patient_detail_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_patients
+        fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'phone_no', 'patient_email_id','doct_cons_id','Age', 'state_id' ,'city_id' ,'address' ,'pincode' ,'prof_zone_id']
+        # fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'phone_no', 'patient_email_id','doct_cons_id','Age','state_id' ,'city_id' ,'address' ,'pincode' ,'prof_zone_id']
 
 class hospital_serializer(serializers.ModelSerializer):
     class Meta:
@@ -299,6 +330,11 @@ class PaymentDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_payment_details
         fields = ['pay_dt_id','eve_id', 'Total_cost', 'paid_by', 'amount_paid', 'amount_remaining', 'date','mode']
+
+class GetPaymentDetailSerializer(serializers.ModelSerializer):  
+    class Meta:
+        model = models.agg_hhc_payment_details
+        fields = ['eve_id', 'Total_cost', 'amount_paid', 'amount_remaining']
 #--------------------------------------agg_hhc_service_professionals------------------
 
 class agg_hhc_service_professionals_zone_serializer(serializers.ModelSerializer):
@@ -511,35 +547,32 @@ class patient_professional_zone_serializer(serializers.ModelSerializer):
         model = agg_hhc_professional_zone
         fields = ['prof_zone_id','city_id', 'Name']
 
-# class EventPatientSerializer(serializers.ModelSerializer):
-#     prof_zone_id = patient_professional_zone_serializer()
-#     class Meta:
-#         model = models.agg_hhc_patients
-#         fields = ['agg_sp_pt_id','name','phone_no','Suffered_from','prof_zone_id']
-
 class AggHhcPatientListEnquirySerializer(serializers.ModelSerializer):
     prof_zone_id = patient_professional_zone_serializer()
     class Meta: 
         model = models.agg_hhc_patient_list_enquiry
         fields = [ 'pt_id',  'name', 'phone_no', 'Suffered_from', 'prof_zone_id']    #sandip
-        # fields = ['pt_id','eve_id', 'status', 'enquiry_from']   # amit
-
-# class caller_serializers(serializers.ModelSerializer):
-#     class Meta:
-#         model = models.agg_hhc_callers
-#         fields = ['caller_id', 'status']
 
 class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
     srv_id = ServiceNameSerializer(many=True, source = 'event_id')
     pt_id = AggHhcPatientListEnquirySerializer()
-    # agg_sp_pt_id = EventPatientSerializer()
-    # caller_id = caller_serializers()
-    enq_follow_up_id = enquiries_service_serializer()
-    
+    # enq_follow_up_id = enquiries_service_serializer(many=True)
+    folloup_id = serializers.SerializerMethodField()
+
     class Meta:
-        model=models.agg_hhc_events        
-        fields = ('eve_id','event_code', 'patient_service_status', 'pt_id','srv_id', 'enq_follow_up_id')     #sandip
-        # fields = ('eve_id','event_code','srv_id','agg_sp_pt_id','caller_id' ,'pt_id')   #amit
+        model=models.agg_hhc_events
+        fields = ('eve_id','event_code', 'patient_service_status', 'pt_id','srv_id', 'folloup_id')     #amit
+
+    def get_folloup_id(self, obj):
+        queryset = models.agg_hhc_enquiry_follow_up.objects.filter(event_id = obj.eve_id)
+        print(queryset)
+        serializer = enquiries_service_serializer(queryset, many=True)
+        respose_data = {
+            'data': serializer.data
+        }
+        return serializer.data
+
+
 
 
 # --------------------------------------------------- Sandip Shimpi -------------------------------------------------
@@ -828,7 +861,7 @@ class prof_allocate_get_callerID_serializer(serializers.ModelSerializer):
 class prof_allocate_get_patientID_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_patients
-        fields = ['agg_sp_pt_id']
+        fields = ['agg_sp_pt_id','city_id']
 
 class prof_allocate_get_POCID_serializer(serializers.ModelSerializer):
     class Meta:
