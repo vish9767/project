@@ -343,7 +343,7 @@ class agg_hhc_patient_list_enquiry(models.Model):#1  demos
 	# consultat_fname = models.CharField(max_length=50,null=True)
 	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
 	# hhc_code = models.CharField(max_length=50,null=True, blank=True)
-	#eve_id = models.ForeignKey('agg_hhc_events',to_field='eve_id', on_delete=models.CASCADE,null=True)
+	# eve_id = models.ForeignKey('agg_hhc_events',to_field='eve_id', on_delete=models.CASCADE,null=True)
 	name = models.CharField(max_length=50,null=True)
 	phone_no = models.CharField(max_length=20,null=True)
 	call_type=models.CharField(max_length=50,null=True)
@@ -362,7 +362,7 @@ class agg_hhc_patient_list_enquiry(models.Model):#1  demos
 	patient_email_id = models.EmailField(null=True)
 	srv_id=models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)#added by vishal
 	Patient_status_at_present=enum.EnumField(patient_present_at_enum,null=True)#added by vishal
-	#zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,to_field='Name',null=True)
+	enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)    # AMIT
 	# sub_service = models.CharField(max_length=11,null=True)
 	Start_Date_and_Time=models.DateTimeField(null=True)
 	# End_Date_and_Time=models.DateTimeField(null=True)
@@ -1941,7 +1941,7 @@ class agg_hhc_enquiry_follow_up(models.Model):#81
     previous_follow_up_remark = models.CharField(max_length=500)
     cancel_by = models.CharField(max_length=255,choices=follow_up_cancel_by.choices)              # Amit Rasale __ Add follow_up field
     canclation_reason = models.CharField(max_length=255)              				# Amit Rasale __ Add follow_up field   
-    follow_up = models.CharField(max_length=255,choices=follow_up.choices, editable=True)
+    follow_up = models.CharField(max_length=255,choices=follow_up.choices)
     # follow_up_date1=models.DateField(null=True)
     # follow_up_time1=models.CharField(max_length=255,null=True)
     follow_up_desc=models.CharField(max_length=500,null=True)
