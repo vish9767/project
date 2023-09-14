@@ -104,8 +104,9 @@ class estimate_cost_enum(enum.Enum):
 	Yes =3
 
 class Payment_type_enum(enum.Enum):
-	Offline = 1
-	Online = 2
+	
+	Online = 1
+	Offline = 2
 
 class types_enum(enum.Enum):
 	Family_doctors = 1
