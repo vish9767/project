@@ -1790,13 +1790,12 @@ class Dashboard_enquiry_count_api(APIView):
         try:
             if id == 1:
                 time = timezone.now()
-                enquiry = agg_hhc_patient_list_enquiry.objects.filter(added_date=timezone.now())
+                enquiry = agg_hhc_patient_list_enquiry.objects.filter(added_date=timezone.now().date())
             elif id == 2:
-                week_days = timezone.now() - timedelta(days=7)
+                week_days = timezone.now().date() - timedelta(days=7)
                 enquiry = agg_hhc_patient_list_enquiry.objects.filter(added_date__gte=week_days)
-                print("this is enquiry",enquiry)
             elif id == 3:
-                month = timezone.now()
+                month = timezone.now().date()
                 month = month.replace(day=1)
                 enquiry = agg_hhc_patient_list_enquiry.objects.filter(added_date__gte=month)
             else:
@@ -1850,13 +1849,13 @@ class Dashboard_enquiry_status_count_api(APIView):
     def get(self,request,id):
         id=id
         if(id==1):
-            enquiry_follow_up=agg_hhc_enquiry_follow_up.objects.filter(added_date=timezone.now())
+            enquiry_follow_up=agg_hhc_enquiry_follow_up.objects.filter(added_date__date=timezone.now().date())
             in_follow_up=0
             converted_to_service=0
             for i in enquiry_follow_up:
-                if(i.follow_up==1):
+                if(i.follow_up=='1'):
                     in_follow_up+=1
-                elif(i.follow_up==3):
+                elif(i.follow_up=='3'):
                     converted_to_service+=1
             total=in_follow_up+converted_to_service
             if(total>0):
@@ -1876,14 +1875,14 @@ class Dashboard_enquiry_status_count_api(APIView):
             return Response({'in_follow_up':in_follow_up,'converted_to_service':converted_to_service,'in_follow_up_percentage':in_follow_up_percentage,'converted_to_service_percentage':converted_to_service_percentage})    
             
         elif(id==2):
-            week=timezone.now()-timedelta(days=7)
-            enquiry_follow_up=agg_hhc_enquiry_follow_up.objects.filter(added_date__gte=week)
+            week=timezone.now().date()-timedelta(days=7)
+            enquiry_follow_up=agg_hhc_enquiry_follow_up.objects.filter(added_date__date__gte=week)
             in_follow_up=0
             converted_to_service=0
             for i in enquiry_follow_up:
-                if(i.follow_up==1):
+                if(i.follow_up=='1'):
                     in_follow_up+=1
-                elif(i.follow_up==3):
+                elif(i.follow_up=='3'):
                     converted_to_service+=1
             total=in_follow_up+converted_to_service
             if(total>0):
@@ -1903,16 +1902,15 @@ class Dashboard_enquiry_status_count_api(APIView):
             return Response({'in_follow_up':in_follow_up,'converted_to_service':converted_to_service,'in_follow_up_percentage':in_follow_up_percentage,'converted_to_service_percentage':converted_to_service_percentage})    
             
         elif(id==3):
-            month=timezone.now()
+            month=timezone.now().date()
             month=month.replace(day=1)
-            print(month)
-            enquiry_follow_up=agg_hhc_enquiry_follow_up.objects.filter(added_date__gte=month)
+            enquiry_follow_up=agg_hhc_enquiry_follow_up.objects.filter(added_date__date__gte=month)
             in_follow_up=0
             converted_to_service=0
             for i in enquiry_follow_up:
-                if(i.follow_up==1):
+                if(i.follow_up=='1'):
                     in_follow_up+=1
-                elif(i.follow_up==3):
+                elif(i.follow_up=='3'):
                     converted_to_service+=1
             total=in_follow_up+converted_to_service
             if(total>0):
