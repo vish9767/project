@@ -335,6 +335,11 @@ class GetPaymentDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_payment_details
         fields = ['eve_id', 'Total_cost', 'amount_paid', 'amount_remaining']
+
+class GetEventPaymentDetailSerializer(serializers.ModelSerializer):  
+    class Meta:
+        model = models.agg_hhc_events
+        fields = ['eve_id', 'final_amount']
 #--------------------------------------agg_hhc_service_professionals------------------
 
 class agg_hhc_service_professionals_zone_serializer(serializers.ModelSerializer):

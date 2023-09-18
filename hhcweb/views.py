@@ -818,10 +818,10 @@ class patient_detail_info_api(APIView):
         patient = self.get_patient(pk)
         if patient:
             serializer =  patient_detail_serializer(patient)
-            hospital = self.get_hospital(serializer.data['preferred_hosp_id'])
-            if hospital:
-                hospitals =  hospital_serializer(hospital)
-                return Response({"patient": serializer.data, "hospital": hospitals.data})
+            # hospital = self.get_hospital(serializer.data['preferred_hosp_id'])
+            # if hospital:
+            #     hospitals =  hospital_serializer(hospital)
+            return Response({"patient": serializer.data})
 
         return HttpResponse(status=status.HTTP_404_NOT_FOUND)
         
@@ -1025,21 +1025,47 @@ class PaymentDetailAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class get_payment_details(APIView):
-    def get_event(self,pk):
+    def get_payment(self,pk):
         try:
             event = agg_hhc_payment_details.objects.filter(eve_id=pk)
             return Response(event)
+        except agg_hhc_payment_details.DoesNotExist:
+            # return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
+            return None
+        
+    def get_event(self,pk):
+        try:
+            event = agg_hhc_events.objects.filter(eve_id=pk)
+            return Response(event)
         except agg_hhc_events.DoesNotExist:
-            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
-
+            # return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
+            return None 
+        
     def get(self,request,pk):
-        event = self.get_event(pk)
-        print(event.data)
-        payment_serializer=GetPaymentDetailSerializer(event.data,many=True)
-        print(payment_serializer)
-        # print(payment_serializer.data['amount_paid'])
-        return Response(payment_serializer.data[-1])
+        event = self.get_payment(pk)
+        if event.data:
+            # print(event.data)
+            payment_serializer=GetPaymentDetailSerializer(event.data,many=True)
+            # print(payment_serializer)
+            data={
+                "eve_id" : payment_serializer.data[-1]['eve_id'], 
+                "Total_Amount" : payment_serializer.data[-1]['Total_cost'], 
+                "Paid_Amount" : payment_serializer.data[-1]['amount_paid'], 
+                "Pending_Amount" : payment_serializer.data[-1]['amount_remaining'] 
+            }
+            # print(payment_serializer.data['amount_paid'])
+            return Response(data)
 
+        else :
+            event = self.get_event(pk)
+            payment_serializer = GetEventPaymentDetailSerializer(event.data, many=True)
+            data={
+                "eve_id" : payment_serializer.data[-1]['eve_id'],
+                "Total_Amount":payment_serializer.data[-1]['final_amount'],
+                "Paid_Amount" : 0, 
+                "Pending_Amount" : payment_serializer.data[-1]['final_amount'] 
+            }
+            return Response(data)
 
 
 #----------------------------------------------Payment----------------------------------------------------
