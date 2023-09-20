@@ -809,7 +809,11 @@ class Caller_details_api(APIView):
     
 class patient_detail_info_api(APIView):
     def get_patient(self,pk):
-        return  agg_hhc_patients.objects.get(agg_sp_pt_id=pk)
+        try:
+            patient = agg_hhc_patients.objects.get(agg_sp_pt_id=pk)
+            return patient
+        except  agg_hhc_patients.DoesNotExist:
+            return None
     
     def get_hospital(self, pk):
         return  agg_hhc_hospitals.objects.get(hosp_id=pk)
@@ -823,7 +827,7 @@ class patient_detail_info_api(APIView):
             #     hospitals =  hospital_serializer(hospital)
             return Response({"patient": serializer.data})
 
-        return HttpResponse(status=status.HTTP_404_NOT_FOUND)
+        return HttpResponse({"service not found"},status=status.HTTP_404_NOT_FOUND)
         
     def put(self, request, pk):
         patient = self.get_patient(pk)
@@ -1088,12 +1092,17 @@ def create_payment_url(request):
     amount = request.data['orderAmount']
     name = request.data['customerName']
     email = request.data['customerEmail']
+    remaining = request.data['Remainingamount']
+    total = request.data['totalamo']
+
     
     payload = {
         "appId": "15581934423f8e9e947db8c600918551",
         "secretKey": "052b44487a4f0f1646614204b83679c68c3d41fb",
         "orderId": order_id,
         "orderAmount": amount,
+        "Remainingamount":remaining,
+        "totalamo":total,
         "orderCurrency": "INR",
         "orderNote": "HII",
         "customerName": name,
@@ -1142,6 +1151,8 @@ def create_payment_url(request):
     payment_record = PaymentRecord.objects.create(
         order_id=order_id,
         order_amount=payload['orderAmount'],
+        Remaining_amount = payload['Remainingamount'],
+        total_amo = payload['totalamo'],
         order_currency=payload['orderCurrency'],
         order_note=payload['orderNote'],
         customer_name=payload['customerName'],
