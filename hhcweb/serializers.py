@@ -313,6 +313,10 @@ class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
 
 
 #--------------------------------------mayank--------------------------------------------
+class JobTypeCountSerializer(serializers.ModelSerializer):
+    class Meta :
+        model  = agg_hhc_service_professionals
+        fields = ['Job_type']
 # class Services_data(serializers.ModelSerializer)
 class AggHHCServiceProfessionalSerializer(serializers.ModelSerializer):
 #     full_name = serializers.SerializerMethodField()

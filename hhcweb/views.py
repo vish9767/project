@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from hhcweb.serializers import *
 from hhcweb.models import *
 import json
+from collections import Counter
 from django.db.models import Q
 from rest_framework import status,permissions
 from django.utils import timezone
@@ -1071,6 +1072,38 @@ class get_payment_details(APIView):
             }
             return Response(data)
 
+
+class JjobTypeCountAPIView(APIView):
+    def get(self, request, period, *args, **kwargs):
+        try:
+            # Define a dictionary to map period values to date ranges
+            period_to_date_range = {
+                1: (timezone.now(), timezone.now() - timedelta(days=1)),
+                2: (timezone.now(), timezone.now() - timedelta(weeks=1)),
+                3: (timezone.now(), timezone.now() - timedelta(days=30)),
+            }
+
+            # Get the date range based on the provided period
+            start_date, end_date = period_to_date_range.get(period, (timezone.now(), timezone.now()))
+
+            # Query the database to get job types for the specified period
+            job_types = agg_hhc_service_professionals.objects.filter(
+                added_date__gte=start_date, added_date__lte=end_date
+            ).values_list('Job_type', flat=True)
+
+            # Count the occurrences of each job type using Counter
+            job_type_counts = dict(Counter(job_types))
+
+            # Define a list of job types to include in the response
+            job_type_list = ['ONCALL', 'FULLTIME', 'PARTTIME']
+
+            # Create a response dictionary with counts for each job type
+            response_data = {job_type: job_type_counts.get(job_type, 0) for job_type in job_type_list}
+
+            return Response(response_data)
+        except Exception as e:
+            # Handle any exceptions or errors
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 #----------------------------------------------Payment----------------------------------------------------
 
