@@ -1015,7 +1015,7 @@ class AggHHCServiceProfessionalListAPIView(generics.ListAPIView):
 class PaymentDetailAPIView(APIView):
     @csrf_exempt
     def post(self, request, format=None):
-        request.data['amount_remaining']=request.data['Total_cost']-request.data['amount_paid']
+        # request.data['amount_remaining']=request.data['Total_cost']-request.data['amount_paid']
         serializer = PaymentDetailSerializer(data=request.data)
 
         if serializer.is_valid():
