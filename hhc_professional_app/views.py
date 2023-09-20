@@ -30,4 +30,4 @@ class professional_OTPLOGIN(APIView):
                 professional_serializer.validated_data['otp_expire_time']=datetime.now()+timedelta(minutes=10)#validated_data['otp_expire_time']=datetime.now()+timedelta(minutes=10)
                 professional_serializer.validated_data['OTP_count']=1
                 professional_serializer.save()
-                return Response({"phone_no":phone,"OTP":otp})
+                return Response({"phone_no":number,"OTP":otp})

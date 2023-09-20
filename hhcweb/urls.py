@@ -99,6 +99,7 @@ urlpatterns = [
     path('coupon_code_api',views.coupon_code_api.as_view()),
     path('allocate_api',views.allocate_api.as_view()),
     path('Dashboard_enquiry_count_api/<int:id>',views.Dashboard_enquiry_count_api.as_view()),
-    path('Dashboard_enquiry_status_count_api/<int:id>',views.Dashboard_enquiry_status_count_api.as_view())
+    path('Dashboard_enquiry_status_count_api/<int:id>',views.Dashboard_enquiry_status_count_api.as_view()),
+    path('srv_cancel_count_dash/<int:id>', views.srv_canc_count.as_view()),#vinayak api
 ]
 

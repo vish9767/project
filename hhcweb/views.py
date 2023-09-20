@@ -1903,3 +1903,90 @@ class Dashboard_enquiry_status_count_api(APIView):
                 converted_to_service_percentage=0
             return Response({'in_follow_up':in_follow_up,'converted_to_service':converted_to_service,'in_follow_up_percentage':in_follow_up_percentage,'converted_to_service_percentage':converted_to_service_percentage})    
             
+#vinayak api for dashboard
+
+class srv_canc_count(APIView):
+    #serializer_class = srv_cancel_serializer
+    def get(self, request, id):
+        if id == 1:
+            today_datetime = timezone.now()
+            today_date = today_datetime.date()
+            print("Today's Date:", today_date)
+            
+            # Get the total count of records for today's date
+            # queryset = agg_hhc_cancellation_history.objects.filter(cancelled_date__date=today_date)
+
+            current_date = date.today()
+
+            # Create a queryset to filter records with cancelled_date equal to today
+            queryset = agg_hhc_cancellation_history.objects.filter(cancelled_date__date=current_date)
+
+            
+            # Count the number of records in the queryset
+            queryset_count = queryset.count()
+
+            # cancel_by_spero_count = queryset.filter(cancellation_by=cancel_from.Cancel_By_Spero).count()
+            cancel_by_spero_count = queryset.filter(cancellation_by=1).count()
+            cancel_by_customer_count = queryset.filter(cancellation_by=2).count()
+
+            # print(queryset)
+            cancell_by = {
+                 'cancel_by_spero_count': cancel_by_spero_count if 'cancel_by_spero_count' in locals() else 0,
+                'cancel_by_customer_count': cancel_by_customer_count if 'cancel_by_customer_count' in locals() else 0
+            }
+            # response_data = {
+            #     'today_cancel_data': queryset_count
+            # }
+            # return Response(response_data)
+
+            response_data = {
+                'Total_service_cancelled_count' : queryset_count,
+                'today_cancel_data': cancell_by
+            }
+
+        if id == 2:
+            current_date = date.today()
+            seven_days_ago = current_date - timedelta(days=7)
+
+            queryset = agg_hhc_cancellation_history.objects.filter( 
+                Q(cancelled_date__date__range=(seven_days_ago, current_date))
+            )
+
+            queryset_count = queryset.count()
+
+            cancel_by_spero_count = queryset.filter(cancellation_by=1).count()
+            cancel_by_customer_count = queryset.filter(cancellation_by=2).count()
+
+            cancell_by = {
+                 'cancel_by_spero_count': cancel_by_spero_count if 'cancel_by_spero_count' in locals() else 0,
+                'cancel_by_customer_count': cancel_by_customer_count if 'cancel_by_customer_count' in locals() else 0
+            }
+
+            response_data = {
+                'Total_service_cancelled_count' : queryset_count,
+                'today_cancel_data': cancell_by
+            }
+        
+        if id == 3:
+            current_date = date.today()
+            start_date = date(current_date.year, current_date.month, 1)
+
+            queryset = agg_hhc_cancellation_history.objects.filter( 
+                cancelled_date__date__range=(start_date, current_date)
+            )
+
+            queryset_count = queryset.count()
+
+            cancel_by_spero_count = queryset.filter(cancellation_by=1).count()
+            cancel_by_customer_count = queryset.filter(cancellation_by=2).count()
+
+            cancell_by = {
+                 'cancel_by_spero_count': cancel_by_spero_count if 'cancel_by_spero_count' in locals() else 0,
+                'cancel_by_customer_count': cancel_by_customer_count if 'cancel_by_customer_count' in locals() else 0
+            }
+
+            response_data = {
+                'Total_service_cancelled_count' : queryset_count,
+                'today_cancel_data': cancell_by
+            }
+        return Response(response_data)
