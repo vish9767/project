@@ -113,8 +113,9 @@ class estimate_cost_enum(enum.Enum):
 	Yes =3
 
 class Payment_type_enum(enum.Enum):
-	Offline = 1
-	Online = 2
+	
+	Online = 1
+	Offline = 2
 
 class types_enum(enum.Enum):
 	Family_doctors = 1
@@ -1601,6 +1602,7 @@ class agg_hhc_professional_device_info(models.Model):#51
 
 class agg_hhc_professional_documents(models.Model):#52
     prof_doc_id=models.AutoField(primary_key=True)
+
     #professional_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
     #doc_li_id=models.ForeignKey(agg_hhc_documetns_list,on_delete=models.CASCADE,null=True)
     url_path=models.CharField(max_length=1000,null=True)
@@ -1882,7 +1884,7 @@ class agg_hhc_documetns_list(models.Model):#77
     Documents_name=models.CharField(max_length=50,null=True)
     Added_date=models.DateTimeField(default=timezone.now,null=True)
     isManadatory=enum.EnumField(truefalse_enum,null=True)
-    gracePeriod=models.IntegerField(null=True)
+    gracePeriod=models.IntegerField(null=True)   # 
 
 class agg_hhc_doc_con(models.Model):#78
     doc_cons_presc_id=models.AutoField(primary_key=True)
@@ -2670,16 +2672,18 @@ class agg_hhc_enquiry_follow_up_cancellation_reason(models.Model):
 	cancel_by_id= enum.EnumField(cancel_from,null=True)
 #----------------------------------- Mayank Bhatt -------------------------------------------------------------
 class PaymentRecord(models.Model):
-    order_id = models.CharField(max_length=100,null=True)
-    order_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True)
-    order_currency = models.CharField(max_length=10,null=True)
-    order_note = models.CharField(max_length=255, null=True, blank=True)
-    customer_name = models.CharField(max_length=100,null=True)
-    customer_email = models.EmailField(max_length=100,null=True)
-    customer_phone = models.CharField(max_length=20,null=True)
-    payment_status = models.CharField(max_length=20, blank=True, null=True)
-    created_at = models.DateTimeField(default=timezone.now)
+	order_id = models.CharField(max_length=100,null=True)
+	order_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+	Remaining_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+	total_amo = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+	order_currency = models.CharField(max_length=10,null=True)
+	order_note = models.CharField(max_length=255, null=True, blank=True)
+	customer_name = models.CharField(max_length=100,null=True)
+	customer_email = models.EmailField(max_length=100,null=True)
+	customer_phone = models.CharField(max_length=20,null=True)
+	payment_status = models.CharField(max_length=20, blank=True, null=True)
+	created_at = models.DateTimeField(default=timezone.now)
     
-    def __str__(self):
-        return f"Payment: {self.order_amount} INR for Order ID: {self.order_id}"
+	def __str__(self):
+		return f"Payment: {self.order_amount} INR for Order ID: {self.order_id}"
 #----------------------------------------------------------------------------------------------------------------

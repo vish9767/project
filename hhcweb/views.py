@@ -809,7 +809,11 @@ class Caller_details_api(APIView):
     
 class patient_detail_info_api(APIView):
     def get_patient(self,pk):
-        return  agg_hhc_patients.objects.get(agg_sp_pt_id=pk)
+        try:
+            patient = agg_hhc_patients.objects.get(agg_sp_pt_id=pk)
+            return patient
+        except  agg_hhc_patients.DoesNotExist:
+            return None
     
     def get_hospital(self, pk):
         return  agg_hhc_hospitals.objects.get(hosp_id=pk)
@@ -818,12 +822,12 @@ class patient_detail_info_api(APIView):
         patient = self.get_patient(pk)
         if patient:
             serializer =  patient_detail_serializer(patient)
-            hospital = self.get_hospital(serializer.data['preferred_hosp_id'])
-            if hospital:
-                hospitals =  hospital_serializer(hospital)
-                return Response({"patient": serializer.data, "hospital": hospitals.data})
+            # hospital = self.get_hospital(serializer.data['preferred_hosp_id'])
+            # if hospital:
+            #     hospitals =  hospital_serializer(hospital)
+            return Response({"patient": serializer.data})
 
-        return HttpResponse(status=status.HTTP_404_NOT_FOUND)
+        return HttpResponse({"service not found"},status=status.HTTP_404_NOT_FOUND)
         
     def put(self, request, pk):
         patient = self.get_patient(pk)
@@ -1015,7 +1019,7 @@ class AggHHCServiceProfessionalListAPIView(generics.ListAPIView):
 class PaymentDetailAPIView(APIView):
     @csrf_exempt
     def post(self, request, format=None):
-        request.data['amount_remaining']=request.data['Total_cost']-request.data['amount_paid']
+        # request.data['amount_remaining']=request.data['Total_cost']-request.data['amount_paid']
         serializer = PaymentDetailSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -1025,21 +1029,47 @@ class PaymentDetailAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class get_payment_details(APIView):
-    def get_event(self,pk):
+    def get_payment(self,pk):
         try:
             event = agg_hhc_payment_details.objects.filter(eve_id=pk)
             return Response(event)
+        except agg_hhc_payment_details.DoesNotExist:
+            # return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
+            return None
+        
+    def get_event(self,pk):
+        try:
+            event = agg_hhc_events.objects.filter(eve_id=pk)
+            return Response(event)
         except agg_hhc_events.DoesNotExist:
-            return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
-
+            # return Response('please enter valid event id',status.HTTP_404_NOT_FOUND)
+            return None 
+        
     def get(self,request,pk):
-        event = self.get_event(pk)
-        print(event.data)
-        payment_serializer=GetPaymentDetailSerializer(event.data,many=True)
-        print(payment_serializer)
-        # print(payment_serializer.data['amount_paid'])
-        return Response(payment_serializer.data[-1])
+        event = self.get_payment(pk)
+        if event.data:
+            # print(event.data)
+            payment_serializer=GetPaymentDetailSerializer(event.data,many=True)
+            # print(payment_serializer)
+            data={
+                "eve_id" : payment_serializer.data[-1]['eve_id'], 
+                "Total_Amount" : payment_serializer.data[-1]['Total_cost'], 
+                "Paid_Amount" : payment_serializer.data[-1]['amount_paid'], 
+                "Pending_Amount" : payment_serializer.data[-1]['amount_remaining'] 
+            }
+            # print(payment_serializer.data['amount_paid'])
+            return Response(data)
 
+        else :
+            event = self.get_event(pk)
+            payment_serializer = GetEventPaymentDetailSerializer(event.data, many=True)
+            data={
+                "eve_id" : payment_serializer.data[-1]['eve_id'],
+                "Total_Amount":payment_serializer.data[-1]['final_amount'],
+                "Paid_Amount" : 0, 
+                "Pending_Amount" : payment_serializer.data[-1]['final_amount'] 
+            }
+            return Response(data)
 
 
 #----------------------------------------------Payment----------------------------------------------------
@@ -1062,12 +1092,17 @@ def create_payment_url(request):
     amount = request.data['orderAmount']
     name = request.data['customerName']
     email = request.data['customerEmail']
+    remaining = request.data['Remainingamount']
+    total = request.data['totalamo']
+
     
     payload = {
         "appId": "15581934423f8e9e947db8c600918551",
         "secretKey": "052b44487a4f0f1646614204b83679c68c3d41fb",
         "orderId": order_id,
         "orderAmount": amount,
+        "Remainingamount":remaining,
+        "totalamo":total,
         "orderCurrency": "INR",
         "orderNote": "HII",
         "customerName": name,
@@ -1116,6 +1151,8 @@ def create_payment_url(request):
     payment_record = PaymentRecord.objects.create(
         order_id=order_id,
         order_amount=payload['orderAmount'],
+        Remaining_amount = payload['Remainingamount'],
+        total_amo = payload['totalamo'],
         order_currency=payload['orderCurrency'],
         order_note=payload['orderNote'],
         customer_name=payload['customerName'],

@@ -21,7 +21,7 @@ def send_otp(mobile,msg):
     try:
         response = requests.get(url)
         response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
-        print("URL successfully hit!")
+        # print("URL successfully hit!")
     except requests.exceptions.RequestException as e:
         print("Error occurred while hitting the URL:", e)
 
