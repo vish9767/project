@@ -1206,6 +1206,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	# srv_id = models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True)#added by mayank
 	Experience = models.FloatField(null=True)#added by mayank
 
+
 class agg_hhc_service_professional_details(models.Model):#33
 	srv_prof_dt_id = models.AutoField(primary_key = True)
 	srv_prof_id = models.BigIntegerField(null=True)
@@ -1973,7 +1974,7 @@ class agg_hhc_hospitals(models.Model):#83
     branch=models.CharField(max_length=100,null=True)
     hospital_name=models.CharField(max_length=255,null=True)
     hospital_short_code=models.CharField(max_length=5,null=True)
-    phone_no=models.IntegerField(null=True)
+    phone_no=models.BigIntegerField(null=True)
     website_url=models.CharField(max_length=70,null=True)
     #loc_id=models.ForeignKey(agg_hhc_locations,on_delete=models.CASCADE)
     address=models.TextField(null=True)
