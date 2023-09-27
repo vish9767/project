@@ -2,5 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns=[
-    path('professional_OTPLOGIN',views.professional_OTPLOGIN.as_view())
+    path('pro_login',views.ProfessionalOTPLogin.as_view()),
+    path('pro_otp_chk',views.OTPCHECK.as_view()),
 ]

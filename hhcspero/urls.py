@@ -21,5 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('web/',include('hhcweb.urls')),
     path('app/',include('hhcapp.urls')),
-    path('professional_app/',include('hhc_professional_app.urls')),
+    path('pro_app/',include('hhc_professional_app.urls')),
 ]
