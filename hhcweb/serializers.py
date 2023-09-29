@@ -501,7 +501,7 @@ class OngoingServiceSerializer(serializers.ModelSerializer):
         status = instance.status
         if status == 1 and event_status == 2:
             return super().to_representation(instance)
-   
+
     
     def get_Pending_amount(self, instance):
         total_cost = instance.Total_cost
@@ -525,6 +525,7 @@ class agg_hhc_enquiry_Add_follow_up_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_enquiry_follow_up
         fields=('enq_follow_up_id', 'event_id', 'follow_up', 'follow_up_date_time', 'previous_follow_up_remark')
+<<<<<<< Updated upstream
         # fields = '__all__'
 
 class agg_hhc_enquiry_create_follow_up_serializer(serializers.ModelSerializer):   
@@ -532,6 +533,8 @@ class agg_hhc_enquiry_create_follow_up_serializer(serializers.ModelSerializer):
         model=models.agg_hhc_enquiry_follow_up
         fields=('enq_follow_up_id', 'event_id','follow_up')
 
+=======
+>>>>>>> Stashed changes
 
 class agg_hhc_enquiry_follow_up_cancellation_reason_spero_serializer(serializers.ModelSerializer):   
     class Meta:
@@ -557,8 +560,8 @@ class agg_hhc_enquiry_Add_follow_up_create_service_serializer(serializers.ModelS
 
 class enquiries_service_serializer(serializers.ModelSerializer):   
     class Meta:
-        model=models.agg_hhc_enquiry_follow_up
-        fields=('enq_follow_up_id', 'event_id', 'follow_up')
+        model= models.agg_hhc_enquiry_follow_up
+        fields=('enq_follow_up_id', 'event_id', 'follow_up','added_date','last_modified_date')
 class services(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_services
@@ -580,10 +583,10 @@ class AggHhcPatientListEnquirySerializer(serializers.ModelSerializer):
         model = models.agg_hhc_patient_list_enquiry
         fields = [ 'pt_id',  'name', 'phone_no', 'Suffered_from', 'prof_zone_id']    #sandip
 
+from django.db.models import Max, Q
 class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
     srv_id = ServiceNameSerializer(many=True, source = 'event_id')
     pt_id = AggHhcPatientListEnquirySerializer()
-    # enq_follow_up_id = enquiries_service_serializer(many=True)
     folloup_id = serializers.SerializerMethodField()
 
     class Meta:
@@ -591,8 +594,21 @@ class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
         fields = ('eve_id','event_code', 'patient_service_status', 'pt_id','srv_id', 'folloup_id')     #amit
 
     def get_folloup_id(self, obj):
-        queryset = models.agg_hhc_enquiry_follow_up.objects.filter(event_id = obj.eve_id)
-        print(queryset)
+        latest_follow_up_date = models.agg_hhc_enquiry_follow_up.objects.filter(
+            event_id=obj.eve_id
+        ).aggregate(latest_date=Max('follow_up_date_time'))['latest_date']
+
+        has_follow_up_1 = models.agg_hhc_enquiry_follow_up.objects.filter(
+            event_id=obj.eve_id,
+            follow_up='1'
+        ).exists()
+        if has_follow_up_1:
+            return []
+        if latest_follow_up_date is None:
+            return []
+        queryset = models.agg_hhc_enquiry_follow_up.objects.filter(
+            event_id=obj.eve_id
+        ).exclude(Q(follow_up='1') | Q(follow_up_date_time__lt=latest_follow_up_date))
         serializer = enquiries_service_serializer(queryset, many=True)
         respose_data = {
             'data': serializer.data
