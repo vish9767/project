@@ -1,15 +1,17 @@
 from rest_framework import serializers
-from hhcweb.models import agg_com_colleague, agg_hhc_professional_zone, agg_hhc_service_professionals, agg_hhc_detailed_event_plan_of_care
+from hhcweb.models import agg_com_colleague, agg_hhc_professional_zone, agg_hhc_service_professionals, agg_hhc_detailed_event_plan_of_care, agg_mas_group
+from django.contrib.auth.hashers import make_password, check_password
 from hhcweb import models
 
 # We are writing this because we need confirm password field in our Registration Request
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={'input_type':'password'}, write_only=True)
-    # grp_id = serializers.PrimaryKeyRelatedField(queryset=agg_mas_group.objects.all(),many=False)
+    grp_id = serializers.PrimaryKeyRelatedField(queryset=agg_mas_group.objects.all(),many=False)
     
     class Meta:
         model  = agg_com_colleague
-        fields = ['pk','clg_ref_id', 'clg_first_name', 'clg_mid_name' ,'clg_last_name' ,'grp_id' ,'clg_email' ,'clg_mobile_no' ,'clg_gender' ,'clg_address' ,'clg_is_login' ,'clg_designation' ,'clg_state' ,'clg_division' ,'clg_district' ,'clg_break_type' ,'clg_senior' ,'clg_hos_id' ,'clg_agency_id' ,'clg_status' ,'clg_added_by' ,'clg_modify_by' ,'clg_Date_of_birth' ,'clg_Work_phone_number' ,'clg_work_email_id' ,'clg_Emplyee_code' ,'clg_qualification','clg_avaya_agentid' ,'clg_Aadhar_no','clg_specialization', 'clg_profile_photo_path' ,'clg_joining_date' ,'clg_marital_status', 'password','password2']
+        # fields = ['pk','clg_ref_id','grp_id','clg_mobile_no', 'clg_otp', 'password','password2']
+        fields = ['pk','clg_ref_id', 'clg_first_name', 'clg_mid_name' ,'clg_last_name' ,'grp_id' ,'clg_email' ,'clg_mobile_no' ,'clg_gender' ,'clg_address' ,'clg_is_login' ,'clg_designation' ,'clg_state' ,'clg_division' ,'clg_district' ,'clg_break_type' ,'clg_senior' ,'clg_hos_id' ,'clg_agency_id' ,'clg_status' ,'clg_added_by' ,'clg_modify_by' ,'clg_Date_of_birth' ,'clg_Work_phone_number' ,'clg_work_email_id' ,'clg_Emplyee_code' ,'clg_qualification','clg_avaya_agentid' ,'clg_Aadhar_no','clg_specialization', 'clg_profile_photo_path' ,'clg_joining_date' ,'clg_marital_status',  'clg_otp', 'clg_otp_count', 'clg_otp_expire_time', 'password','password2']
 
         extra_kwargs = {
             'password':{'write_only':True}
@@ -26,6 +28,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         group_data = validated_data.pop('grp_id')
         validated_data['grp_id'] = group_data
+
+        # Hash the password before creating the user
+        password = validated_data.pop('password')
+        validated_data['password'] = make_password(password)
+
+        # Create a new user with the hashed password
         user = agg_com_colleague.objects.create_user(**validated_data)
         user.save()
         return user
@@ -314,6 +322,10 @@ class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
 
 
 #--------------------------------------mayank--------------------------------------------
+class JobTypeCountSerializer(serializers.ModelSerializer):
+    class Meta :
+        model  = agg_hhc_service_professionals
+        fields = ['Job_type']
 # class Services_data(serializers.ModelSerializer)
 class AggHHCServiceProfessionalSerializer(serializers.ModelSerializer):
 #     full_name = serializers.SerializerMethodField()
@@ -495,8 +507,10 @@ class OngoingServiceSerializer(serializers.ModelSerializer):
         total_cost = instance.Total_cost
         event_id = instance.eve_id
         try:
-            payment = models.agg_hhc_payments.objects.get(event_id=event_id)
-            amount = payment.amount
+            # payment = models.agg_hhc_payments.objects.get(event_id=event_id)
+            payment = models.agg_hhc_payment_details.objects.get(eve_id=event_id).latest()
+            # amount = payment.amount
+            amount = payment.amount_paid
             return total_cost - amount
         except models.agg_hhc_payments.DoesNotExist:
             return total_cost

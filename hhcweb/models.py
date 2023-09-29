@@ -1211,6 +1211,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	# srv_id = models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True)#added by mayank
 	Experience = models.FloatField(null=True)#added by mayank
 
+
 class agg_hhc_service_professional_details(models.Model):#33
 	srv_prof_dt_id = models.AutoField(primary_key = True)
 	srv_prof_id = models.BigIntegerField(null=True)
@@ -1981,7 +1982,7 @@ class agg_hhc_hospitals(models.Model):#83
     branch=models.CharField(max_length=100,null=True)
     hospital_name=models.CharField(max_length=255,null=True)
     hospital_short_code=models.CharField(max_length=5,null=True)
-    phone_no=models.IntegerField(null=True)
+    phone_no=models.BigIntegerField(null=True)
     website_url=models.CharField(max_length=70,null=True)
     #loc_id=models.ForeignKey(agg_hhc_locations,on_delete=models.CASCADE)
     address=models.TextField(null=True)
@@ -2505,7 +2506,8 @@ class agg_mas_group(models.Model):
 # Custom User Manager
 class agg_colleague_manager(BaseUserManager):
 
-    def create_user(self, clg_ref_id, clg_first_name, clg_mid_name ,clg_last_name ,grp_id , clg_email ,clg_mobile_no ,clg_gender ,clg_address ,clg_is_login ,clg_designation ,clg_state ,clg_division ,clg_district ,clg_break_type ,clg_senior ,clg_hos_id ,clg_agency_id ,clg_status ,clg_added_by ,clg_modify_by ,clg_Date_of_birth ,clg_Work_phone_number ,clg_work_email_id ,clg_Emplyee_code ,clg_qualification,clg_avaya_agentid ,clg_Aadhar_no,clg_specialization ,clg_profile_photo_path ,clg_joining_date ,clg_marital_status, password=None, password2=None):
+    def create_user(self, clg_ref_id, clg_first_name, clg_mid_name ,clg_last_name ,grp_id , clg_email ,clg_mobile_no ,clg_gender ,clg_address ,clg_is_login ,clg_designation ,clg_state ,clg_division ,clg_district ,clg_break_type ,clg_senior ,clg_hos_id ,clg_agency_id ,clg_status ,clg_added_by ,clg_modify_by ,clg_Date_of_birth ,clg_Work_phone_number ,clg_work_email_id ,clg_Emplyee_code ,clg_qualification,clg_avaya_agentid ,clg_Aadhar_no,clg_specialization ,clg_profile_photo_path ,clg_joining_date ,clg_marital_status, clg_otp, clg_otp_count, clg_otp_expire_time, password=None, password2=None):
+
         """
         Creates and saves a User with the given email, name, tc and password.
         """
@@ -2543,6 +2545,9 @@ class agg_colleague_manager(BaseUserManager):
             clg_joining_date = clg_joining_date,
             clg_status = clg_status,
             clg_marital_status = clg_marital_status,
+			clg_otp = clg_otp,
+			clg_otp_count = clg_otp_count,
+			clg_otp_expire_time = clg_otp_expire_time,
             clg_added_by = clg_added_by ,
             clg_modify_by = clg_modify_by
         )
@@ -2551,7 +2556,8 @@ class agg_colleague_manager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, clg_ref_id, clg_first_name, clg_mid_name ,clg_last_name, grp_id ,clg_email ,clg_mobile_no ,clg_gender ,clg_address ,clg_is_login ,clg_designation ,clg_state ,clg_division ,clg_district ,clg_break_type ,clg_senior ,clg_hos_id ,clg_agency_id ,clg_status ,clg_added_by ,clg_modify_by ,clg_Date_of_birth ,clg_Work_phone_number ,clg_work_email_id ,clg_Emplyee_code ,clg_qualification,clg_avaya_agentid ,clg_Aadhar_no,clg_specialization, clg_profile_photo_path ,clg_joining_date ,clg_marital_status, password=None):
+    def create_superuser(self, clg_ref_id, clg_first_name, clg_mid_name ,clg_last_name, grp_id ,clg_email ,clg_mobile_no ,clg_gender ,clg_address ,clg_is_login ,clg_designation ,clg_state ,clg_division ,clg_district ,clg_break_type ,clg_senior ,clg_hos_id ,clg_agency_id ,clg_status ,clg_added_by ,clg_modify_by ,clg_Date_of_birth ,clg_Work_phone_number ,clg_work_email_id ,clg_Emplyee_code ,clg_qualification,clg_avaya_agentid ,clg_Aadhar_no,clg_specialization, clg_profile_photo_path ,clg_joining_date ,clg_marital_status, clg_otp, clg_otp_count, clg_otp_expire_time, password=None):
+
         """Creates and saves a superuser with the given email, name, tc and password."""
         user = self.create_user(
             clg_email=clg_email,
@@ -2585,61 +2591,67 @@ class agg_colleague_manager(BaseUserManager):
             clg_joining_date = clg_joining_date,
             clg_status = clg_status,
             clg_marital_status = clg_marital_status,
+			clg_otp = clg_otp,
+			clg_otp_count = clg_otp_count,
+			clg_otp_expire_time = clg_otp_expire_time,
             clg_added_by = clg_added_by ,
             clg_modify_by = clg_modify_by
         )
+
         user.is_admin = True
         user.save(using=self._db)
         return user
 
-
 class agg_com_colleague(AbstractBaseUser):
     # clg_id = models.AutoField(primary_key=True, auto_created=True)
-    clg_ref_id = models.CharField(max_length=15,unique=True, null=True)
-    # clg_ref_id2 = models.CharField(max_length=15, null=True)
+    clg_ref_id = models.CharField(max_length=15,unique=True, null=True, blank=True)
     clg_email = models.EmailField(
         verbose_name='email address',
         max_length=255,
         unique=True,
-        null= True
+        null= True,
+        blank=True
     )
-    clg_work_email_id =	models.EmailField(max_length=100, null=True)
-    clg_hos_id = models.IntegerField(null=True)
-    clg_agency_id =	models.IntegerField(null=True)
-    clg_Emplyee_code =	models.CharField(max_length=15, null=True)
-    clg_avaya_agentid =	models.IntegerField(null=True)
-    clg_first_name = models.CharField(max_length=15, null=True)
-    clg_mid_name =	models.CharField(max_length=15, null=True)
-    clg_last_name =	models.CharField(max_length=15, null=True)
+    clg_work_email_id =	models.EmailField(max_length=100, null=True, blank=True)
+    clg_hos_id = models.IntegerField(null=True, blank=True)
+    clg_agency_id =	models.IntegerField(null=True, blank=True)
+    clg_Emplyee_code =	models.CharField(max_length=15, null=True, blank=True)
+    clg_avaya_agentid =	models.IntegerField(null=True, blank=True)
+    clg_first_name = models.CharField(max_length=15, null=True, blank=True)
+    clg_mid_name =	models.CharField(max_length=15, null=True, blank=True)
+    clg_last_name =	models.CharField(max_length=15, null=True, blank=True)
     grp_id = models.IntegerField(null=True)
-    # grp_id = models.ForeignKey(agg_mas_group,related_name='clg_group', on_delete=models.CASCADE, null=True, default=None)
-    clg_gender = models.CharField(max_length=15, null=True)
-    clg_mobile_no =	models.IntegerField(null=True)
-    clg_Work_phone_number =	models.IntegerField(null=True)
-    clg_Date_of_birth =	models.DateField(null=True)
-    clg_Aadhar_no =	models.BigIntegerField(null=True)
-    clg_designation = models.CharField(max_length=15, null=True)
-    clg_qualification =	models.CharField(max_length=15, null=True)
-    clg_specialization = models.CharField(max_length=15, null=True)
-    clg_address = models.CharField(max_length=100, null=True)
-    clg_state =	models.IntegerField(null=True)
-    clg_division =	models.IntegerField(null=True)
-    clg_district =	models.IntegerField(null=True)
-    clg_senior = models.CharField(max_length=15, null=True)
-    clg_break_type = models.IntegerField(null=True)
-    clg_status = models.CharField(max_length=15, default=True, null=True)    
-    clg_profile_photo_path = models.CharField(max_length=100, null=True)
-    clg_joining_date =	models.CharField(max_length=30, null=True)
-    clg_marital_status = models.CharField(max_length=15, null=True)
-    is_active = models.BooleanField(default=True)
-    clg_is_login =	models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    clg_added_by =	models.IntegerField(null=True)
-    clg_added_date = models.DateField(auto_now_add=True)
-    clg_modify_by =	models.IntegerField(null=True)
-    clg_modify_date = models.DateField(auto_now=True, null=True)
+    #grp_id = models.ForeignKey(agg_mas_group,related_name='clg_group', on_delete=models.CASCADE, null=True, default=None, blank=True)
+    clg_gender = models.CharField(max_length=15, null=True, blank=True)
+    clg_mobile_no =	models.BigIntegerField(unique=True, null=True, blank=True)
+    clg_Work_phone_number =	models.BigIntegerField(null=True, blank=True)
+    clg_Date_of_birth =	models.DateField(null=True, blank=True)
+    clg_Aadhar_no =	models.BigIntegerField(null=True, blank=True)
+    clg_designation = models.CharField(max_length=15, null=True, blank=True)
+    clg_qualification =	models.CharField(max_length=15, null=True, blank=True)
+    clg_specialization = models.CharField(max_length=15, null=True, blank=True)
+    clg_address = models.CharField(max_length=100, null=True, blank=True)
+    clg_state =	models.IntegerField(null=True, blank=True)
+    clg_division =	models.IntegerField(null=True, blank=True)
+    clg_district =	models.IntegerField(null=True, blank=True)
+    clg_senior = models.CharField(max_length=15, null=True, blank=True)
+    clg_break_type = models.IntegerField(null=True, blank=True)
+    clg_status = models.CharField(max_length=15, default=True, null=True, blank=True)    
+    clg_profile_photo_path = models.CharField(max_length=100, null=True, blank=True)
+    clg_joining_date =	models.CharField(max_length=30, null=True, blank=True)
+    clg_marital_status = models.CharField(max_length=15, null=True, blank=True)
+    clg_otp =	models.IntegerField(null=True, blank=True)
+    clg_otp_count =	models.IntegerField(null=True, blank=True)
+    clg_otp_expire_time =	models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True, blank=True)
+    clg_is_login =	models.BooleanField(default=False, blank=True)
+    is_admin = models.BooleanField(default=False, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, blank=True)
+    clg_added_by =	models.IntegerField(null=True, blank=True)
+    clg_added_date = models.DateField(auto_now_add=True, blank=True)
+    clg_modify_by =	models.IntegerField(null=True, blank=True)
+    clg_modify_date = models.DateField(auto_now=True, null=True, blank=True)
 
     username = None
     email = None
@@ -2648,9 +2660,13 @@ class agg_com_colleague(AbstractBaseUser):
 
     EMAIL_FIELD = 'clg_email'
     GROUP_FIELD = 'grp_id'
+
+
     USERNAME_FIELD = 'clg_ref_id'
 
-    REQUIRED_FIELDS = ['grp_id','clg_first_name', 'clg_mid_name' ,'clg_last_name' ,'clg_email' ,'clg_mobile_no', 'clg_gender' ,'clg_address' ,'clg_is_login' ,'clg_designation' ,'clg_state' ,'clg_division' ,'clg_district' ,'clg_break_type' ,'clg_senior' ,'clg_hos_id' ,'clg_agency_id' ,'clg_status' ,'clg_added_by' ,'clg_modify_by' ,'clg_Date_of_birth' ,'clg_Work_phone_number' ,'clg_work_email_id' ,'clg_Emplyee_code' ,'clg_qualification','clg_avaya_agentid' ,'clg_Aadhar_no','clg_specialization', 'clg_profile_photo_path' ,'clg_joining_date' ,'clg_marital_status',]
+
+    REQUIRED_FIELDS = ['grp_id','clg_first_name', 'clg_mid_name' ,'clg_last_name' ,'clg_email' ,'clg_mobile_no', 'clg_gender' ,'clg_address' ,'clg_is_login' ,'clg_designation' ,'clg_state' ,'clg_division' ,'clg_district' ,'clg_break_type' ,'clg_senior' ,'clg_hos_id' ,'clg_agency_id' ,'clg_status' ,'clg_added_by' ,'clg_modify_by' ,'clg_Date_of_birth' ,'clg_Work_phone_number' ,'clg_work_email_id' ,'clg_Emplyee_code' ,'clg_qualification','clg_avaya_agentid' ,'clg_Aadhar_no','clg_specialization', 'clg_profile_photo_path' ,'clg_joining_date' ,'clg_marital_status', 'clg_otp', 'clg_otp_count', 'clg_otp_expire_time']
+
 
     def __str__(self):
         return self.clg_ref_id
