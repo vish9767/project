@@ -271,6 +271,7 @@ class service_status_enum(enum.Enum):
 	Ongoing = 2
 	Completed = 3
 	terminated = 4
+	__default__= Ongoing
 
 #-------------------------------sandip shimpi-------------------------------
 class refer_by_enum(enum.Enum):
@@ -302,7 +303,8 @@ class follow_up(models.TextChoices):
     Create_Service = 3
     follow_up_pending = 2
 	
-    __deafult__ = 2
+    __deafult__ = follow_up_pending
+	
 # ------------------------------------------------------------------------
 
 class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
@@ -699,6 +701,8 @@ class agg_hhc_patients(models.Model):#6    demo
 			last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
 			self.hhc_code = f"{prefix}HC{last_sequence:05d}"
 		return super().save(*args, **kwargs)
+	# class Meta:
+	# 	db_table='agg_hhc_patients'
 	
 	
 # class agg_hhc_webinar_patient_table(models.Model):#7
@@ -1492,11 +1496,12 @@ class consultant_status_enum(enum.Enum):
 
 
 class documents_enum(enum.Enum):
-    Verified=1
-    need_more_details=2
-    Rejected=3
-    In_Progress=4
-    
+	Verified=1
+	need_more_details=2
+	Rejected=3
+	In_Progress=4
+	__default__ = In_Progress
+	
 class truefalse_enum(enum.Enum):
     true=1
     false=2
@@ -1600,14 +1605,15 @@ class agg_hhc_professional_device_info(models.Model):#51
     added_date=models.DateTimeField(default=timezone.now,null=True)
 
 class agg_hhc_professional_documents(models.Model):#52
-    prof_doc_id=models.AutoField(primary_key=True)
-
-    #professional_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
-    #doc_li_id=models.ForeignKey(agg_hhc_documetns_list,on_delete=models.CASCADE,null=True)
-    url_path=models.CharField(max_length=1000,null=True)
-    rejection_reason=models.CharField(max_length=200,null=True,blank=True)
-    status=enum.EnumField(documents_enum,null=True)
-    isVerified=enum.EnumField(truefalse_enum,null=True)
+	def nameField(instance,filename):
+		return "/".join(['media',str(instance.professional_id.prof_fullname),filename])
+	prof_doc_id=models.AutoField(primary_key=True)
+	professional_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
+	doc_li_id=models.ForeignKey('agg_hhc_documetns_list',on_delete=models.CASCADE,null=True)
+	professional_document=models.FileField(upload_to=nameField,null=True)  #change urp_path to professional_document and char to filefield #sandip shimpi
+	rejection_reason=models.CharField(max_length=200,null=True,blank=True)
+	status=enum.EnumField(documents_enum,null=True)
+	isVerified=enum.EnumField(truefalse_enum,null=True)
 
 
 
@@ -1879,7 +1885,7 @@ class agg_hhc_doctors_consultants(models.Model):#76
 
 class agg_hhc_documetns_list(models.Model):#77
     doc_li_id=models.AutoField(primary_key=True)
-    professional_type=models.IntegerField(null=True)
+    professional_role=models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True)  # Remane Field professional_type to professional_role # Sandip Shimpi
     Documents_name=models.CharField(max_length=50,null=True)
     Added_date=models.DateTimeField(default=timezone.now,null=True)
     isManadatory=enum.EnumField(truefalse_enum,null=True)
@@ -2686,3 +2692,7 @@ class PaymentRecord(models.Model):
 	def __str__(self):
 		return f"Payment: {self.order_amount} INR for Order ID: {self.order_id}"
 #----------------------------------------------------------------------------------------------------------------
+
+class demoProfile(models.Model):
+	name = models.CharField(max_length=100, null=True)
+	profile = models.ImageField(upload_to='images',null=True)

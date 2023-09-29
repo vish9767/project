@@ -247,6 +247,7 @@ class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
 #______________________________________agg_hhc_callers_serializer_____________
 class agg_hhc_callers_details_serializer(serializers.ModelSerializer):#20
     # fullname = serializers.SerializerMethodField()
+    caller_rel_id=relation_serializer()
     class Meta:
         model=models.agg_hhc_callers
         fields=('caller_fullname','caller_id','phone','caller_rel_id','Age','gender','email','contact_no','alter_contact','Address','save_this_add','profile_pic')
@@ -511,6 +512,13 @@ class agg_hhc_enquiry_Add_follow_up_serializer(serializers.ModelSerializer):
         model=models.agg_hhc_enquiry_follow_up
         fields=('enq_follow_up_id', 'event_id', 'follow_up', 'follow_up_date_time', 'previous_follow_up_remark')
         # fields = '__all__'
+
+class agg_hhc_enquiry_create_follow_up_serializer(serializers.ModelSerializer):   
+    class Meta:
+        model=models.agg_hhc_enquiry_follow_up
+        fields=('enq_follow_up_id', 'event_id','follow_up')
+
+
 class agg_hhc_enquiry_follow_up_cancellation_reason_spero_serializer(serializers.ModelSerializer):   
     class Meta:
         model=models.agg_hhc_enquiry_follow_up_cancellation_reason

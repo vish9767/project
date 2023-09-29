@@ -321,8 +321,8 @@ class agg_hhc_add_service_details_api(APIView):
         # print(callerID,'llllsecond')
         if request.data['purp_call_id']==1:
             # print('4')
-            request.data['event_status']=1             
-            patient= agg_hhc_patients.objects.filter(phone_no=request.data['phone_no']).first()
+            request.data['event_status']=1 
+            patient= agg_hhc_patients.objects.filter(phone_no=request.data['phone_no']).first()           
             if patient:
                 # patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
                 # patientID=patient.first().agg_sp_pt_id 
@@ -453,6 +453,15 @@ class agg_hhc_add_service_details_api(APIView):
             return Response({"Service Created Event Code":[{"event_id":eventID},events.data,{"event_plan_of_care_id":event_plane_of_care}]})
 
         else:
+            request.data['event_id']=eventID
+            request.data['follow_up']=2
+
+            create_follow_up= agg_hhc_enquiry_create_follow_up_serializer(data= request.data)
+            if create_follow_up.is_valid():
+                # callers.validated_data['caller_status']=3
+                create_follow_up.save()
+            else:
+                return Response([create_follow_up.errors])
             return Response({"Service Created Event Code":eventID})
         
     # def get_event(self,pk):
@@ -592,6 +601,7 @@ class agg_hhc_add_service_details_api(APIView):
             events=agg_hhc_event_response_serializer(event)
             return Response({"Service Created Event Code":[{"event_id":eventID},events.data,{"event_plan_of_care_id":event_plane_of_care}]})
         else:
+            # agg_hhc_enquiry_create_follow_up_serializer
             return Response({"Service Created Event Code":eventID})
 
 
@@ -849,7 +859,7 @@ class  agg_hhc_service_professionals_api(APIView):
     
 
 class calculate_discount_api(APIView):
-    def get(self, request,dtype,damount,total_amt):#dtype,amount,total_amt
+    def get(self, request,dtype=0,damount=0,total_amt=0):#dtype,amount,total_amt
         dtype=dtype
         amount=damount
         total_amt=total_amt
@@ -867,7 +877,7 @@ class calculate_discount_api(APIView):
 
 
 class calculate_total_amount(APIView):
-    def get(self,request,cost,start_date,end_date):
+    def get(self,request,cost=0,start_date=None,end_date=None):
         # start_date_string = request.data['start_date']
         # end_date_string = request.data['end_date'] 
         start_date_string = start_date
@@ -877,7 +887,16 @@ class calculate_total_amount(APIView):
         print(start_date_string)     
         try:
             start_date = datetime.strptime(str(start_date_string), '%Y-%m-%d %H:%M').date()
+            start_time = datetime.strptime(str(start_date_string), '%Y-%m-%d %H:%M').time()
             end_date = datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').date() 
+            end_time = datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').time() 
+
+            # if start_date>end_date or (start_date==end_date and start_time>end_time):
+            #     return Response({'days_difference':0})           
+            # diff = (end_time.hour)-(start_time.hour)
+            # day = (end_date - start_date).days
+            # total = (diff * cost)*(day+1)
+
             if start_date>end_date:
                 return Response({'days_difference':0})           
             diff = (end_date - start_date).days 
@@ -1050,12 +1069,13 @@ class get_payment_details(APIView):
         if event.data:
             # print(event.data)
             payment_serializer=GetPaymentDetailSerializer(event.data,many=True)
-            # print(payment_serializer)
+            paid_amt = sum(item['amount_paid'] for item in payment_serializer.data)
+            print(paid_amt)
             data={
                 "eve_id" : payment_serializer.data[-1]['eve_id'], 
                 "Total_Amount" : payment_serializer.data[-1]['Total_cost'], 
-                "Paid_Amount" : payment_serializer.data[-1]['amount_paid'], 
-                "Pending_Amount" : payment_serializer.data[-1]['amount_remaining'] 
+                "Paid_Amount" : paid_amt, 
+                "Pending_Amount" : payment_serializer.data[-1]['Total_cost'] - paid_amt
             }
             # print(payment_serializer.data['amount_paid'])
             return Response(data)
@@ -1464,6 +1484,7 @@ class OngoingServiceView(APIView):
         data =  agg_hhc_events.objects.all()
         serializer = self.serializer_class(data, many=True)  
         filtered_data = [item for item in serializer.data if item is not None]
+        print(serializer.data)
         return Response(filtered_data)
     
 # -------------------------------------Amit Rasale---------------------------------------------------------------
@@ -1774,20 +1795,20 @@ class allocate_api(APIView):
         event_plan_of_care=agg_hhc_event_plan_of_care.objects.filter(eve_id=event_id).first()
         event_plan_of_care_serializer=agg_hhc_event_plan_of_care_serializer(event_plan_of_care)
         event_plan_of_care_id_is=event_plan_of_care_serializer.data.get('eve_poc_id')
-        print("event name",event_plan_of_care)
+        # print("event name",event_plan_of_care)
         event_plan_of_care.srv_prof_id=professional_instance #to update and save new field here
         event_plan_of_care.save()
         event_professional=agg_hhc_event_professional.objects.create(eve_id=event_id,srv_prof_id=professional_instance,eve_poc_id=event_plan_of_care,srv_id=service_id,status=1)
         event_professional.save()
         try:
             detailed_event_poc=agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=request.data.get('eve_id'))
-            print("detailed event plan of care",detailed_event_poc)
+            # print("detailed event plan of care",detailed_event_poc)
         except:
             return Response({'message':"detailed_event_plan_of_care not found"},status=404)
         for i in detailed_event_poc:
             i.srv_prof_id=professional_instance
             i.status=1
-            print(i)
+            # print(i)
             i.save()
         event_id.event_status=2
         event_id.status=1
@@ -1940,3 +1961,444 @@ class Dashboard_enquiry_status_count_api(APIView):
                 converted_to_service_percentage=0
             return Response({'in_follow_up':in_follow_up,'converted_to_service':converted_to_service,'in_follow_up_percentage':in_follow_up_percentage,'converted_to_service_percentage':converted_to_service_percentage})    
             
+
+
+
+
+
+# ------------------------ Service Details API for dashboard --------
+    
+
+
+
+
+
+class srv_dtl_dash(APIView):
+    # serializer_class = srv_dtl_dash_serializer
+    def get(self, request, id, format=None):
+   
+        if id == 1:
+            today_data = agg_hhc_events.objects.filter(added_date=timezone.now())
+            com_srv = pend_srv = on_srv = agg_hhc_events.objects.none()
+            sch_srv = agg_hhc_event_plan_of_care.objects.none()
+            # com_srv = agg_hhc_events.objects.none()
+            if today_data:
+                # today = timezone.now().date()
+                com_srv = agg_hhc_events.objects.filter(event_status=3, added_date=timezone.now())
+                pend_srv = agg_hhc_events.objects.filter(event_status=1, added_date=timezone.now())
+                tomorrow = timezone.now() + timezone.timedelta(days=1)
+                sch_srv = agg_hhc_event_plan_of_care.objects.filter(start_date__gte=tomorrow)
+                # sch_srv = agg_hhc_events.objects.filter(event_status=2, added_date__gte=tomorrow)
+                # today = timezone.now().date()
+
+                eve_ids = today_data.values_list('eve_id', flat=True)
+                
+                on_srv = agg_hhc_events.objects.filter(event_status=2, added_date=timezone.now())
+              
+                tatal_count = today_data.count()
+
+                # -------------- Completed Services -----------
+                completed_srv = com_srv.count()
+                percent_srv = (completed_srv / tatal_count) * 100
+
+                # -------------- Pending Services -----------
+                pending_srv = pend_srv.count()
+                if pending_srv != 0:
+                    percent_pen_srv = (pending_srv / tatal_count) * 100
+
+                # -------------- Ongoing Services -----------
+                ong_srv = on_srv.count()
+                if on_srv != 0:
+                    percent_on_srv = (ong_srv / tatal_count) * 100
+                else:
+                    percent_on_srv = 0
+
+                # -------------- Schedule Services -----------
+                schd_srv = sch_srv.count()
+               
+            comp_srv_count={
+                'count_physio': com_srv.filter(srv_id=1).count(),
+                'count_physician'  : com_srv.filter(srv_id=2).count(),
+                'count_heal_attend' : com_srv.filter(srv_id=3).count(),
+                'count_X_ray' : com_srv.filter(srv_id=4).count(),
+                'count_nurse' : com_srv.filter(srv_id=5).count(),
+                # 'count_patheylogy' : count_patheylogy,
+                'count_patheylogy' : com_srv.filter(srv_id=6).count()
+
+            }
+            pend_srv_count={
+                'count_physio': pend_srv.filter(srv_id=1).count(),
+                'count_physician'  : pend_srv.filter(srv_id=2).count(),
+                'count_heal_attend' : pend_srv.filter(srv_id=3).count(),
+                'count_X_ray' : pend_srv.filter(srv_id=4).count(),
+                'count_nurse' : pend_srv.filter(srv_id=5).count(),
+                'count_patheylogy' : pend_srv.filter(srv_id=6).count()
+
+            }
+      
+            
+           
+            ong_srv_count = {
+                'count_physio': on_srv.filter(srv_id=1).count(),
+                'count_physician': on_srv.filter(srv_id=2).count(),
+                'count_heal_attend': on_srv.filter(srv_id=3).count(),
+                'count_X_ray': on_srv.filter(srv_id=4).count(),
+                'count_nurse': on_srv.filter(srv_id=5).count(),
+                'count_patheylogy': on_srv.filter(srv_id=6).count()
+            }
+
+
+            Completed_services = {
+                'completed_srv': completed_srv if 'completed_srv' in locals() else 0,
+                'percent_srv': int(percent_srv) if 'percent_srv' in locals() else 0,
+                'comp_srv_count': comp_srv_count
+                
+            }
+
+            Pending_services = {
+                'Pending_srv': pending_srv if 'pending_srv' in locals() else 0,
+                'percent_pen_srv': int(percent_pen_srv) if 'percent_pen_srv' in locals() else 0,
+                'pend_srv_count': pend_srv_count
+            }
+
+            # Scheduled_services = {
+            #         'Scheduled_srv': schd_srv,
+            #         'percent_sch_srv': int(percent_schd_srv),
+            #     }
+
+            Ongoing_services = {
+                'Ongoing_srv': ong_srv if 'ong_srv' in locals() else 0,
+                'percent_on_srv': int(percent_on_srv) if 'percent_on_srv' in locals() else 0,
+                'Scheduled_services': schd_srv if 'schd_srv' in locals() else 0,
+                'ong_srv_count' : ong_srv_count
+            }
+
+            response_data = {
+                'Total_services': tatal_count if 'tatal_count' in locals() else 0,
+                'Completed_services': Completed_services,
+                'Pending_services': Pending_services,
+                'ongoing_services': Ongoing_services,
+                'schedule_services' : sch_srv.count()
+            }
+
+        elif id == 2 :
+            seven_days_ago = timezone.now().date() - timedelta(days=7)
+
+           
+            this_week_data = agg_hhc_events.objects.filter(
+                added_date__range=[seven_days_ago, timezone.now().date()]
+            )
+            
+            com_srv = pend_srv = on_srv = agg_hhc_events.objects.none()
+            sch_srv = agg_hhc_event_plan_of_care.objects.none()
+            if this_week_data:
+                com_srv = agg_hhc_events.objects.filter(event_status=3, added_date__range=[seven_days_ago, timezone.now().date()])
+                pend_srv = agg_hhc_events.objects.filter(event_status=1, added_date__range=[seven_days_ago, timezone.now().date()])
+                tomorrow = timezone.now() + timezone.timedelta(days=7)
+                sch_srv = agg_hhc_event_plan_of_care.objects.filter(start_date__gte=tomorrow)
+
+                # today = timezone.now().date()
+                end_date = datetime.now().date()
+                start_date = end_date - timedelta(days=7)
+                
+                eve_ids = this_week_data.values_list('eve_id', flat=True)
+                
+                on_srv = agg_hhc_events.objects.filter(
+                    event_status=2,
+                    added_date__range=[start_date, end_date]
+                )
+                # on_eve_ids = on_srv.values_list('eve_id', flat=True)
+                # print('kkkkkkkkkkkkkkkk',on_eve_ids)
+
+
+                tatal_count = this_week_data.count()
+
+                # -------------- Completed Services -----------
+                completed_srv = com_srv.count()
+                percent_com_srv = (completed_srv / tatal_count) * 100
+
+                # -------------- Pending Services -----------
+                pending_srv = pend_srv.count()
+                if pending_srv != 0:
+                    percent_pen_srv = (pending_srv / tatal_count) * 100
+
+                # -------------- Ongoing Services -----------
+                ong_srv = on_srv.count()
+               
+                if on_srv != 0:
+                    percent_on_srv = (ong_srv / tatal_count) * 100
+                else :
+                    percent_on_srv = 0
+
+                # # -------------- Schedule Services -----------
+                schd_srv = sch_srv.count()
+                # if schd_srv != 0:
+                #     percent_schd_srv = (schd_srv / on_srv) * 100
+            
+
+
+            comp_srv_count={
+                'count_physio': com_srv.filter(srv_id=1).count(),
+                'count_physician'  : com_srv.filter(srv_id=2).count(),
+                'count_heal_attend' : com_srv.filter(srv_id=3).count(),
+                'count_X_ray' : com_srv.filter(srv_id=4).count(),
+                'count_nurse' : com_srv.filter(srv_id=5).count(),
+                # 'count_patheylogy' : count_patheylogy,
+                'count_patheylogy' : com_srv.filter(srv_id=6).count()
+
+            }
+            pend_srv_count={
+                'count_physio': pend_srv.filter(srv_id=1).count(),
+                'count_physician'  : pend_srv.filter(srv_id=2).count(),
+                'count_heal_attend' : pend_srv.filter(srv_id=3).count(),
+                'count_X_ray' : pend_srv.filter(srv_id=4).count(),
+                'count_nurse' : pend_srv.filter(srv_id=5).count(),
+                'count_patheylogy' : pend_srv.filter(srv_id=6).count()
+
+            }
+      
+            
+           
+            ong_srv_count = {
+                'count_physio': on_srv.filter(srv_id=1).count(),
+                'count_physician': on_srv.filter(srv_id=2).count(),
+                'count_heal_attend': on_srv.filter(srv_id=3).count(),
+                'count_X_ray': on_srv.filter(srv_id=4).count(),
+                'count_nurse': on_srv.filter(srv_id=5).count(),
+                'count_patheylogy': on_srv.filter(srv_id=6).count()
+            }
+
+
+
+
+            Completed_services = {
+                'completed_srv': percent_com_srv if 'percent_com_srv' in locals() else 0,
+                'percent_srv': int(percent_srv) if 'percent_srv' in locals() else 0,
+                'comp_srv_count': comp_srv_count
+            }
+
+            Pending_services = {
+                'Pending_srv': pending_srv if 'pending_srv' in locals() else 0,
+                'percent_pen_srv': int(percent_pen_srv) if 'percent_pen_srv' in locals() else 0,
+                'pend_srv_count' : pend_srv_count
+            }
+
+            # Scheduled_services = {
+            #         'Scheduled_srv': schd_srv,
+            #         'percent_sch_srv': int(percent_schd_srv),
+            #     }
+
+            Ongoing_services = {
+                'Ongoing_srv': ong_srv if 'ong_srv' in locals() else 0,
+                'percent_on_srv': int(percent_on_srv) if 'percent_on_srv' in locals() else 0,
+                # 'Scheduled_services': Scheduled_services
+                'ong_srv_count' : ong_srv_count
+            }
+
+            response_data = {
+                'Total_cases': tatal_count if 'tatal_count' in locals() else 0,
+                'Completed_services': Completed_services,
+                'Pending_services': Pending_services,
+                'ongoing_services': Ongoing_services,
+                'schedule_services' : sch_srv.count()
+            } 
+
+        elif id == 3 :
+            end_date = datetime.now().date()
+            start_date = end_date.replace(day=1)
+
+            this_month_data = agg_hhc_events.objects.filter(
+                added_date__range=[start_date.isoformat(), end_date.isoformat()]
+            )
+                        
+          
+            if this_month_data:
+                com_srv = agg_hhc_events.objects.filter(event_status=3, added_date__range=[start_date, timezone.now().date()])
+                pend_srv = agg_hhc_events.objects.filter(event_status=1, added_date__range=[start_date, timezone.now().date()])
+
+                eve_ids = this_month_data.values_list('eve_id', flat=True)
+                tomorrow = timezone.now() + timezone.timedelta(days=7)
+                sch_srv = agg_hhc_event_plan_of_care.objects.filter(
+                    Q(start_date__gte=tomorrow) & Q(eve_id__in=eve_ids))
+
+
+                on_srv = agg_hhc_events.objects.filter(
+                    event_status=2,
+                    added_date__range=[start_date, end_date]
+                )
+
+
+                tatal_count = this_month_data.count()
+
+                # -------------- Completed Services -----------
+                completed_srv = com_srv.count()
+                percent_srv = (completed_srv / tatal_count) * 100
+
+                # -------------- Pending Services -----------
+                pending_srv = pend_srv.count()
+                if pending_srv != 0:
+                    percent_pen_srv = (pending_srv / tatal_count) * 100
+
+                # -------------- Ongoing Services -----------
+                ong_srv = on_srv.count()
+                print(on_srv)
+                if on_srv != 0:
+                    percent_on_srv = (ong_srv / tatal_count) * 100
+                else :
+                    percent_on_srv = 0
+
+                # -------------- Schedule Services -----------
+                schd_srv = sch_srv.count()
+                # if schd_srv != 0:
+                #     percent_schd_srv = (schd_srv / on_srv) * 100
+            
+
+            
+            comp_srv_count={
+                'count_physio': com_srv.filter(srv_id=1).count(),
+                'count_physician'  : com_srv.filter(srv_id=2).count(),
+                'count_heal_attend' : com_srv.filter(srv_id=3).count(),
+                'count_X_ray' : com_srv.filter(srv_id=4).count(),
+                'count_nurse' : com_srv.filter(srv_id=5).count(),
+                # 'count_patheylogy' : count_patheylogy,
+                'count_patheylogy' : com_srv.filter(srv_id=6).count()
+
+            }
+            pend_srv_count={
+                'count_physio': pend_srv.filter(srv_id=1).count(),
+                'count_physician'  : pend_srv.filter(srv_id=2).count(),
+                'count_heal_attend' : pend_srv.filter(srv_id=3).count(),
+                'count_X_ray' : pend_srv.filter(srv_id=4).count(),
+                'count_nurse' : pend_srv.filter(srv_id=5).count(),
+                'count_patheylogy' : pend_srv.filter(srv_id=6).count()
+
+            }
+      
+            
+           
+            ong_srv_count = {
+                'count_physio': on_srv.filter(srv_id=1).count(),
+                'count_physician': on_srv.filter(srv_id=2).count(),
+                'count_heal_attend': on_srv.filter(srv_id=3).count(),
+                'count_X_ray': on_srv.filter(srv_id=4).count(),
+                'count_nurse': on_srv.filter(srv_id=5).count(),
+                'count_patheylogy': on_srv.filter(srv_id=6).count()
+            }
+
+
+            Completed_services = {
+                'completed_srv': completed_srv if 'completed_srv' in locals() else 0,
+                'percent_srv': int(percent_srv) if 'percent_srv' in locals() else 0,
+                'comp_srv_count': comp_srv_count
+            }
+
+            Pending_services = {
+                'Pending_srv': pending_srv if 'pending_srv' in locals() else 0,
+                'percent_pen_srv': int(percent_pen_srv) if 'percent_pen_srv' in locals() else 0,
+                'pend_srv_count': pend_srv_count
+            }
+
+            Scheduled_services = {
+                    'Scheduled_srv': schd_srv if 'schd_srv' in locals() else 0
+                    # 'percent_sch_srv': int(percent_schd_srv),
+                }
+
+            Ongoing_services = {
+                'Ongoing_srv': ong_srv if 'ong_srv' in locals() else 0,
+                'percent_on_srv': int(percent_on_srv) if 'percent_on_srv' in locals() else 0,
+                'Scheduled_services': Scheduled_services,   
+                'ong_srv_count': ong_srv_count
+            }
+
+            response_data = {
+                'Total_cases': tatal_count if 'tatal_count' in locals() else 0,
+                'Completed_services': Completed_services,
+                'Pending_services': Pending_services,
+                'ongoing_services': Ongoing_services,
+                'schedule_services' : schd_srv
+                
+            }
+
+        else:
+            response_data = {
+            'message': 'Invalid id provided. Please provide a valid id.'
+        }
+        return Response(response_data)
+
+    
+
+
+
+    # -----------------------  service cancelled dasboard count -------------
+
+    
+class srv_canc_count(APIView):
+    # serializer_class = srv_cancel_serializer
+    def get(self, request, id):
+        if id == 1:
+            today_datetime = timezone.now()
+            today_date = today_datetime.date()
+            print("Today's Date:", today_date)
+           
+            current_date = date.today()
+            queryset = agg_hhc_cancellation_history.objects.filter(cancelled_date__date=current_date)
+
+            queryset_count = queryset.count()
+            cancel_by_spero_count = queryset.filter(cancellation_by=1).count()
+            cancel_by_customer_count = queryset.filter(cancellation_by=2).count()
+
+            cancell_by = {
+                 'cancel_by_spero_count': cancel_by_spero_count if 'cancel_by_spero_count' in locals() else 0,
+                'cancel_by_customer_count': cancel_by_customer_count if 'cancel_by_customer_count' in locals() else 0
+            }
+            response_data = {
+                'Total_service_cancelled_count' : queryset_count,
+                'today_cancel_data': cancell_by
+            }
+
+        if id == 2:
+            current_date = date.today()
+            seven_days_ago = current_date - timedelta(days=7)
+
+            queryset = agg_hhc_cancellation_history.objects.filter( 
+                Q(cancelled_date__date__range=(seven_days_ago, current_date))
+            )
+
+            queryset_count = queryset.count()
+
+            cancel_by_spero_count = queryset.filter(cancellation_by=1).count()
+            cancel_by_customer_count = queryset.filter(cancellation_by=2).count()
+
+            cancell_by = {
+                 'cancel_by_spero_count': cancel_by_spero_count if 'cancel_by_spero_count' in locals() else 0,
+                'cancel_by_customer_count': cancel_by_customer_count if 'cancel_by_customer_count' in locals() else 0
+            }
+
+            response_data = {
+                'Total_service_cancelled_count' : queryset_count,
+                'today_cancel_data': cancell_by
+            }
+        
+        if id == 3:
+            current_date = date.today()
+            start_date = date(current_date.year, current_date.month, 1)
+
+            queryset = agg_hhc_cancellation_history.objects.filter( 
+                cancelled_date__date__range=(start_date, current_date)
+            )
+
+            queryset_count = queryset.count()
+
+            cancel_by_spero_count = queryset.filter(cancellation_by=1).count()
+            cancel_by_customer_count = queryset.filter(cancellation_by=2).count()
+
+            cancell_by = {
+                 'cancel_by_spero_count': cancel_by_spero_count if 'cancel_by_spero_count' in locals() else 0,
+                'cancel_by_customer_count': cancel_by_customer_count if 'cancel_by_customer_count' in locals() else 0
+            }
+
+            response_data = {
+                'Total_service_cancelled_count' : queryset_count,
+                'today_cancel_data': cancell_by
+            }
+        return Response(response_data)
