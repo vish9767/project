@@ -1456,8 +1456,11 @@ class agg_hhc_payments_received_by_professional(models.Model):#48
 
 class agg_hhc_professional_availability(models.Model):#49
 	professional_avaibility_id = models.AutoField(primary_key = True)
-	prof_srv_id = models.IntegerField(null=True) #agg_hhc_professional_services
-	day = models.CharField(max_length=8,null=True)
+	#prof_srv_id = models.IntegerField(null=True) #agg_hhc_professional_services
+	availability_Date=models.DateField(null=True)
+	added_date=models.DateTimeField(default=timezone.now)
+	#day = models.CharField(max_length=8,null=True)
+	srv_prof_id=models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
 
 # ------------------------------------------------------------------------------------------------------------------
 class prof_enum(enum.Enum): 
@@ -1582,11 +1585,12 @@ class added_by_type_enum(enum.Enum):
     Admin=3
 
 class agg_hhc_professional_availability_detail(models.Model):#50
-    prof_avaib_dt_id=models.AutoField(primary_key=True)
-    #prof_avaib_id=models.ForeignKey(agg_hhc_professional_availability,on_delete=models.CASCADE,null=True)
-    start_time=models.TimeField(null=True)
-    end_time=models.TimeField(null=True)
-    #professional_zone_id=models.ForeignKey(agg_hhc_professional_zone,on_delete=models.CASCADE,null=True)
+	prof_avaib_dt_id=models.AutoField(primary_key=True)
+	professional_avaibility_id=models.ForeignKey('agg_hhc_professional_availability',on_delete=models.CASCADE,null=True)
+	start_time=models.TimeField(null=True)
+	end_time=models.TimeField(null=True)
+	professional_entered_zone=models.CharField(max_length=300,null=True)
+	#professional_zone_id=models.ForeignKey(agg_hhc_professional_zone,on_delete=models.CASCADE,null=True)
 
 class agg_hhc_professional_device_info(models.Model):#51
     prof_devi_info_id=models.AutoField(primary_key=True)
@@ -1613,11 +1617,12 @@ class agg_hhc_professional_documents(models.Model):#52
 
 
 class agg_hhc_professional_location_details(models.Model):#54
-    prof_loc_dt_id=models.AutoField(primary_key=True)
-    lattitude=models.FloatField(null=True)
-    longitude=models.FloatField(null=True)
-    location_name=models.TextField(null=True)
-    prof_zone_id=models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
+	prof_loc_dt_id=models.AutoField(primary_key=True)
+	prof_avaib_dt_id=models.ForeignKey('agg_hhc_professional_availability_detail',on_delete=models.CASCADE,null=True)
+	lattitude=models.FloatField(null=True)
+	longitude=models.FloatField(null=True)
+	#location_name=models.TextField(null=True)
+	#prof_zone_id=models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
 
 class agg_hhc_professional_location_preferences(models.Model):#55
     prof_loc_pref_id=models.AutoField(primary_key=True)
@@ -2701,4 +2706,3 @@ class PaymentRecord(models.Model):
     
 	def __str__(self):
 		return f"Payment: {self.order_amount} INR for Order ID: {self.order_id}"
-#----------------------------------------------------------------------------------------------------------------
