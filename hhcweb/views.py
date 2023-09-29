@@ -1070,16 +1070,58 @@ class get_payment_details(APIView):
                 "Pending_Amount" : payment_serializer.data[-1]['final_amount'] 
             }
             return Response(data)
+        
+#------------------------dashboard(mayank)------------------
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import agg_hhc_service_professionals
+from collections import Counter
+from django.utils import timezone
+from datetime import timedelta
+
+
+class JjobTypeCountAPIView(APIView):
+    def get(self, request, period, *args, **kwargs):
+        try:
+            # Define a dictionary to map period values to date ranges
+            period_to_date_range = {
+                1: (timezone.now(), timezone.now() - timedelta(days=1)),
+                2: (timezone.now(), timezone.now() - timedelta(weeks=1)),
+                3: (timezone.now(), timezone.now() - timedelta(days=30)),
+            }
+
+            # Get the date range based on the provided period
+            start_date, end_date = period_to_date_range.get(period, (timezone.now(), timezone.now()))
+
+            # Query the database to get job types for the specified period
+            job_types = agg_hhc_service_professionals.objects.filter(
+                added_date__gte=start_date, added_date__lte=end_date
+            ).values_list('Job_type', flat=True)
+
+            # Count the occurrences of each job type using Counter
+            job_type_counts = dict(Counter(job_types))
+
+            # Define a list of job types to include in the response
+            job_type_list = ['ONCALL', 'FULLTIME', 'PARTTIME']
+
+            # Create a response dictionary with counts for each job type
+            response_data = {job_type: job_type_counts.get(job_type, 0) for job_type in job_type_list}
+
+            return Response(response_data)
+        except Exception as e:
+            # Handle any exceptions or errors
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 #----------------------------------------------Payment----------------------------------------------------
-
-from datetime import datetime
-import requests as Req
-import json
-from urllib.parse import quote
+import requests
+from urllib.parse import quote  # Import the quote function for URL encoding
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from datetime import datetime
+import json
+from .models import PaymentRecord  # Import the PaymentRecord model
 
 @api_view(['POST'])
 def create_payment_url(request):
@@ -1088,77 +1130,78 @@ def create_payment_url(request):
     # Auto-generate the order ID date-wise
     order_id = "order_id_SPERO" + datetime.now().strftime("%d%m%Y%H%M%S")
     phone_no = request.data['customerPhone'][-10:]
-
-    amount = request.data['orderAmount']
+    ammount = request.data['orderAmount']
     name = request.data['customerName']
-    email = request.data['customerEmail']
-    remaining = request.data['Remainingamount']
-    total = request.data['totalamo']
+    email = request.data['customeremail']
+    remaining = request.data['Remaining_amount']
 
-    
+    eve_id = request.data.get('eve_id')
+    mode = request.data.get('mode')
+    total_amount = request.data.get('total_amount')
+    print(phone_no)
     payload = {
         "appId": "15581934423f8e9e947db8c600918551",
         "secretKey": "052b44487a4f0f1646614204b83679c68c3d41fb",
         "orderId": order_id,
-        "orderAmount": amount,
+        "orderAmount": ammount,
         "Remainingamount":remaining,
-        "totalamo":total,
         "orderCurrency": "INR",
         "orderNote": "HII",
         "customerName": name,
-        "customerEmail": email,
+        "customeremail": email,
         "customerPhone": phone_no,  
         "returnUrl": "https://payments-test.cashfree.com/links/response",  
         "notifyUrl": "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID="
     }
 
-    response = Req.request("POST", url, data=payload)
+    response = requests.request("POST", url, data=payload)
+    s = response.text
+    json_acceptable_string = s.replace("'", "\"")
+    d = json.loads(json_acceptable_string)
 
-    if response.status_code == 200:
-        try:
-            d = response.json()
-            status = d.get('status')
-            if status == 'OK':
-                payment_link = d.get('paymentLink')
-            else:
-                payment_link = None
-        except json.JSONDecodeError:
-            payment_link = None
-    else:
-        payment_link = None
+    # Assuming the response contains the payment link and payment status, you can extract them from the response.
+    payment_link = d.get('paymentLink')
+    print(payment_link)
 
+    api_key = "c27d7fa6-292c-4534-8dc4-a0dd28e7d7e3"
+    msg = f"this is your payment link: {payment_link}"
+    
     # Properly encode the content parameter for the WhatsApp API request
-    if payment_link:
-        api_key = "c27d7fa6-292c-4534-8dc4-a0dd28e7d7e3"
-        msg = f"this is your payment link: {payment_link}"
+    encoded_msg = quote(msg)
     
-        encoded_msg = quote(msg)
+    url = f"https://wa.chatmybot.in/gateway/waunofficial/v1/api/v1/sendmessage?access-token={api_key}&phone={phone_no}&content={encoded_msg}&fileName&caption&contentType=1"
     
-        # URL for sending WhatsApp message - You should check and update this URL
-        wa_url = f"https://wa.chatmybot.in/gateway/waunofficial/v1/api/v1/sendmessage?access-token={api_key}&phone={phone_no}&content={encoded_msg}&fileName&caption&contentType=1"
-    
-        try:
-            wa_response = Req.get(wa_url)
-            wa_response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
-            print("WhatsApp API Response:", wa_response.text)
-        except Req.exceptions.RequestException as e:
-            print("Error occurred while hitting the WhatsApp URL:", e)
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
+        print("URL successfully hit!")
+        print("WhatsApp API Response:", response.text)
+    except requests.exceptions.RequestException as e:
+        print("Error occurred while hitting the URL:", e)
 
     # ... Your existing code ...
     payment_status = d.get('paymentStatus') if d else None
 
+
+    if eve_id is not None:
+        event_instance, created = agg_hhc_events.objects.get_or_create(eve_id=eve_id)
+    else:
+        event_instance = None
+
     # Save payment record to the database
-    payment_record = PaymentRecord.objects.create(
+    payment_record = agg_hhc_payment_details.objects.create(
         order_id=order_id,
-        order_amount=payload['orderAmount'],
-        Remaining_amount = payload['Remainingamount'],
-        total_amo = payload['totalamo'],
+        amount_paid=payload['orderAmount'],
+        amount_remaining=payload['Remainingamount'],
+        Total_cost=total_amount,
         order_currency=payload['orderCurrency'],
         order_note=payload['orderNote'],
-        customer_name=payload['customerName'],
-        customer_email=payload['customerEmail'],
+        paid_by=payload['customerName'],
+        customer_email=payload['customeremail'],
         customer_phone=payload['customerPhone'],
         payment_status=payment_status,
+        eve_id=event_instance,
+        mode=mode,
     )
 
     # Return the payment link and payment status in the API response
@@ -1232,14 +1275,19 @@ class agg_hhc_sub_srv(APIView): # List of Sub-Services
 
 class agg_hhc_service_professional_api(APIView): # List of professionals
     def get(self, request, format=None):
-        zone = request.GET.get('zone')
+        zones = request.GET.get('zone')
         title = request.GET.get('title')
         pro = request.GET.get('pro')
-        sub_srv = request.GET.get('srv')
+        sub_srv = request.GET.get('sub_srv')
+
+        print(zones, title, pro, sub_srv)
         # zone = agg_hhc_service_professionals.objects.filter(prof_zone_id=zone)
-        # if zone == None or title == None or pro == None:
-        if zone or title:
-            zone = agg_hhc_service_professionals.objects.filter(Q(prof_zone_id=zone) | Q(title=title) | Q(srv_id=sub_srv))
+
+        if zones or title:
+            print(zones, title)
+            zones = agg_hhc_professional_zone.objects.get(prof_zone_id=zones)
+            zone = agg_hhc_service_professionals.objects.filter(Q(prof_zone_id=zones) | Q(title=title) | Q(srv_id=sub_srv))
+            print(zone.values)
         elif pro:
             zone = agg_hhc_service_professionals.objects.filter(srv_prof_id=pro)
         else:
@@ -2026,4 +2074,367 @@ class srv_canc_count(APIView):
                 'Total_service_cancelled_count' : queryset_count,
                 'today_cancel_data': cancell_by
             }
+        return Response(response_data)
+
+
+
+
+
+# ------------------------ Service Details API for dashboard --------
+    
+
+
+
+
+
+class srv_dtl_dash(APIView):
+    # serializer_class = srv_dtl_dash_serializer
+    def get(self, request, id, format=None):
+   
+        if id == 1:
+            today_data = agg_hhc_events.objects.filter(added_date=timezone.now())
+            com_srv = pend_srv = on_srv = agg_hhc_events.objects.none()
+            sch_srv = agg_hhc_event_plan_of_care.objects.none()
+            # com_srv = agg_hhc_events.objects.none()
+            if today_data:
+                # today = timezone.now().date()
+                com_srv = agg_hhc_events.objects.filter(event_status=3, added_date=timezone.now())
+                pend_srv = agg_hhc_events.objects.filter(event_status=1, added_date=timezone.now())
+                tomorrow = timezone.now() + timezone.timedelta(days=1)
+                sch_srv = agg_hhc_event_plan_of_care.objects.filter(start_date__gte=tomorrow)
+                # sch_srv = agg_hhc_events.objects.filter(event_status=2, added_date__gte=tomorrow)
+                # today = timezone.now().date()
+
+                eve_ids = today_data.values_list('eve_id', flat=True)
+                
+                on_srv = agg_hhc_events.objects.filter(event_status=2, added_date=timezone.now())
+              
+                tatal_count = today_data.count()
+
+                # -------------- Completed Services -----------
+                completed_srv = com_srv.count()
+                percent_srv = (completed_srv / tatal_count) * 100
+
+                # -------------- Pending Services -----------
+                pending_srv = pend_srv.count()
+                if pending_srv != 0:
+                    percent_pen_srv = (pending_srv / tatal_count) * 100
+
+                # -------------- Ongoing Services -----------
+                ong_srv = on_srv.count()
+                if on_srv != 0:
+                    percent_on_srv = (ong_srv / tatal_count) * 100
+                else:
+                    percent_on_srv = 0
+
+                # -------------- Schedule Services -----------
+                schd_srv = sch_srv.count()
+               
+            comp_srv_count={
+                'count_physio': com_srv.filter(srv_id=1).count(),
+                'count_physician'  : com_srv.filter(srv_id=2).count(),
+                'count_heal_attend' : com_srv.filter(srv_id=3).count(),
+                'count_X_ray' : com_srv.filter(srv_id=4).count(),
+                'count_nurse' : com_srv.filter(srv_id=5).count(),
+                # 'count_patheylogy' : count_patheylogy,
+                'count_patheylogy' : com_srv.filter(srv_id=6).count()
+
+            }
+            pend_srv_count={
+                'count_physio': pend_srv.filter(srv_id=1).count(),
+                'count_physician'  : pend_srv.filter(srv_id=2).count(),
+                'count_heal_attend' : pend_srv.filter(srv_id=3).count(),
+                'count_X_ray' : pend_srv.filter(srv_id=4).count(),
+                'count_nurse' : pend_srv.filter(srv_id=5).count(),
+                'count_patheylogy' : pend_srv.filter(srv_id=6).count()
+
+            }
+      
+            
+           
+            ong_srv_count = {
+                'count_physio': on_srv.filter(srv_id=1).count(),
+                'count_physician': on_srv.filter(srv_id=2).count(),
+                'count_heal_attend': on_srv.filter(srv_id=3).count(),
+                'count_X_ray': on_srv.filter(srv_id=4).count(),
+                'count_nurse': on_srv.filter(srv_id=5).count(),
+                'count_patheylogy': on_srv.filter(srv_id=6).count()
+            }
+
+
+            Completed_services = {
+                'completed_srv': completed_srv if 'completed_srv' in locals() else 0,
+                'percent_srv': int(percent_srv) if 'percent_srv' in locals() else 0,
+                'comp_srv_count': comp_srv_count
+                
+            }
+
+            Pending_services = {
+                'Pending_srv': pending_srv if 'pending_srv' in locals() else 0,
+                'percent_pen_srv': int(percent_pen_srv) if 'percent_pen_srv' in locals() else 0,
+                'pend_srv_count': pend_srv_count
+            }
+
+            # Scheduled_services = {
+            #         'Scheduled_srv': schd_srv,
+            #         'percent_sch_srv': int(percent_schd_srv),
+            #     }
+
+            Ongoing_services = {
+                'Ongoing_srv': ong_srv if 'ong_srv' in locals() else 0,
+                'percent_on_srv': int(percent_on_srv) if 'percent_on_srv' in locals() else 0,
+                'Scheduled_services': schd_srv if 'schd_srv' in locals() else 0,
+                'ong_srv_count' : ong_srv_count
+            }
+
+            response_data = {
+                'Total_services': tatal_count if 'tatal_count' in locals() else 0,
+                'Completed_services': Completed_services,
+                'Pending_services': Pending_services,
+                'ongoing_services': Ongoing_services,
+                'schedule_services' : sch_srv.count()
+            }
+
+        elif id == 2 :
+            seven_days_ago = timezone.now().date() - timedelta(days=7)
+
+           
+            this_week_data = agg_hhc_events.objects.filter(
+                added_date__range=[seven_days_ago, timezone.now().date()]
+            )
+            
+            com_srv = pend_srv = on_srv = agg_hhc_events.objects.none()
+            sch_srv = agg_hhc_event_plan_of_care.objects.none()
+            if this_week_data:
+                com_srv = agg_hhc_events.objects.filter(event_status=3, added_date__range=[seven_days_ago, timezone.now().date()])
+                pend_srv = agg_hhc_events.objects.filter(event_status=1, added_date__range=[seven_days_ago, timezone.now().date()])
+                tomorrow = timezone.now() + timezone.timedelta(days=7)
+                sch_srv = agg_hhc_event_plan_of_care.objects.filter(start_date__gte=tomorrow)
+
+                # today = timezone.now().date()
+                end_date = datetime.now().date()
+                start_date = end_date - timedelta(days=7)
+                
+                eve_ids = this_week_data.values_list('eve_id', flat=True)
+                
+                on_srv = agg_hhc_events.objects.filter(
+                    event_status=2,
+                    added_date__range=[start_date, end_date]
+                )
+                # on_eve_ids = on_srv.values_list('eve_id', flat=True)
+                # print('kkkkkkkkkkkkkkkk',on_eve_ids)
+
+
+                tatal_count = this_week_data.count()
+
+                # -------------- Completed Services -----------
+                completed_srv = com_srv.count()
+                percent_com_srv = (completed_srv / tatal_count) * 100
+
+                # -------------- Pending Services -----------
+                pending_srv = pend_srv.count()
+                if pending_srv != 0:
+                    percent_pen_srv = (pending_srv / tatal_count) * 100
+
+                # -------------- Ongoing Services -----------
+                ong_srv = on_srv.count()
+               
+                if on_srv != 0:
+                    percent_on_srv = (ong_srv / tatal_count) * 100
+                else :
+                    percent_on_srv = 0
+
+                # # -------------- Schedule Services -----------
+                schd_srv = sch_srv.count()
+                # if schd_srv != 0:
+                #     percent_schd_srv = (schd_srv / on_srv) * 100
+            
+
+
+            comp_srv_count={
+                'count_physio': com_srv.filter(srv_id=1).count(),
+                'count_physician'  : com_srv.filter(srv_id=2).count(),
+                'count_heal_attend' : com_srv.filter(srv_id=3).count(),
+                'count_X_ray' : com_srv.filter(srv_id=4).count(),
+                'count_nurse' : com_srv.filter(srv_id=5).count(),
+                # 'count_patheylogy' : count_patheylogy,
+                'count_patheylogy' : com_srv.filter(srv_id=6).count()
+
+            }
+            pend_srv_count={
+                'count_physio': pend_srv.filter(srv_id=1).count(),
+                'count_physician'  : pend_srv.filter(srv_id=2).count(),
+                'count_heal_attend' : pend_srv.filter(srv_id=3).count(),
+                'count_X_ray' : pend_srv.filter(srv_id=4).count(),
+                'count_nurse' : pend_srv.filter(srv_id=5).count(),
+                'count_patheylogy' : pend_srv.filter(srv_id=6).count()
+
+            }
+      
+            
+           
+            ong_srv_count = {
+                'count_physio': on_srv.filter(srv_id=1).count(),
+                'count_physician': on_srv.filter(srv_id=2).count(),
+                'count_heal_attend': on_srv.filter(srv_id=3).count(),
+                'count_X_ray': on_srv.filter(srv_id=4).count(),
+                'count_nurse': on_srv.filter(srv_id=5).count(),
+                'count_patheylogy': on_srv.filter(srv_id=6).count()
+            }
+
+
+
+
+            Completed_services = {
+                'completed_srv': percent_com_srv if 'percent_com_srv' in locals() else 0,
+                'percent_srv': int(percent_srv) if 'percent_srv' in locals() else 0,
+                'comp_srv_count': comp_srv_count
+            }
+
+            Pending_services = {
+                'Pending_srv': pending_srv if 'pending_srv' in locals() else 0,
+                'percent_pen_srv': int(percent_pen_srv) if 'percent_pen_srv' in locals() else 0,
+                'pend_srv_count' : pend_srv_count
+            }
+
+            # Scheduled_services = {
+            #         'Scheduled_srv': schd_srv,
+            #         'percent_sch_srv': int(percent_schd_srv),
+            #     }
+
+            Ongoing_services = {
+                'Ongoing_srv': ong_srv if 'ong_srv' in locals() else 0,
+                'percent_on_srv': int(percent_on_srv) if 'percent_on_srv' in locals() else 0,
+                # 'Scheduled_services': Scheduled_services
+                'ong_srv_count' : ong_srv_count
+            }
+
+            response_data = {
+                'Total_cases': tatal_count if 'tatal_count' in locals() else 0,
+                'Completed_services': Completed_services,
+                'Pending_services': Pending_services,
+                'ongoing_services': Ongoing_services,
+                'schedule_services' : sch_srv.count()
+            } 
+
+        elif id == 3 :
+            end_date = datetime.now().date()
+            start_date = end_date.replace(day=1)
+
+            this_month_data = agg_hhc_events.objects.filter(
+                added_date__range=[start_date.isoformat(), end_date.isoformat()]
+            )
+                        
+          
+            if this_month_data:
+                com_srv = agg_hhc_events.objects.filter(event_status=3, added_date__range=[start_date, timezone.now().date()])
+                pend_srv = agg_hhc_events.objects.filter(event_status=1, added_date__range=[start_date, timezone.now().date()])
+
+                eve_ids = this_month_data.values_list('eve_id', flat=True)
+                tomorrow = timezone.now() + timezone.timedelta(days=7)
+                sch_srv = agg_hhc_event_plan_of_care.objects.filter(
+                    Q(start_date__gte=tomorrow) & Q(eve_id__in=eve_ids))
+
+
+                on_srv = agg_hhc_events.objects.filter(
+                    event_status=2,
+                    added_date__range=[start_date, end_date]
+                )
+
+
+                tatal_count = this_month_data.count()
+
+                # -------------- Completed Services -----------
+                completed_srv = com_srv.count()
+                percent_srv = (completed_srv / tatal_count) * 100
+
+                # -------------- Pending Services -----------
+                pending_srv = pend_srv.count()
+                if pending_srv != 0:
+                    percent_pen_srv = (pending_srv / tatal_count) * 100
+
+                # -------------- Ongoing Services -----------
+                ong_srv = on_srv.count()
+                print(on_srv)
+                if on_srv != 0:
+                    percent_on_srv = (ong_srv / tatal_count) * 100
+                else :
+                    percent_on_srv = 0
+
+                # -------------- Schedule Services -----------
+                schd_srv = sch_srv.count()
+                # if schd_srv != 0:
+                #     percent_schd_srv = (schd_srv / on_srv) * 100
+            
+
+            
+            comp_srv_count={
+                'count_physio': com_srv.filter(srv_id=1).count(),
+                'count_physician'  : com_srv.filter(srv_id=2).count(),
+                'count_heal_attend' : com_srv.filter(srv_id=3).count(),
+                'count_X_ray' : com_srv.filter(srv_id=4).count(),
+                'count_nurse' : com_srv.filter(srv_id=5).count(),
+                # 'count_patheylogy' : count_patheylogy,
+                'count_patheylogy' : com_srv.filter(srv_id=6).count()
+
+            }
+            pend_srv_count={
+                'count_physio': pend_srv.filter(srv_id=1).count(),
+                'count_physician'  : pend_srv.filter(srv_id=2).count(),
+                'count_heal_attend' : pend_srv.filter(srv_id=3).count(),
+                'count_X_ray' : pend_srv.filter(srv_id=4).count(),
+                'count_nurse' : pend_srv.filter(srv_id=5).count(),
+                'count_patheylogy' : pend_srv.filter(srv_id=6).count()
+
+            }
+      
+            
+           
+            ong_srv_count = {
+                'count_physio': on_srv.filter(srv_id=1).count(),
+                'count_physician': on_srv.filter(srv_id=2).count(),
+                'count_heal_attend': on_srv.filter(srv_id=3).count(),
+                'count_X_ray': on_srv.filter(srv_id=4).count(),
+                'count_nurse': on_srv.filter(srv_id=5).count(),
+                'count_patheylogy': on_srv.filter(srv_id=6).count()
+            }
+
+
+            Completed_services = {
+                'completed_srv': completed_srv if 'completed_srv' in locals() else 0,
+                'percent_srv': int(percent_srv) if 'percent_srv' in locals() else 0,
+                'comp_srv_count': comp_srv_count
+            }
+
+            Pending_services = {
+                'Pending_srv': pending_srv if 'pending_srv' in locals() else 0,
+                'percent_pen_srv': int(percent_pen_srv) if 'percent_pen_srv' in locals() else 0,
+                'pend_srv_count': pend_srv_count
+            }
+
+            Scheduled_services = {
+                    'Scheduled_srv': schd_srv if 'schd_srv' in locals() else 0
+                    # 'percent_sch_srv': int(percent_schd_srv),
+                }
+
+            Ongoing_services = {
+                'Ongoing_srv': ong_srv if 'ong_srv' in locals() else 0,
+                'percent_on_srv': int(percent_on_srv) if 'percent_on_srv' in locals() else 0,
+                'Scheduled_services': Scheduled_services,   
+                'ong_srv_count': ong_srv_count
+            }
+
+            response_data = {
+                'Total_cases': tatal_count if 'tatal_count' in locals() else 0,
+                'Completed_services': Completed_services,
+                'Pending_services': Pending_services,
+                'ongoing_services': Ongoing_services,
+                'schedule_services' : schd_srv
+                
+            }
+
+        else:
+            response_data = {
+            'message': 'Invalid id provided. Please provide a valid id.'
+        }
         return Response(response_data)

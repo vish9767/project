@@ -89,7 +89,7 @@ DATABASES = {
     # }
     'default': {
         'ENGINE' : 'django.db.backends.postgresql',
-        'NAME' : 'hhc_database',#hhc_database#test5
+        'NAME' : 'last',#hhc_database#test5
         'USER' : 'postgres',
         'PASSWORD' : 'root',
         'HOST' : 'localhost',

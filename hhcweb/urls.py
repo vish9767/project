@@ -61,6 +61,7 @@ urlpatterns = [
     path('create_payment/', views.create_payment_url, name='create_payment_url'),
     path('cashfree-webhook/', views.cashfree_webhook, name='cashfree_webhook'),
     path('payment-detail/',views.PaymentDetailAPIView.as_view(), name='payment-detail-api'),
+    path('jjob-type-count/<int:period>/', views.JjobTypeCountAPIView.as_view(), name='job-type-count'),
 
     # -------------------- vinayak ------------------
 
@@ -68,7 +69,9 @@ urlpatterns = [
     path('service_reschedule/<int:eve_id>/',views.service_reschedule_view.as_view()),
     path('prof_reschedule/<int:eve_id>/', views.Professional_Reschedule_Apiview.as_view()),
     path('service_cancellation/<int:eve_id>', views.ServiceCancellationView.as_view()),
-    path('professional_availability_api/<int:srv_id>/',views.get_all_avail_professionals.as_view()),    
+    path('professional_availability_api/<int:srv_id>/',views.get_all_avail_professionals.as_view()), 
+    path('srv_cancel_count_dashbord/<int:id>', views.srv_canc_count.as_view()), 
+    path('srv_dtl_dash/<int:id>', views.srv_dtl_dash.as_view()),
 
     #-------------------------------------------Amit---------------------------------------------------------
     path('Follow_Up_combined_table/', views.agg_hhc_service_enquiry_list_combined_table_view.as_view()),
