@@ -58,8 +58,8 @@ class agg_hhc_add_document(APIView):
             return Response({'message':'sucessful'},status=status.HTTP_201_CREATED)
         return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
     
-    def get(self,request):
-        data=webmodel.agg_hhc_professional_documents.objects.all()
+    def get(self,request,pk):
+        data=webmodel.agg_hhc_professional_documents.objects.filter(professional_id=pk)
         serializers = agg_hhc_add_document_serializer(data,many=True)
         doc_list_ID = [{'prof_doc_id': item['prof_doc_id'],'professional_id':item['professional_id'],'doc_list_id':item['doc_li_id'],'professional_document':item['professional_document']} for item in serializers.data]
 
