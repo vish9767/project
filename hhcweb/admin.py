@@ -4,7 +4,7 @@ from . models import *
 from hhcweb.models import agg_com_colleague
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django import forms
-# from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.contrib.auth.forms import ReadOnlyPasswordHashField
 # from import_export.admin import ImportExportModelAdmin
 
 
@@ -42,7 +42,7 @@ class UserChangeForm(forms.ModelForm):
     the user, but replaces the password field with admin's
     password hash display field.
     """
-    password = ReadOnlyPasswordHashField()
+    # password = ReadOnlyPasswordHashField()
 
     class Meta:
         model = agg_com_colleague

@@ -2711,13 +2711,4 @@ class PaymentRecord(models.Model):
 	created_at = models.DateTimeField(default=timezone.now)
     
 	def __str__(self):
-<<<<<<< HEAD
 		return f"Payment: {self.order_amount} INR for Order ID: {self.order_id}"
-#----------------------------------------------------------------------------------------------------------------
-
-class demoProfile(models.Model):
-	name = models.CharField(max_length=100, null=True)
-	profile = models.ImageField(upload_to='images',null=True)
-=======
-		return f"Payment: {self.order_amount} INR for Order ID: {self.order_id}"
->>>>>>> e7adb361bd5ab0f02d35ff4c67c7b33ce95b82e2

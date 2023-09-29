@@ -23,10 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('web/',include('hhcweb.urls')),
     path('app/',include('hhcapp.urls')),
-<<<<<<< HEAD
-    path('professional_app/',include('hhc_professional_app.urls')),
-]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-=======
+    # path('professional_app/',include('hhc_professional_app.urls')),
     path('pro_app/',include('hhc_professional_app.urls')),
-]
->>>>>>> 427c65131da3fdc2ccdbecbca89763431f9d3363
+]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

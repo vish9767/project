@@ -73,7 +73,7 @@ urlpatterns = [
     path('professional_availability_api/<int:srv_id>/',views.get_all_avail_professionals.as_view()),
 
     path('srv_cancel_count_dash/<int:id>', views.srv_canc_count.as_view()),
-    path('srv_dtl_dash/<int:id>', views.srv_dtl_dash.as_view()),    
+    # path('srv_dtl_dash/<int:id>', views.srv_dtl_dash.as_view()),    
 
     #-------------------------------------------Amit---------------------------------------------------------
     path('Follow_Up_combined_table/', views.agg_hhc_service_enquiry_list_combined_table_view.as_view()),

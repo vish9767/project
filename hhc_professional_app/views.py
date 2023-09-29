@@ -15,7 +15,7 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
-<<<<<<< HEAD
+
 class professional_OTPLOGIN(APIView):
     def post(self,request):
         number = request.data.get('phone_no')
@@ -29,7 +29,7 @@ class professional_OTPLOGIN(APIView):
             print("otp for this is ",otp)
             return Response({'phone_no':number,'OTP':otp})  
         else:
-            professional_serializer=serializer.agg_hhc_service_professionals_serializer(data=request.data)
+            professional_serializer=agg_hhc_service_professionals_serializer(data=request.data)
             if professional_serializer.is_valid():
                 print("this is otp ",otp)
                 phone=professional_serializer.validated_data['phone_no']=number
@@ -42,7 +42,7 @@ class professional_OTPLOGIN(APIView):
 class agg_hhc_document_list(APIView):
     def get(self,request,pk):
         call= webmodel.agg_hhc_documetns_list.objects.filter(professional_role=pk)
-        serializers=serializer.agg_hhc_document_list_serializer(call,many=True)
+        serializers=agg_hhc_document_list_serializer(call,many=True)
         doc_list_ID = [{'doc_list_ID': item['doc_li_id'],'Documents_name':item['Documents_name'],'professional_role':item['professional_role']} for item in serializers.data]
 
         response_data={
@@ -52,7 +52,7 @@ class agg_hhc_document_list(APIView):
 
 class agg_hhc_add_document(APIView):    
     def post(self,request):
-        serialized= serializer.agg_hhc_add_document_serializer(data=request.data)
+        serialized= agg_hhc_add_document_serializer(data=request.data)
         if serialized.is_valid():
             serialized.save()
             return Response({'message':'sucessful'},status=status.HTTP_201_CREATED)
@@ -60,7 +60,7 @@ class agg_hhc_add_document(APIView):
     
     def get(self,request):
         data=webmodel.agg_hhc_professional_documents.objects.all()
-        serializers = serializer.agg_hhc_add_document_serializer(data,many=True)
+        serializers = agg_hhc_add_document_serializer(data,many=True)
         doc_list_ID = [{'prof_doc_id': item['prof_doc_id'],'professional_id':item['professional_id'],'doc_list_id':item['doc_li_id'],'professional_document':item['professional_document']} for item in serializers.data]
 
         response_data={
@@ -68,7 +68,7 @@ class agg_hhc_add_document(APIView):
         }
             # data.append(data1)
         return Response(response_data)
-=======
+
 def send_otp(mobile,msg):
     url=(f"https://wa.chatmybot.in/gateway/waunofficial/v1/api/v1/sendmessage?access-token={AUTH_KEY}&phone={mobile}&content={msg}&fileName&caption&contentType=1")
     try:
@@ -145,19 +145,16 @@ class OTPCHECK(APIView):
                 return Response({"message": "Wrong OTP"})
 
         except Exception as e:
-<<<<<<< HEAD
+
             # Handle any other exceptions here
-            return Response({"message": "An error occurred: {}".format(str(e))})
->>>>>>> 427c65131da3fdc2ccdbecbca89763431f9d3363
-=======
             return Response({"message": "An error occurred: {}".format(str(e))})
         
 
 
 #-------------------------vishal is working on it
 
-class add_professional_avb(APIView):
-    def post(self,request):
-        print("data is not ")
-        print("data inside ",request.data)
->>>>>>> e7adb361bd5ab0f02d35ff4c67c7b33ce95b82e2
+# class add_professional_avb(APIView):
+#     def post(self,request):
+#         print("data is not ")
+#         print("data inside ",request.data)
+
