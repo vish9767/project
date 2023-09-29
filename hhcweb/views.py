@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from hhcweb.serializers import *
 from hhcweb.models import *
 import json
+from collections import Counter
 from django.db.models import Q
 from rest_framework import status,permissions
 from django.utils import timezone
@@ -321,8 +322,8 @@ class agg_hhc_add_service_details_api(APIView):
         # print(callerID,'llllsecond')
         if request.data['purp_call_id']==1:
             # print('4')
-            request.data['event_status']=1             
-            patient= agg_hhc_patients.objects.filter(phone_no=request.data['phone_no']).first()
+            request.data['event_status']=1 
+            patient= agg_hhc_patients.objects.filter(phone_no=request.data['phone_no']).first()           
             if patient:
                 # patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
                 # patientID=patient.first().agg_sp_pt_id 
@@ -453,6 +454,15 @@ class agg_hhc_add_service_details_api(APIView):
             return Response({"Service Created Event Code":[{"event_id":eventID},events.data,{"event_plan_of_care_id":event_plane_of_care}]})
 
         else:
+            request.data['event_id']=eventID
+            request.data['follow_up']=2
+
+            create_follow_up= agg_hhc_enquiry_create_follow_up_serializer(data= request.data)
+            if create_follow_up.is_valid():
+                # callers.validated_data['caller_status']=3
+                create_follow_up.save()
+            else:
+                return Response([create_follow_up.errors])
             return Response({"Service Created Event Code":eventID})
         
     # def get_event(self,pk):
@@ -592,6 +602,7 @@ class agg_hhc_add_service_details_api(APIView):
             events=agg_hhc_event_response_serializer(event)
             return Response({"Service Created Event Code":[{"event_id":eventID},events.data,{"event_plan_of_care_id":event_plane_of_care}]})
         else:
+            # agg_hhc_enquiry_create_follow_up_serializer
             return Response({"Service Created Event Code":eventID})
 
 
@@ -849,7 +860,7 @@ class  agg_hhc_service_professionals_api(APIView):
     
 
 class calculate_discount_api(APIView):
-    def get(self, request,dtype,damount,total_amt):#dtype,amount,total_amt
+    def get(self, request,dtype=0,damount=0,total_amt=0):#dtype,amount,total_amt
         dtype=dtype
         amount=damount
         total_amt=total_amt
@@ -867,7 +878,7 @@ class calculate_discount_api(APIView):
 
 
 class calculate_total_amount(APIView):
-    def get(self,request,cost,start_date,end_date):
+    def get(self,request,cost=0,start_date=None,end_date=None):
         # start_date_string = request.data['start_date']
         # end_date_string = request.data['end_date'] 
         start_date_string = start_date
@@ -877,7 +888,16 @@ class calculate_total_amount(APIView):
         print(start_date_string)     
         try:
             start_date = datetime.strptime(str(start_date_string), '%Y-%m-%d %H:%M').date()
+            start_time = datetime.strptime(str(start_date_string), '%Y-%m-%d %H:%M').time()
             end_date = datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').date() 
+            end_time = datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').time() 
+
+            # if start_date>end_date or (start_date==end_date and start_time>end_time):
+            #     return Response({'days_difference':0})           
+            # diff = (end_time.hour)-(start_time.hour)
+            # day = (end_date - start_date).days
+            # total = (diff * cost)*(day+1)
+
             if start_date>end_date:
                 return Response({'days_difference':0})           
             diff = (end_date - start_date).days 
@@ -1050,12 +1070,13 @@ class get_payment_details(APIView):
         if event.data:
             # print(event.data)
             payment_serializer=GetPaymentDetailSerializer(event.data,many=True)
-            # print(payment_serializer)
+            paid_amt = sum(item['amount_paid'] for item in payment_serializer.data)
+            print(paid_amt)
             data={
                 "eve_id" : payment_serializer.data[-1]['eve_id'], 
                 "Total_Amount" : payment_serializer.data[-1]['Total_cost'], 
-                "Paid_Amount" : payment_serializer.data[-1]['amount_paid'], 
-                "Pending_Amount" : payment_serializer.data[-1]['amount_remaining'] 
+                "Paid_Amount" : paid_amt, 
+                "Pending_Amount" : payment_serializer.data[-1]['Total_cost'] - paid_amt
             }
             # print(payment_serializer.data['amount_paid'])
             return Response(data)
@@ -1114,6 +1135,38 @@ class JjobTypeCountAPIView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class JjobTypeCountAPIView(APIView):
+    def get(self, request, period, *args, **kwargs):
+        try:
+            # Define a dictionary to map period values to date ranges
+            period_to_date_range = {
+                1: (timezone.now(), timezone.now() - timedelta(days=1)),
+                2: (timezone.now(), timezone.now() - timedelta(weeks=1)),
+                3: (timezone.now(), timezone.now() - timedelta(days=30)),
+            }
+
+            # Get the date range based on the provided period
+            start_date, end_date = period_to_date_range.get(period, (timezone.now(), timezone.now()))
+
+            # Query the database to get job types for the specified period
+            job_types = agg_hhc_service_professionals.objects.filter(
+                added_date__gte=start_date, added_date__lte=end_date
+            ).values_list('Job_type', flat=True)
+
+            # Count the occurrences of each job type using Counter
+            job_type_counts = dict(Counter(job_types))
+
+            # Define a list of job types to include in the response
+            job_type_list = ['ONCALL', 'FULLTIME', 'PARTTIME']
+
+            # Create a response dictionary with counts for each job type
+            response_data = {job_type: job_type_counts.get(job_type, 0) for job_type in job_type_list}
+
+            return Response(response_data)
+        except Exception as e:
+            # Handle any exceptions or errors
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 #----------------------------------------------Payment----------------------------------------------------
 import requests
 from urllib.parse import quote  # Import the quote function for URL encoding
@@ -1121,7 +1174,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from datetime import datetime
 import json
-from .models import PaymentRecord  # Import the PaymentRecord model
+# from .models import PaymentRecord  # Import the PaymentRecord model
 
 @api_view(['POST'])
 def create_payment_url(request):
@@ -1512,6 +1565,7 @@ class OngoingServiceView(APIView):
         data =  agg_hhc_events.objects.all()
         serializer = self.serializer_class(data, many=True)  
         filtered_data = [item for item in serializer.data if item is not None]
+        print(serializer.data)
         return Response(filtered_data)
     
 # -------------------------------------Amit Rasale---------------------------------------------------------------
@@ -1558,45 +1612,22 @@ class agg_hhc_enquiry_Add_follow_up_create_service_APIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-  
-
-# class agg_hhc_service_enquiry_list_combined_table_view(APIView):
-#     def get(self, request, eve_id=None, *args, **kwargs):
-#         queryset =  agg_hhc_events.objects.filter(purp_call_id=2)
-#         if eve_id is not None:
-#             queryset = queryset.filter(eve_id=eve_id)
-#         serializer =  agg_hhc_service_enquiry_list_serializer(queryset, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-from .models import agg_hhc_events
-from .serializers import agg_hhc_service_enquiry_list_serializer
 
 class agg_hhc_service_enquiry_list_combined_table_view(APIView):
-    def get(self, request, eve_id=None, *args, **kwargs):
-        # Make sure eve_id is a valid integer or None
-        try:
-            eve_id = int(eve_id)
-        except (TypeError, ValueError):
-            eve_id = None
-
-        # Filter the queryset based on eve_id
+    def get(self, request, eve_id=None,event_id=None, *args, **kwargs):
         queryset = agg_hhc_events.objects.filter(purp_call_id=2)
         if eve_id is not None:
-            queryset = queryset.filter(eve_id=eve_id)
-
-        # Serialize the queryset
+            try:
+                eve_id = int(eve_id)
+                queryset = queryset.filter(eve_id=eve_id)
+            except (TypeError, ValueError):
+                pass
+        queryset = queryset.exclude(agg_hhc_enquiry_follow_up__follow_up='1')
         serializer = agg_hhc_service_enquiry_list_serializer(queryset, many=True)
 
-        # Check if there are any matching records
         if not serializer.data:
             return Response({"detail": "No matching records found"}, status=status.HTTP_404_NOT_FOUND)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-    
-
     
 #------------------------------------coupon--code----------------------------------------------------------
  
@@ -1822,20 +1853,20 @@ class allocate_api(APIView):
         event_plan_of_care=agg_hhc_event_plan_of_care.objects.filter(eve_id=event_id).first()
         event_plan_of_care_serializer=agg_hhc_event_plan_of_care_serializer(event_plan_of_care)
         event_plan_of_care_id_is=event_plan_of_care_serializer.data.get('eve_poc_id')
-        print("event name",event_plan_of_care)
+        # print("event name",event_plan_of_care)
         event_plan_of_care.srv_prof_id=professional_instance #to update and save new field here
         event_plan_of_care.save()
         event_professional=agg_hhc_event_professional.objects.create(eve_id=event_id,srv_prof_id=professional_instance,eve_poc_id=event_plan_of_care,srv_id=service_id,status=1)
         event_professional.save()
         try:
             detailed_event_poc=agg_hhc_detailed_event_plan_of_care.objects.filter(eve_id=request.data.get('eve_id'))
-            print("detailed event plan of care",detailed_event_poc)
+            # print("detailed event plan of care",detailed_event_poc)
         except:
             return Response({'message':"detailed_event_plan_of_care not found"},status=404)
         for i in detailed_event_poc:
             i.srv_prof_id=professional_instance
             i.status=1
-            print(i)
+            # print(i)
             i.save()
         event_id.event_status=2
         event_id.status=1

@@ -63,6 +63,7 @@ urlpatterns = [
     path('payment-detail/',views.PaymentDetailAPIView.as_view(), name='payment-detail-api'),
     path('jjob-type-count/<int:period>/', views.JjobTypeCountAPIView.as_view(), name='job-type-count'),
 
+
     # -------------------- vinayak ------------------
 
     path('ongoing_service', views.OngoingServiceView.as_view()),
@@ -81,7 +82,6 @@ urlpatterns = [
     path('cancel_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_APIView.as_view()),
     path('create_service_follow_up/', views.agg_hhc_enquiry_Add_follow_up_create_service_APIView.as_view()),
     # path('previous_follow_up/', views.agg_hhc_enquiry_previous_follow_up_APIView.as_view()),
-    
 
     # path('cancel_spero_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Spero_APIView.as_view()),
     # path('cancel_patent_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Patent_APIView.as_view()),    
@@ -102,8 +102,6 @@ urlpatterns = [
     path('coupon_code_api',views.coupon_code_api.as_view()),
     path('allocate_api',views.allocate_api.as_view()),
     path('Dashboard_enquiry_count_api/<int:id>',views.Dashboard_enquiry_count_api.as_view()),
-    path('Dashboard_enquiry_status_count_api/<int:id>',views.Dashboard_enquiry_status_count_api.as_view())
-
-
+    path('Dashboard_enquiry_status_count_api/<int:id>',views.Dashboard_enquiry_status_count_api.as_view()),
 ]
 

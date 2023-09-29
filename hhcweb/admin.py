@@ -5,7 +5,7 @@ from hhcweb.models import agg_com_colleague
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-
+# from import_export.admin import ImportExportModelAdmin
 
 
 # Register your models here.
@@ -42,7 +42,7 @@ class UserChangeForm(forms.ModelForm):
     the user, but replaces the password field with admin's
     password hash display field.
     """
-    password = ReadOnlyPasswordHashField()
+    # password = ReadOnlyPasswordHashField()
 
     class Meta:
         model = agg_com_colleague
@@ -94,6 +94,9 @@ admin.site.register(agg_hhc_assessment_patient)#2
 admin.site.register(agg_hhc_assessment_patient_details)#3
 admin.site.register(agg_hhc_assessment_patient_list)#4
 admin.site.register(agg_hhc_patients)#6
+# @admin.register(agg_hhc_patients)
+# class userdataa(ImportExportModelAdmin):
+#     pass
 #admin.site.register(agg_hhc_webinar_patient_table)#7
 admin.site.register(agg_hhc_detailed_event_plan_of_care)#8
 admin.site.register(agg_hhc_events)#9

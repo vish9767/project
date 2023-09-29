@@ -271,6 +271,7 @@ class service_status_enum(enum.Enum):
 	Ongoing = 2
 	Completed = 3
 	terminated = 4
+	__default__= Ongoing
 
 #-------------------------------sandip shimpi-------------------------------
 class refer_by_enum(enum.Enum):
@@ -302,7 +303,8 @@ class follow_up(models.TextChoices):
     Create_Service = 3
     follow_up_pending = 2
 	
-    __deafult__ = 2
+    __deafult__ = follow_up_pending
+	
 # ------------------------------------------------------------------------
 
 class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
@@ -699,6 +701,8 @@ class agg_hhc_patients(models.Model):#6    demo
 			last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
 			self.hhc_code = f"{prefix}HC{last_sequence:05d}"
 		return super().save(*args, **kwargs)
+	# class Meta:
+	# 	db_table='agg_hhc_patients'
 	
 	
 # class agg_hhc_webinar_patient_table(models.Model):#7
@@ -1456,8 +1460,11 @@ class agg_hhc_payments_received_by_professional(models.Model):#48
 
 class agg_hhc_professional_availability(models.Model):#49
 	professional_avaibility_id = models.AutoField(primary_key = True)
-	prof_srv_id = models.IntegerField(null=True) #agg_hhc_professional_services
-	day = models.CharField(max_length=8,null=True)
+	#prof_srv_id = models.IntegerField(null=True) #agg_hhc_professional_services
+	availability_Date=models.DateField(null=True)
+	added_date=models.DateTimeField(default=timezone.now)
+	#day = models.CharField(max_length=8,null=True)
+	srv_prof_id=models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
 
 # ------------------------------------------------------------------------------------------------------------------
 class prof_enum(enum.Enum): 
@@ -1493,11 +1500,12 @@ class consultant_status_enum(enum.Enum):
 
 
 class documents_enum(enum.Enum):
-    Verified=1
-    need_more_details=2
-    Rejected=3
-    In_Progress=4
-    
+	Verified=1
+	need_more_details=2
+	Rejected=3
+	In_Progress=4
+	__default__ = In_Progress
+	
 class truefalse_enum(enum.Enum):
     true=1
     false=2
@@ -1582,11 +1590,12 @@ class added_by_type_enum(enum.Enum):
     Admin=3
 
 class agg_hhc_professional_availability_detail(models.Model):#50
-    prof_avaib_dt_id=models.AutoField(primary_key=True)
-    #prof_avaib_id=models.ForeignKey(agg_hhc_professional_availability,on_delete=models.CASCADE,null=True)
-    start_time=models.TimeField(null=True)
-    end_time=models.TimeField(null=True)
-    #professional_zone_id=models.ForeignKey(agg_hhc_professional_zone,on_delete=models.CASCADE,null=True)
+	prof_avaib_dt_id=models.AutoField(primary_key=True)
+	professional_avaibility_id=models.ForeignKey('agg_hhc_professional_availability',on_delete=models.CASCADE,null=True)
+	start_time=models.TimeField(null=True)
+	end_time=models.TimeField(null=True)
+	professional_entered_zone=models.CharField(max_length=300,null=True)
+	#professional_zone_id=models.ForeignKey(agg_hhc_professional_zone,on_delete=models.CASCADE,null=True)
 
 class agg_hhc_professional_device_info(models.Model):#51
     prof_devi_info_id=models.AutoField(primary_key=True)
@@ -1601,23 +1610,25 @@ class agg_hhc_professional_device_info(models.Model):#51
     added_date=models.DateTimeField(default=timezone.now,null=True)
 
 class agg_hhc_professional_documents(models.Model):#52
-    prof_doc_id=models.AutoField(primary_key=True)
-
-    #professional_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
-    #doc_li_id=models.ForeignKey(agg_hhc_documetns_list,on_delete=models.CASCADE,null=True)
-    url_path=models.CharField(max_length=1000,null=True)
-    rejection_reason=models.CharField(max_length=200,null=True,blank=True)
-    status=enum.EnumField(documents_enum,null=True)
-    isVerified=enum.EnumField(truefalse_enum,null=True)
+	def nameField(instance,filename):
+		return "/".join(['media',str(instance.professional_id.prof_fullname),filename])
+	prof_doc_id=models.AutoField(primary_key=True)
+	professional_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
+	doc_li_id=models.ForeignKey('agg_hhc_documetns_list',on_delete=models.CASCADE,null=True)
+	professional_document=models.FileField(upload_to=nameField,null=True)  #change urp_path to professional_document and char to filefield #sandip shimpi
+	rejection_reason=models.CharField(max_length=200,null=True,blank=True)
+	status=enum.EnumField(documents_enum,null=True)
+	isVerified=enum.EnumField(truefalse_enum,null=True)
 
 
 
 class agg_hhc_professional_location_details(models.Model):#54
-    prof_loc_dt_id=models.AutoField(primary_key=True)
-    lattitude=models.FloatField(null=True)
-    longitude=models.FloatField(null=True)
-    location_name=models.TextField(null=True)
-    prof_zone_id=models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
+	prof_loc_dt_id=models.AutoField(primary_key=True)
+	prof_avaib_dt_id=models.ForeignKey('agg_hhc_professional_availability_detail',on_delete=models.CASCADE,null=True)
+	lattitude=models.FloatField(null=True)
+	longitude=models.FloatField(null=True)
+	#location_name=models.TextField(null=True)
+	#prof_zone_id=models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
 
 class agg_hhc_professional_location_preferences(models.Model):#55
     prof_loc_pref_id=models.AutoField(primary_key=True)
@@ -1880,7 +1891,7 @@ class agg_hhc_doctors_consultants(models.Model):#76
 
 class agg_hhc_documetns_list(models.Model):#77
     doc_li_id=models.AutoField(primary_key=True)
-    professional_type=models.IntegerField(null=True)
+    professional_role=models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True)  # Remane Field professional_type to professional_role # Sandip Shimpi
     Documents_name=models.CharField(max_length=50,null=True)
     Added_date=models.DateTimeField(default=timezone.now,null=True)
     isManadatory=enum.EnumField(truefalse_enum,null=True)
@@ -2507,7 +2518,8 @@ class agg_mas_group(models.Model):
 # Custom User Manager
 class agg_colleague_manager(BaseUserManager):
 
-    def create_user(self, clg_ref_id, clg_first_name, clg_mid_name ,clg_last_name ,grp_id , clg_email ,clg_mobile_no ,clg_gender ,clg_address ,clg_is_login ,clg_designation ,clg_state ,clg_division ,clg_district ,clg_break_type ,clg_senior ,clg_hos_id ,clg_agency_id ,clg_status ,clg_added_by ,clg_modify_by ,clg_Date_of_birth ,clg_Work_phone_number ,clg_work_email_id ,clg_Emplyee_code ,clg_qualification,clg_avaya_agentid ,clg_Aadhar_no,clg_specialization ,clg_profile_photo_path ,clg_joining_date ,clg_marital_status, password=None, password2=None):
+    def create_user(self, clg_ref_id, clg_first_name, clg_mid_name ,clg_last_name ,grp_id , clg_email ,clg_mobile_no ,clg_gender ,clg_address ,clg_is_login ,clg_designation ,clg_state ,clg_division ,clg_district ,clg_break_type ,clg_senior ,clg_hos_id ,clg_agency_id ,clg_status ,clg_added_by ,clg_modify_by ,clg_Date_of_birth ,clg_Work_phone_number ,clg_work_email_id ,clg_Emplyee_code ,clg_qualification,clg_avaya_agentid ,clg_Aadhar_no,clg_specialization ,clg_profile_photo_path ,clg_joining_date ,clg_marital_status, clg_otp, clg_otp_count, clg_otp_expire_time, password=None, password2=None):
+
         """
         Creates and saves a User with the given email, name, tc and password.
         """
@@ -2545,6 +2557,9 @@ class agg_colleague_manager(BaseUserManager):
             clg_joining_date = clg_joining_date,
             clg_status = clg_status,
             clg_marital_status = clg_marital_status,
+			clg_otp = clg_otp,
+			clg_otp_count = clg_otp_count,
+			clg_otp_expire_time = clg_otp_expire_time,
             clg_added_by = clg_added_by ,
             clg_modify_by = clg_modify_by
         )
@@ -2553,7 +2568,8 @@ class agg_colleague_manager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, clg_ref_id, clg_first_name, clg_mid_name ,clg_last_name, grp_id ,clg_email ,clg_mobile_no ,clg_gender ,clg_address ,clg_is_login ,clg_designation ,clg_state ,clg_division ,clg_district ,clg_break_type ,clg_senior ,clg_hos_id ,clg_agency_id ,clg_status ,clg_added_by ,clg_modify_by ,clg_Date_of_birth ,clg_Work_phone_number ,clg_work_email_id ,clg_Emplyee_code ,clg_qualification,clg_avaya_agentid ,clg_Aadhar_no,clg_specialization, clg_profile_photo_path ,clg_joining_date ,clg_marital_status, password=None):
+    def create_superuser(self, clg_ref_id, clg_first_name, clg_mid_name ,clg_last_name, grp_id ,clg_email ,clg_mobile_no ,clg_gender ,clg_address ,clg_is_login ,clg_designation ,clg_state ,clg_division ,clg_district ,clg_break_type ,clg_senior ,clg_hos_id ,clg_agency_id ,clg_status ,clg_added_by ,clg_modify_by ,clg_Date_of_birth ,clg_Work_phone_number ,clg_work_email_id ,clg_Emplyee_code ,clg_qualification,clg_avaya_agentid ,clg_Aadhar_no,clg_specialization, clg_profile_photo_path ,clg_joining_date ,clg_marital_status, clg_otp, clg_otp_count, clg_otp_expire_time, password=None):
+
         """Creates and saves a superuser with the given email, name, tc and password."""
         user = self.create_user(
             clg_email=clg_email,
@@ -2587,61 +2603,67 @@ class agg_colleague_manager(BaseUserManager):
             clg_joining_date = clg_joining_date,
             clg_status = clg_status,
             clg_marital_status = clg_marital_status,
+			clg_otp = clg_otp,
+			clg_otp_count = clg_otp_count,
+			clg_otp_expire_time = clg_otp_expire_time,
             clg_added_by = clg_added_by ,
             clg_modify_by = clg_modify_by
         )
+
         user.is_admin = True
         user.save(using=self._db)
         return user
 
-
 class agg_com_colleague(AbstractBaseUser):
     # clg_id = models.AutoField(primary_key=True, auto_created=True)
-    clg_ref_id = models.CharField(max_length=15,unique=True, null=True)
-    # clg_ref_id2 = models.CharField(max_length=15, null=True)
+    clg_ref_id = models.CharField(max_length=15,unique=True, null=True, blank=True)
     clg_email = models.EmailField(
         verbose_name='email address',
         max_length=255,
         unique=True,
-        null= True
+        null= True,
+        blank=True
     )
-    clg_work_email_id =	models.EmailField(max_length=100, null=True)
-    clg_hos_id = models.IntegerField(null=True)
-    clg_agency_id =	models.IntegerField(null=True)
-    clg_Emplyee_code =	models.CharField(max_length=15, null=True)
-    clg_avaya_agentid =	models.IntegerField(null=True)
-    clg_first_name = models.CharField(max_length=15, null=True)
-    clg_mid_name =	models.CharField(max_length=15, null=True)
-    clg_last_name =	models.CharField(max_length=15, null=True)
+    clg_work_email_id =	models.EmailField(max_length=100, null=True, blank=True)
+    clg_hos_id = models.IntegerField(null=True, blank=True)
+    clg_agency_id =	models.IntegerField(null=True, blank=True)
+    clg_Emplyee_code =	models.CharField(max_length=15, null=True, blank=True)
+    clg_avaya_agentid =	models.IntegerField(null=True, blank=True)
+    clg_first_name = models.CharField(max_length=15, null=True, blank=True)
+    clg_mid_name =	models.CharField(max_length=15, null=True, blank=True)
+    clg_last_name =	models.CharField(max_length=15, null=True, blank=True)
     grp_id = models.IntegerField(null=True)
-    # grp_id = models.ForeignKey(agg_mas_group,related_name='clg_group', on_delete=models.CASCADE, null=True, default=None)
-    clg_gender = models.CharField(max_length=15, null=True)
-    clg_mobile_no =	models.IntegerField(null=True)
-    clg_Work_phone_number =	models.IntegerField(null=True)
-    clg_Date_of_birth =	models.DateField(null=True)
-    clg_Aadhar_no =	models.BigIntegerField(null=True)
-    clg_designation = models.CharField(max_length=15, null=True)
-    clg_qualification =	models.CharField(max_length=15, null=True)
-    clg_specialization = models.CharField(max_length=15, null=True)
-    clg_address = models.CharField(max_length=100, null=True)
-    clg_state =	models.IntegerField(null=True)
-    clg_division =	models.IntegerField(null=True)
-    clg_district =	models.IntegerField(null=True)
-    clg_senior = models.CharField(max_length=15, null=True)
-    clg_break_type = models.IntegerField(null=True)
-    clg_status = models.CharField(max_length=15, default=True, null=True)    
-    clg_profile_photo_path = models.CharField(max_length=100, null=True)
-    clg_joining_date =	models.CharField(max_length=30, null=True)
-    clg_marital_status = models.CharField(max_length=15, null=True)
-    is_active = models.BooleanField(default=True)
-    clg_is_login =	models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    clg_added_by =	models.IntegerField(null=True)
-    clg_added_date = models.DateField(auto_now_add=True)
-    clg_modify_by =	models.IntegerField(null=True)
-    clg_modify_date = models.DateField(auto_now=True, null=True)
+    #grp_id = models.ForeignKey(agg_mas_group,related_name='clg_group', on_delete=models.CASCADE, null=True, default=None, blank=True)
+    clg_gender = models.CharField(max_length=15, null=True, blank=True)
+    clg_mobile_no =	models.BigIntegerField(unique=True, null=True, blank=True)
+    clg_Work_phone_number =	models.BigIntegerField(null=True, blank=True)
+    clg_Date_of_birth =	models.DateField(null=True, blank=True)
+    clg_Aadhar_no =	models.BigIntegerField(null=True, blank=True)
+    clg_designation = models.CharField(max_length=15, null=True, blank=True)
+    clg_qualification =	models.CharField(max_length=15, null=True, blank=True)
+    clg_specialization = models.CharField(max_length=15, null=True, blank=True)
+    clg_address = models.CharField(max_length=100, null=True, blank=True)
+    clg_state =	models.IntegerField(null=True, blank=True)
+    clg_division =	models.IntegerField(null=True, blank=True)
+    clg_district =	models.IntegerField(null=True, blank=True)
+    clg_senior = models.CharField(max_length=15, null=True, blank=True)
+    clg_break_type = models.IntegerField(null=True, blank=True)
+    clg_status = models.CharField(max_length=15, default=True, null=True, blank=True)    
+    clg_profile_photo_path = models.CharField(max_length=100, null=True, blank=True)
+    clg_joining_date =	models.CharField(max_length=30, null=True, blank=True)
+    clg_marital_status = models.CharField(max_length=15, null=True, blank=True)
+    clg_otp =	models.IntegerField(null=True, blank=True)
+    clg_otp_count =	models.IntegerField(null=True, blank=True)
+    clg_otp_expire_time =	models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True, blank=True)
+    clg_is_login =	models.BooleanField(default=False, blank=True)
+    is_admin = models.BooleanField(default=False, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, blank=True)
+    clg_added_by =	models.IntegerField(null=True, blank=True)
+    clg_added_date = models.DateField(auto_now_add=True, blank=True)
+    clg_modify_by =	models.IntegerField(null=True, blank=True)
+    clg_modify_date = models.DateField(auto_now=True, null=True, blank=True)
 
     username = None
     email = None
@@ -2650,9 +2672,13 @@ class agg_com_colleague(AbstractBaseUser):
 
     EMAIL_FIELD = 'clg_email'
     GROUP_FIELD = 'grp_id'
+
+
     USERNAME_FIELD = 'clg_ref_id'
 
-    REQUIRED_FIELDS = ['grp_id','clg_first_name', 'clg_mid_name' ,'clg_last_name' ,'clg_email' ,'clg_mobile_no', 'clg_gender' ,'clg_address' ,'clg_is_login' ,'clg_designation' ,'clg_state' ,'clg_division' ,'clg_district' ,'clg_break_type' ,'clg_senior' ,'clg_hos_id' ,'clg_agency_id' ,'clg_status' ,'clg_added_by' ,'clg_modify_by' ,'clg_Date_of_birth' ,'clg_Work_phone_number' ,'clg_work_email_id' ,'clg_Emplyee_code' ,'clg_qualification','clg_avaya_agentid' ,'clg_Aadhar_no','clg_specialization', 'clg_profile_photo_path' ,'clg_joining_date' ,'clg_marital_status',]
+
+    REQUIRED_FIELDS = ['grp_id','clg_first_name', 'clg_mid_name' ,'clg_last_name' ,'clg_email' ,'clg_mobile_no', 'clg_gender' ,'clg_address' ,'clg_is_login' ,'clg_designation' ,'clg_state' ,'clg_division' ,'clg_district' ,'clg_break_type' ,'clg_senior' ,'clg_hos_id' ,'clg_agency_id' ,'clg_status' ,'clg_added_by' ,'clg_modify_by' ,'clg_Date_of_birth' ,'clg_Work_phone_number' ,'clg_work_email_id' ,'clg_Emplyee_code' ,'clg_qualification','clg_avaya_agentid' ,'clg_Aadhar_no','clg_specialization', 'clg_profile_photo_path' ,'clg_joining_date' ,'clg_marital_status', 'clg_otp', 'clg_otp_count', 'clg_otp_expire_time']
+
 
     def __str__(self):
         return self.clg_ref_id
@@ -2679,23 +2705,18 @@ class agg_hhc_enquiry_follow_up_cancellation_reason(models.Model):
 	cancel_by_id= enum.EnumField(cancel_from,null=True)
 #----------------------------------- Mayank Bhatt -------------------------------------------------------------
 
-class PaymentRecord(models.Model):
-    order_id = models.CharField(max_length=255,null=True)
-    order_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True)
-    remaining = models.DecimalField(max_digits=10, decimal_places=2,null=True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True)
-    order_currency = models.CharField(max_length=3,null=True)
-    order_note = models.CharField(max_length=255,null=True)
-    customer_name = models.CharField(max_length=255,null=True)
-    customer_email = models.EmailField(null=True)
-    customer_phone = models.CharField(max_length=15,null=True)
-    payment_status = models.CharField(max_length=255,null=True)
-    eve_id = models.CharField(max_length=255,null=True)
-    mode = models.CharField(max_length=255,null=True)
-    created_at = models.DateTimeField(auto_now_add=True,null=True)
-
-    def __str__(self):
-        return self.order_id
-
-
-#----------------------------------------------------------------------------------------------------------------
+# class PaymentRecord(models.Model):
+# 	order_id = models.CharField(max_length=100,null=True)
+# 	order_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+# 	Remaining_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+# 	total_amo = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+# 	order_currency = models.CharField(max_length=10,null=True)
+# 	order_note = models.CharField(max_length=255, null=True, blank=True)
+# 	customer_name = models.CharField(max_length=100,null=True)
+# 	customer_email = models.EmailField(max_length=100,null=True)
+# 	customer_phone = models.CharField(max_length=20,null=True)
+# 	payment_status = models.CharField(max_length=20, blank=True, null=True)
+# 	created_at = models.DateTimeField(default=timezone.now)
+    
+# 	def __str__(self):
+# 		return f"Payment: {self.order_amount} INR for Order ID: {self.order_id}"

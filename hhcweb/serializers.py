@@ -1,15 +1,17 @@
 from rest_framework import serializers
-from hhcweb.models import agg_com_colleague, agg_hhc_professional_zone, agg_hhc_service_professionals, agg_hhc_detailed_event_plan_of_care
+from hhcweb.models import agg_com_colleague, agg_hhc_professional_zone, agg_hhc_service_professionals, agg_hhc_detailed_event_plan_of_care, agg_mas_group
+from django.contrib.auth.hashers import make_password, check_password
 from hhcweb import models
 
 # We are writing this because we need confirm password field in our Registration Request
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={'input_type':'password'}, write_only=True)
-    # grp_id = serializers.PrimaryKeyRelatedField(queryset=agg_mas_group.objects.all(),many=False)
+    grp_id = serializers.PrimaryKeyRelatedField(queryset=agg_mas_group.objects.all(),many=False)
     
     class Meta:
         model  = agg_com_colleague
-        fields = ['pk','clg_ref_id', 'clg_first_name', 'clg_mid_name' ,'clg_last_name' ,'grp_id' ,'clg_email' ,'clg_mobile_no' ,'clg_gender' ,'clg_address' ,'clg_is_login' ,'clg_designation' ,'clg_state' ,'clg_division' ,'clg_district' ,'clg_break_type' ,'clg_senior' ,'clg_hos_id' ,'clg_agency_id' ,'clg_status' ,'clg_added_by' ,'clg_modify_by' ,'clg_Date_of_birth' ,'clg_Work_phone_number' ,'clg_work_email_id' ,'clg_Emplyee_code' ,'clg_qualification','clg_avaya_agentid' ,'clg_Aadhar_no','clg_specialization', 'clg_profile_photo_path' ,'clg_joining_date' ,'clg_marital_status', 'password','password2']
+        # fields = ['pk','clg_ref_id','grp_id','clg_mobile_no', 'clg_otp', 'password','password2']
+        fields = ['pk','clg_ref_id', 'clg_first_name', 'clg_mid_name' ,'clg_last_name' ,'grp_id' ,'clg_email' ,'clg_mobile_no' ,'clg_gender' ,'clg_address' ,'clg_is_login' ,'clg_designation' ,'clg_state' ,'clg_division' ,'clg_district' ,'clg_break_type' ,'clg_senior' ,'clg_hos_id' ,'clg_agency_id' ,'clg_status' ,'clg_added_by' ,'clg_modify_by' ,'clg_Date_of_birth' ,'clg_Work_phone_number' ,'clg_work_email_id' ,'clg_Emplyee_code' ,'clg_qualification','clg_avaya_agentid' ,'clg_Aadhar_no','clg_specialization', 'clg_profile_photo_path' ,'clg_joining_date' ,'clg_marital_status',  'clg_otp', 'clg_otp_count', 'clg_otp_expire_time', 'password','password2']
 
         extra_kwargs = {
             'password':{'write_only':True}
@@ -26,6 +28,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         group_data = validated_data.pop('grp_id')
         validated_data['grp_id'] = group_data
+
+        # Hash the password before creating the user
+        password = validated_data.pop('password')
+        validated_data['password'] = make_password(password)
+
+        # Create a new user with the hashed password
         user = agg_com_colleague.objects.create_user(**validated_data)
         user.save()
         return user
@@ -250,6 +258,7 @@ class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
 #______________________________________agg_hhc_callers_serializer_____________
 class agg_hhc_callers_details_serializer(serializers.ModelSerializer):#20
     # fullname = serializers.SerializerMethodField()
+    caller_rel_id=relation_serializer()
     class Meta:
         model=models.agg_hhc_callers
         fields=('caller_fullname','caller_id','phone','caller_rel_id','Age','gender','email','contact_no','alter_contact','Address','save_this_add','profile_pic')
@@ -316,7 +325,6 @@ class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
 
 
 #--------------------------------------mayank--------------------------------------------
-#dashboard---------------------
 class JobTypeCountSerializer(serializers.ModelSerializer):
     class Meta :
         model  = agg_hhc_service_professionals
@@ -496,7 +504,7 @@ class OngoingServiceSerializer(serializers.ModelSerializer):
         status = instance.status
         if status == 1 and event_status == 2:
             return super().to_representation(instance)
-   
+
     
     def get_Pending_amount(self, instance):
         total_cost = instance.Total_cost
@@ -526,6 +534,13 @@ class agg_hhc_enquiry_Add_follow_up_serializer(serializers.ModelSerializer):
         model=models.agg_hhc_enquiry_follow_up
         fields=('enq_follow_up_id', 'event_id', 'follow_up', 'follow_up_date_time', 'previous_follow_up_remark')
         # fields = '__all__'
+
+class agg_hhc_enquiry_create_follow_up_serializer(serializers.ModelSerializer):   
+    class Meta:
+        model=models.agg_hhc_enquiry_follow_up
+        fields=('enq_follow_up_id', 'event_id','follow_up')
+
+
 class agg_hhc_enquiry_follow_up_cancellation_reason_spero_serializer(serializers.ModelSerializer):   
     class Meta:
         model=models.agg_hhc_enquiry_follow_up_cancellation_reason
@@ -550,8 +565,8 @@ class agg_hhc_enquiry_Add_follow_up_create_service_serializer(serializers.ModelS
 
 class enquiries_service_serializer(serializers.ModelSerializer):   
     class Meta:
-        model=models.agg_hhc_enquiry_follow_up
-        fields=('enq_follow_up_id', 'event_id', 'follow_up')
+        model= models.agg_hhc_enquiry_follow_up
+        fields=('enq_follow_up_id', 'event_id', 'follow_up','added_date','last_modified_date')
 class services(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_services
@@ -573,10 +588,10 @@ class AggHhcPatientListEnquirySerializer(serializers.ModelSerializer):
         model = models.agg_hhc_patient_list_enquiry
         fields = [ 'pt_id',  'name', 'phone_no', 'Suffered_from', 'prof_zone_id']    #sandip
 
+from django.db.models import Max, Q
 class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
     srv_id = ServiceNameSerializer(many=True, source = 'event_id')
     pt_id = AggHhcPatientListEnquirySerializer()
-    # enq_follow_up_id = enquiries_service_serializer(many=True)
     folloup_id = serializers.SerializerMethodField()
 
     class Meta:
@@ -584,8 +599,21 @@ class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
         fields = ('eve_id','event_code', 'patient_service_status', 'pt_id','srv_id', 'folloup_id')     #amit
 
     def get_folloup_id(self, obj):
-        queryset = models.agg_hhc_enquiry_follow_up.objects.filter(event_id = obj.eve_id)
-        print(queryset)
+        latest_follow_up_date = models.agg_hhc_enquiry_follow_up.objects.filter(
+            event_id=obj.eve_id
+        ).aggregate(latest_date=Max('follow_up_date_time'))['latest_date']
+
+        has_follow_up_1 = models.agg_hhc_enquiry_follow_up.objects.filter(
+            event_id=obj.eve_id,
+            follow_up='1'
+        ).exists()
+        if has_follow_up_1:
+            return []
+        if latest_follow_up_date is None:
+            return []
+        queryset = models.agg_hhc_enquiry_follow_up.objects.filter(
+            event_id=obj.eve_id
+        ).exclude(Q(follow_up='1') | Q(follow_up_date_time__lt=latest_follow_up_date))
         serializer = enquiries_service_serializer(queryset, many=True)
         respose_data = {
             'data': serializer.data
