@@ -12,5 +12,9 @@ urlpatterns=[
 =======
     path('pro_login',views.ProfessionalOTPLogin.as_view()),
     path('pro_otp_chk',views.OTPCHECK.as_view()),
+<<<<<<< HEAD
 >>>>>>> 427c65131da3fdc2ccdbecbca89763431f9d3363
+=======
+    path('pro_avb',views.add_professional_avb.as_view())
+>>>>>>> e7adb361bd5ab0f02d35ff4c67c7b33ce95b82e2
 ]

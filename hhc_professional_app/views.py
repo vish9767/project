@@ -145,6 +145,19 @@ class OTPCHECK(APIView):
                 return Response({"message": "Wrong OTP"})
 
         except Exception as e:
+<<<<<<< HEAD
             # Handle any other exceptions here
             return Response({"message": "An error occurred: {}".format(str(e))})
 >>>>>>> 427c65131da3fdc2ccdbecbca89763431f9d3363
+=======
+            return Response({"message": "An error occurred: {}".format(str(e))})
+        
+
+
+#-------------------------vishal is working on it
+
+class add_professional_avb(APIView):
+    def post(self,request):
+        print("data is not ")
+        print("data inside ",request.data)
+>>>>>>> e7adb361bd5ab0f02d35ff4c67c7b33ce95b82e2
