@@ -163,7 +163,13 @@ class agg_hhc_city(serializers.ModelSerializer):
         model = models.agg_hhc_city
         fields = ['city_id','city_name']
 
+class hospital_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_hospitals
+        fields = ['hosp_id', 'hospital_name']
+
 class patient_detail_serializer(serializers.ModelSerializer):
+    preferred_hosp_id=hospital_serializer()
     doct_cons_id=preffered_proffesional()
     prof_zone_id=patient_get_zone_serializer()
     state_id = agg_hhc_state()
@@ -178,10 +184,7 @@ class update_patient_detail_serializer(serializers.ModelSerializer):
         fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'phone_no', 'patient_email_id','doct_cons_id','Age', 'state_id' ,'city_id' ,'address' ,'pincode' ,'prof_zone_id']
         # fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'phone_no', 'patient_email_id','doct_cons_id','Age','state_id' ,'city_id' ,'address' ,'pincode' ,'prof_zone_id']
 
-class hospital_serializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.agg_hhc_hospitals
-        fields = ['hosp_id', 'hospital_name']
+
 
 class payment_status(serializers.Serializer):
     class Meta:
@@ -481,7 +484,7 @@ class AggHhcPaymentsSerializer(serializers.ModelSerializer):
         fields = ['event_id', 'amount']
 
 
-
+from django.db.models import Sum
 class OngoingServiceSerializer(serializers.ModelSerializer):
     agg_sp_pt_id = PatientSerializer()
     srv_prof_id = ProfesNameSerializer(many=True, source = 'event_id')
@@ -507,12 +510,17 @@ class OngoingServiceSerializer(serializers.ModelSerializer):
         total_cost = instance.Total_cost
         event_id = instance.eve_id
         try:
-            # payment = models.agg_hhc_payments.objects.get(event_id=event_id)
-            payment = models.agg_hhc_payment_details.objects.get(eve_id=event_id).latest()
-            # amount = payment.amount
-            amount = payment.amount_paid
-            return total_cost - amount
-        except models.agg_hhc_payments.DoesNotExist:
+            
+
+            payment_sum = models.agg_hhc_payment_details.objects.filter(eve_id=event_id).aggregate(total_amount_paid=Sum('amount_paid'))['total_amount_paid']
+            print(payment_sum,'=================')
+            if payment_sum is not None:
+                return total_cost - payment_sum
+            else:
+                return total_cost
+
+        
+        except models.agg_hhc_payment_details.DoesNotExist:
             return total_cost
 
 # -------------------------------------Amit Rasale------------------------------------------------------------
@@ -525,6 +533,13 @@ class agg_hhc_enquiry_Add_follow_up_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_enquiry_follow_up
         fields=('enq_follow_up_id', 'event_id', 'follow_up', 'follow_up_date_time', 'previous_follow_up_remark')
+        # fields = '__all__'
+
+class agg_hhc_enquiry_create_follow_up_serializer(serializers.ModelSerializer):   
+    class Meta:
+        model=models.agg_hhc_enquiry_follow_up
+        fields=('enq_follow_up_id', 'event_id','follow_up')
+
 
 class agg_hhc_enquiry_follow_up_cancellation_reason_spero_serializer(serializers.ModelSerializer):   
     class Meta:
