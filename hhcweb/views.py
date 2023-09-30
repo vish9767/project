@@ -892,16 +892,16 @@ class calculate_total_amount(APIView):
             end_date = datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').date() 
             end_time = datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').time() 
 
-            # if start_date>end_date or (start_date==end_date and start_time>end_time):
-            #     return Response({'days_difference':0})           
-            # diff = (end_time.hour)-(start_time.hour)
-            # day = (end_date - start_date).days
-            # total = (diff * cost)*(day+1)
-
-            if start_date>end_date:
+            if start_date>end_date or (start_date==end_date and start_time>end_time):
                 return Response({'days_difference':0})           
-            diff = (end_date - start_date).days 
-            total = (diff+1) * cost          
+            diff = (end_time.hour)-(start_time.hour)
+            day = (end_date - start_date).days
+            total = (diff * cost)*(day+1)
+
+            # if start_date>end_date:
+            #     return Response({'days_difference':0})           
+            # diff = (end_date - start_date).days 
+            # total = (diff+1) * cost          
             return Response({'days_difference': total})
         except ValueError:
             return Response({'error': 'Invalid date format'}, status=400)
