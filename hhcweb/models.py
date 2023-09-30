@@ -289,6 +289,31 @@ class patient_richedBy_status_enum(enum.Enum):
 	walking=3
 	calling=4
 
+class Professional_status(enum.Enum):
+	Info_Submitted = 1
+	In_process_with_HR = 2
+	Interview_schedule = 3
+	On_Board = 4
+	Document_varified = 5
+
+class Education_level(enum.Enum):
+    Tenthpass = 0
+    Twelthpass = 1
+    Highschool = 2
+    Diploma = 3
+    Bachelor = 4
+    Master= 5
+    Doctorate= 6
+
+class Designation(enum.Enum):     # Added by mayank
+    NURSE = 1
+    DOCTOR = 2
+    Healthcare_Attendant = 3
+    Physician_Assistant = 4
+    Physiotherapiest = 5
+    X_Ray_Technician = 6
+    Uro_Technician = 7
+
 
 # --------------------------------Amit Rasale-----------------------------
 class follow_up_cancel_by(models.TextChoices):
@@ -1210,6 +1235,18 @@ class agg_hhc_service_professionals(models.Model):#32
 	Calendar = models.DateField(auto_now=False, auto_now_add=False, null=True)
 	# srv_id = models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True)#added by mayank
 	Experience = models.FloatField(null=True)#added by mayank
+	gender = enum.EnumField(pt_gender_enum, null = True)
+	Education_level = enum.EnumField(Education_level, null = True)
+	pin_code_id = models.CharField(max_length=50,null=True)
+	city = models.ForeignKey('agg_hhc_city', on_delete=models.CASCADE, null=True)
+	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
+	# cv_file = models.FileField(upload_to='uploads/')
+	cv_file = models.FileField(upload_to='pdfs/')
+	# uploaded_at = models.DateTimeField(auto_now_add=True)
+	designation = enum.EnumField(Designation, null=True)
+	availability = models.DateTimeField(auto_now=False, auto_now_add=False,null=True)
+	professinal_status = enum.EnumField(Professional_status, null=True)
+
 
 
 class agg_hhc_service_professional_details(models.Model):#33
@@ -1614,26 +1651,28 @@ class agg_hhc_professional_documents(models.Model):#52
 		return "/".join(['media',str(instance.professional_id.prof_fullname),filename])
 	prof_doc_id=models.AutoField(primary_key=True)
 	professional_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
-	doc_li_id=models.ForeignKey('agg_hhc_documetns_list',on_delete=models.CASCADE,null=True)
+	doc_li_id=models.ForeignKey('agg_hhc_documents_list',on_delete=models.CASCADE,null=True)
 	professional_document=models.FileField(upload_to=nameField,null=True)  #change urp_path to professional_document and char to filefield #sandip shimpi
 	rejection_reason=models.CharField(max_length=200,null=True,blank=True)
 	status=enum.EnumField(documents_enum,null=True)
 	isVerified=enum.EnumField(truefalse_enum,null=True)
 
-
+class agg_hhc_professional_location(models.Model):#53
+	prof_loc_id=models.AutoField(primary_key=True)
+	srv_prof_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
+	name=models.CharField(max_length=100,null=True)
 
 class agg_hhc_professional_location_details(models.Model):#54
-	prof_loc_dt_id=models.AutoField(primary_key=True)
-	prof_avaib_dt_id=models.ForeignKey('agg_hhc_professional_availability_detail',on_delete=models.CASCADE,null=True)
-	lattitude=models.FloatField(null=True)
-	longitude=models.FloatField(null=True)
-	#location_name=models.TextField(null=True)
-	#prof_zone_id=models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
+    prof_loc_dt_id=models.AutoField(primary_key=True)
+    lattitude=models.FloatField(null=True)
+    longitude=models.FloatField(null=True)
+    location_name=models.TextField(null=True)
+    prof_loc_id=models.ForeignKey('agg_hhc_professional_location',on_delete=models.CASCADE,null=True)
 
 class agg_hhc_professional_location_preferences(models.Model):#55
     prof_loc_pref_id=models.AutoField(primary_key=True)
-    #srv_prof_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
-    prof_zone_id=models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
+    srv_prof_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
+    prof_loc_id=models.ForeignKey('agg_hhc_professional_location',on_delete=models.CASCADE,null=True)
     max_latitude=models.FloatField(null=True)
     min_latitude=models.FloatField(null=True)
     max_longitude=models.FloatField(null=True)
@@ -1889,7 +1928,7 @@ class agg_hhc_doctors_consultants(models.Model):#76
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
 
-class agg_hhc_documetns_list(models.Model):#77
+class agg_hhc_documents_list(models.Model):#77
     doc_li_id=models.AutoField(primary_key=True)
     professional_role=models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True)  # Remane Field professional_type to professional_role # Sandip Shimpi
     Documents_name=models.CharField(max_length=50,null=True)
@@ -2712,3 +2751,4 @@ class PaymentRecord(models.Model):
     
 	def __str__(self):
 		return f"Payment: {self.order_amount} INR for Order ID: {self.order_id}"
+

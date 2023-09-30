@@ -168,7 +168,7 @@ admin.site.register(agg_hhc_content)#73
 admin.site.register(agg_hhc_dash_count_details)#74
 admin.site.register(agg_hhc_device_version_info)#75
 admin.site.register(agg_hhc_doctors_consultants)#76
-admin.site.register(agg_hhc_documetns_list)#77
+admin.site.register(agg_hhc_documents_list)#77
 admin.site.register(agg_hhc_doc_con)#78
 admin.site.register(agg_hhc_employees)#79
 admin.site.register(agg_hhc_emp_spero)#80

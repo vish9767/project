@@ -1,32 +1,9 @@
 from rest_framework import serializers
-from hhcweb import models as webmodel
-from hhcweb.models import agg_com_colleague
-class agg_hhc_service_professionals_serializer(serializers.Serializer):
-    class Meta:
-        model=webmodel.agg_hhc_service_professionals
-        fields = '__all__'
-    def create(self,validated_data):
-        return webmodel.agg_hhc_service_professionals.objects.create(**validated_data)
-
-class professional_role(serializers.ModelSerializer):
-    class Meta:
-        model = webmodel.agg_hhc_services
-        fields = ['service_title','srv_id']
-
-class agg_hhc_document_list_serializer(serializers.ModelSerializer):
-    professional_role = professional_role()
-    class Meta:
-        model = webmodel.agg_hhc_documetns_list
-        fields = ['doc_li_id','Documents_name','professional_role']
-
-class agg_hhc_add_document_serializer(serializers.ModelSerializer):
-    class Meta:
-        model = webmodel.agg_hhc_professional_documents
-        fields = ['prof_doc_id','professional_id','doc_li_id','professional_document']
+from hhcweb.models import *
 
 class agg_hhc_service_professionals_serializer(serializers.Serializer):
     class Meta:
-        model=webmodel.agg_hhc_service_professionals
+        model=agg_hhc_service_professionals
         # fields = '__all__'
         fields = ['srv_prof_id','phone_no', 'OTP']
 
@@ -34,7 +11,7 @@ class agg_hhc_service_professionals_serializer(serializers.Serializer):
         return data
         
     def create(self,validated_data):
-        pro_obj = webmodel.agg_hhc_service_professionals.objects.create(**validated_data)
+        pro_obj = agg_hhc_service_professionals.objects.create(**validated_data)
         return pro_obj
     
 
@@ -45,3 +22,61 @@ class UserRegistrationSerializer2(serializers.ModelSerializer):
 
     def validate(self, data):
         return data
+    
+    
+class agg_hhc_professional_location_serializer(serializers.ModelSerializer):
+
+    class Meta:
+        model  = agg_hhc_professional_location
+
+        fields = ['prof_loc_id','srv_prof_id', 'name']
+        
+    def validate(self, data):
+        return data
+
+
+class agg_hhc_professional_location_details_serializer(serializers.ModelSerializer):
+    class Meta:
+        model  = agg_hhc_professional_location_details
+        fields = ['prof_loc_dt_id','lattitude', 'longitude', 'prof_loc_id']
+
+    def validate(self, data):
+        return data
+    
+
+    
+    
+
+# ---------------------------------------- Professional Register ---------------------------
+from hhcweb.models import Professional_status
+class reg_prof_api_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = agg_hhc_service_professionals
+        fields = ['srv_id', 'title','prof_fullname','dob','gender','email_id','phone_no','alt_phone_no','eme_contact_no','eme_contact_relation',
+                  'eme_conact_person_name','availability_status','prof_zone_id','state_name','city','pin_code_id',
+                  'prof_sub_srv_id','Education_level','cv_file','certificate_registration_no','availability']
+    
+    def create(self, validated_data):
+        # You can set the enum value you want here
+        validated_data['professinal_status'] = Professional_status.Info_Submitted
+
+        instance = super(reg_prof_api_serializer, self).create(validated_data)
+        return instance
+    
+
+# ------------------------------Professional document upload -------------------------------------------
+class agg_hhc_add_document_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = agg_hhc_professional_documents
+        fields = ['prof_doc_id','professional_id','doc_li_id','professional_document']
+
+class professional_role(serializers.ModelSerializer):
+    class Meta:
+        model = agg_hhc_services
+        fields = ['service_title','srv_id']
+
+class agg_hhc_document_list_serializer(serializers.ModelSerializer):
+    professional_role = professional_role()
+    class Meta:
+        model = agg_hhc_documents_list
+        fields = ['doc_li_id','Documents_name','professional_role']

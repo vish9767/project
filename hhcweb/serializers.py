@@ -525,16 +525,6 @@ class agg_hhc_enquiry_Add_follow_up_serializer(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_enquiry_follow_up
         fields=('enq_follow_up_id', 'event_id', 'follow_up', 'follow_up_date_time', 'previous_follow_up_remark')
-<<<<<<< Updated upstream
-        # fields = '__all__'
-
-class agg_hhc_enquiry_create_follow_up_serializer(serializers.ModelSerializer):   
-    class Meta:
-        model=models.agg_hhc_enquiry_follow_up
-        fields=('enq_follow_up_id', 'event_id','follow_up')
-
-=======
->>>>>>> Stashed changes
 
 class agg_hhc_enquiry_follow_up_cancellation_reason_spero_serializer(serializers.ModelSerializer):   
     class Meta:
