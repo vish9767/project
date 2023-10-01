@@ -293,7 +293,6 @@ class agg_hhc_add_service_details_api(APIView):
         # print(event.data.caller_id,'dddddddddddd')
         callerserializer = add_service_get_caller_serializer(event.data.caller_id)
         patientserializer = add_service_get_patient_serializer(event.data.pt_id)
-        print(patientserializer.data['state_id'])
         plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
         plan_of_care_serializer = add_service_get_POC_serializer(plan_of_care,many=True)
         return Response({'caller_details':callerserializer.data,'patient_details':patientserializer.data,'POC':plan_of_care_serializer.data[-1]})
@@ -885,7 +884,7 @@ class calculate_total_amount(APIView):
         end_date_string = end_date
         start_date_string = start_date_string.replace('T',' ') 
         end_date_string = end_date.replace('T',' ')
-        print(start_date_string)     
+        # print(start_date_string)     
         try:
             start_date = datetime.strptime(str(start_date_string), '%Y-%m-%d %H:%M').date()
             start_time = datetime.strptime(str(start_date_string), '%Y-%m-%d %H:%M').time()
@@ -1069,12 +1068,12 @@ class get_payment_details(APIView):
         event = self.get_payment(pk)
         if event.data:
             payment_serializer=GetPaymentDetailSerializer(event.data,many=True)
-            paid_amt = sum(item['amount_paid'] for item in payment_serializer.data)
+            paid_amt = sum(float(item['amount_paid']) for item in payment_serializer.data)
             data={
                 "eve_id" : payment_serializer.data[-1]['eve_id'], 
-                "Total_Amount" : payment_serializer.data[-1]['Total_cost'], 
+                "Total_Amount" : float(payment_serializer.data[-1]['Total_cost']), 
                 "Paid_Amount" : paid_amt, 
-                "Pending_Amount" : payment_serializer.data[-1]['Total_cost'] - paid_amt
+                "Pending_Amount" : float(payment_serializer.data[-1]['Total_cost']) - paid_amt
             }
             # print(payment_serializer.data['amount_paid'])
             return Response(data)
