@@ -293,9 +293,10 @@ class agg_hhc_add_service_details_api(APIView):
         # print(event.data.caller_id,'dddddddddddd')
         callerserializer = add_service_get_caller_serializer(event.data.caller_id)
         patientserializer = add_service_get_patient_serializer(event.data.pt_id)
+        print(patientserializer.data['state_id'])
         plan_of_care = agg_hhc_event_plan_of_care.objects.filter(eve_id=pk)
         plan_of_care_serializer = add_service_get_POC_serializer(plan_of_care,many=True)
-        return Response({'caller_details':callerserializer.data,'patient_details':patientserializer.data,'POC':plan_of_care_serializer.data})
+        return Response({'caller_details':callerserializer.data,'patient_details':patientserializer.data,'POC':plan_of_care_serializer.data[-1]})
 
     def post(self,request):  
         patientID=None  
@@ -511,7 +512,6 @@ class agg_hhc_add_service_details_api(APIView):
         # if request.data['purp_call_id']==1:
         # print('l')
         patient=self.get_patient(phone_no=request.data['phone_no'])
-        # print(patient,';;;;;;;;;;;;;;;')
         if patient:
             # patient.update(name=request.data['name'], phone_no=request.data['phone_no'],caller_id=callerID,Age=request.data['Age'] )
             # patientID=patient.first().agg_sp_pt_id 
@@ -522,7 +522,6 @@ class agg_hhc_add_service_details_api(APIView):
                 # return Response(patientSerializer.data)
             else:
                 return Response(patientSerializer.errors)
-            
         else:
             patient = agg_hhc_patients_serializer(data=request.data)
             if patient.is_valid():
@@ -549,18 +548,18 @@ class agg_hhc_add_service_details_api(APIView):
         # else:
         #     return Response([event.errors,'8'])
         # print(pk,'llllllllllll')
+
         event=self.get_event(pk)
         # if request.data['purp_call_id']==1:
         data={'agg_sp_pt_id':patientID,'caller_id':callerID,'status':1}
         eventSerializer= agg_hhc_updateIDs_event_serializer(event.data,data=data)
         if eventSerializer.is_valid():
-           eventID=eventSerializer.save().eve_id
+            eventID=eventSerializer.save().eve_id
             # print(eventSerializer.validated_data)
             # eventSerializer.save()
         else:
             return Response(eventSerializer.errors)
 
-            
         # event.update(agg_sp_pt_id=patientID,caller_id=callerID)
         # eventID=event.first().eve_id
         # print(eventID)
@@ -597,6 +596,7 @@ class agg_hhc_add_service_details_api(APIView):
                     data1= agg_hhc_detailed_event_plan_of_care.objects.filter(agg_sp_dt_eve_poc_id=detail_plan)
                     data1.update(eve_poc_id=service,eve_id=eventID,index_of_Session=(i+1))                
         # return Response({"Service Created Event Code"})
+
         if request.data['purp_call_id']==1: 
             event=agg_hhc_events.objects.get(eve_id=eventID)
             events=agg_hhc_event_response_serializer(event)
@@ -1068,10 +1068,8 @@ class get_payment_details(APIView):
     def get(self,request,pk):
         event = self.get_payment(pk)
         if event.data:
-            # print(event.data)
             payment_serializer=GetPaymentDetailSerializer(event.data,many=True)
             paid_amt = sum(item['amount_paid'] for item in payment_serializer.data)
-            print(paid_amt)
             data={
                 "eve_id" : payment_serializer.data[-1]['eve_id'], 
                 "Total_Amount" : payment_serializer.data[-1]['Total_cost'], 

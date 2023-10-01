@@ -167,8 +167,8 @@ class Register_professioanl_for_interview(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-
-# ---------------------------- Professional document upload and check ---------------------------
+# ---------------------------------Sandip Shimpi -------------------------------------------------------------------------
+# ---------------------------- Professional document upload and check ----------------------------------------------------
 
 
 class agg_hhc_document_list(APIView):
@@ -200,3 +200,8 @@ class agg_hhc_add_document(APIView):
         }
             # data.append(data1)
         return Response(response_data)
+# --------------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------- add professional zone -------------------------------------------------------
+# class Add_Prof_location(APIView):
+#     def post(self,request):
+#         loc=

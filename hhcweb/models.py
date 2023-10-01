@@ -409,8 +409,8 @@ class agg_hhc_patient_list_enquiry(models.Model):#1  demos
 	added_date = models.DateField(default=timezone.now,null=True)
 	enquiry_from = enum.EnumField(enquiry_from_enum,null=True)
 	address = models.CharField(max_length=500,null=True)
-	city_id = models.BigIntegerField(null=True)   	#sandip
-	state_id = models.IntegerField(null=True)		#sandip
+	city_id = models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)   	#sandip
+	state_id=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)		#sandip
 	pincode = models.IntegerField(null=True,blank=True)		#sandip
 	refer_by = enum.EnumField(refer_by_enum,null=True)  #sandip
 	sub_location = models.CharField(max_length=50,null=True)
@@ -1116,7 +1116,7 @@ class agg_hhc_services(models.Model):#30
 	dash_order = models.CharField(max_length=10,null=True)
 
 	def __str__(self):
-	    return f"{self.srv_id},{self.service_title}"
+	    return f"{self.srv_id}"
 	
 class agg_hhc_sub_services(models.Model):#34
 	sub_srv_id = models.AutoField(primary_key = True)
@@ -1660,13 +1660,14 @@ class agg_hhc_professional_documents(models.Model):#52
 class agg_hhc_professional_location(models.Model):#53
 	prof_loc_id=models.AutoField(primary_key=True)
 	srv_prof_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
-	name=models.CharField(max_length=100,null=True)
+	location_name=models.CharField(max_length=100,null=True)
+	added_date=models.DateTimeField(default=timezone.now,null=True)
 
 class agg_hhc_professional_location_details(models.Model):#54
     prof_loc_dt_id=models.AutoField(primary_key=True)
     lattitude=models.FloatField(null=True)
     longitude=models.FloatField(null=True)
-    location_name=models.TextField(null=True)
+    # location_name=models.TextField(null=True)
     prof_loc_id=models.ForeignKey('agg_hhc_professional_location',on_delete=models.CASCADE,null=True)
 
 class agg_hhc_professional_location_preferences(models.Model):#55

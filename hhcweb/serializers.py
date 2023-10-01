@@ -168,6 +168,8 @@ class hospital_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_hospitals
         fields = ['hosp_id', 'hospital_name']
 
+
+
 class patient_detail_serializer(serializers.ModelSerializer):
     preferred_hosp_id=hospital_serializer()
     doct_cons_id=preffered_proffesional()
@@ -895,7 +897,23 @@ class add_service_get_caller_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_callers
         fields = ['caller_id','caller_fullname','purp_call_id','phone']
 
+class agg_hhc_get_state_serializers(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_state
+        fields = ['state_id','state_name']
+
+class agg_hhc_get_city(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_city
+        fields = ['city_id','city_name']
+
 class add_service_get_patient_serializer(serializers.ModelSerializer):
+    gender_id = get_gender()
+    preferred_hosp_id=hospital_serializer()
+    doct_cons_id = agg_hhc_doctors_consultants_serializer()
+    state_id = agg_hhc_get_state_serializers()
+    city_id = agg_hhc_get_city()
+    prof_zone_id = patient_professional_zone_serializer()
     class Meta:
         model = models.agg_hhc_patient_list_enquiry
         fields = ['pt_id','name','gender_id','Age','preferred_hosp_id','Suffered_from','phone_no','patient_email_id','doct_cons_id','state_id','city_id','prof_zone_id','address']
