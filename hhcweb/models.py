@@ -271,6 +271,7 @@ class service_status_enum(enum.Enum):
 	Ongoing = 2
 	Completed = 3
 	terminated = 4
+	__default__= Ongoing
 
 #-------------------------------sandip shimpi-------------------------------
 class refer_by_enum(enum.Enum):
@@ -288,6 +289,31 @@ class patient_richedBy_status_enum(enum.Enum):
 	walking=3
 	calling=4
 
+class Professional_status(enum.Enum):
+	Info_Submitted = 1
+	In_process_with_HR = 2
+	Interview_schedule = 3
+	On_Board = 4
+	Document_varified = 5
+
+class Education_level(enum.Enum):
+    Tenthpass = 0
+    Twelthpass = 1
+    Highschool = 2
+    Diploma = 3
+    Bachelor = 4
+    Master= 5
+    Doctorate= 6
+
+class Designation(enum.Enum):     # Added by mayank
+    NURSE = 1
+    DOCTOR = 2
+    Healthcare_Attendant = 3
+    Physician_Assistant = 4
+    Physiotherapiest = 5
+    X_Ray_Technician = 6
+    Uro_Technician = 7
+
 
 # --------------------------------Amit Rasale-----------------------------
 class follow_up_cancel_by(models.TextChoices):
@@ -302,7 +328,8 @@ class follow_up(models.TextChoices):
     Create_Service = 3
     follow_up_pending = 2
 	
-    __deafult__ = 2
+    __deafult__ = follow_up_pending
+	
 # ------------------------------------------------------------------------
 
 class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
@@ -382,8 +409,8 @@ class agg_hhc_patient_list_enquiry(models.Model):#1  demos
 	added_date = models.DateField(default=timezone.now,null=True)
 	enquiry_from = enum.EnumField(enquiry_from_enum,null=True)
 	address = models.CharField(max_length=500,null=True)
-	city_id = models.BigIntegerField(null=True)   	#sandip
-	state_id = models.IntegerField(null=True)		#sandip
+	city_id = models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)   	#sandip
+	state_id=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)		#sandip
 	pincode = models.IntegerField(null=True,blank=True)		#sandip
 	refer_by = enum.EnumField(refer_by_enum,null=True)  #sandip
 	sub_location = models.CharField(max_length=50,null=True)
@@ -699,6 +726,8 @@ class agg_hhc_patients(models.Model):#6    demo
 			last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
 			self.hhc_code = f"{prefix}HC{last_sequence:05d}"
 		return super().save(*args, **kwargs)
+	# class Meta:
+	# 	db_table='agg_hhc_patients'
 	
 	
 # class agg_hhc_webinar_patient_table(models.Model):#7
@@ -1087,7 +1116,7 @@ class agg_hhc_services(models.Model):#30
 	dash_order = models.CharField(max_length=10,null=True)
 
 	def __str__(self):
-	    return f"{self.srv_id},{self.service_title}"
+	    return f"{self.srv_id}"
 	
 class agg_hhc_sub_services(models.Model):#34
 	sub_srv_id = models.AutoField(primary_key = True)
@@ -1206,6 +1235,18 @@ class agg_hhc_service_professionals(models.Model):#32
 	Calendar = models.DateField(auto_now=False, auto_now_add=False, null=True)
 	# srv_id = models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True)#added by mayank
 	Experience = models.FloatField(null=True)#added by mayank
+	gender = enum.EnumField(pt_gender_enum, null = True)
+	Education_level = enum.EnumField(Education_level, null = True)
+	pin_code_id = models.CharField(max_length=50,null=True)
+	city = models.ForeignKey('agg_hhc_city', on_delete=models.CASCADE, null=True)
+	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
+	# cv_file = models.FileField(upload_to='uploads/')
+	cv_file = models.FileField(upload_to='pdfs/')
+	# uploaded_at = models.DateTimeField(auto_now_add=True)
+	designation = enum.EnumField(Designation, null=True)
+	availability = models.DateTimeField(auto_now=False, auto_now_add=False,null=True)
+	professinal_status = enum.EnumField(Professional_status, null=True)
+
 
 
 class agg_hhc_service_professional_details(models.Model):#33
@@ -1496,11 +1537,12 @@ class consultant_status_enum(enum.Enum):
 
 
 class documents_enum(enum.Enum):
-    Verified=1
-    need_more_details=2
-    Rejected=3
-    In_Progress=4
-    
+	Verified=1
+	need_more_details=2
+	Rejected=3
+	In_Progress=4
+	__default__ = In_Progress
+	
 class truefalse_enum(enum.Enum):
     true=1
     false=2
@@ -1605,29 +1647,33 @@ class agg_hhc_professional_device_info(models.Model):#51
     added_date=models.DateTimeField(default=timezone.now,null=True)
 
 class agg_hhc_professional_documents(models.Model):#52
-    prof_doc_id=models.AutoField(primary_key=True)
+	def nameField(instance,filename):
+		return "/".join(['media',str(instance.professional_id.prof_fullname),filename])
+	prof_doc_id=models.AutoField(primary_key=True)
+	professional_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
+	doc_li_id=models.ForeignKey('agg_hhc_documents_list',on_delete=models.CASCADE,null=True)
+	professional_document=models.FileField(upload_to=nameField,null=True)  #change urp_path to professional_document and char to filefield #sandip shimpi
+	rejection_reason=models.CharField(max_length=200,null=True,blank=True)
+	status=enum.EnumField(documents_enum,null=True)
+	isVerified=enum.EnumField(truefalse_enum,null=True)
 
-    #professional_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
-    #doc_li_id=models.ForeignKey(agg_hhc_documetns_list,on_delete=models.CASCADE,null=True)
-    url_path=models.CharField(max_length=1000,null=True)
-    rejection_reason=models.CharField(max_length=200,null=True,blank=True)
-    status=enum.EnumField(documents_enum,null=True)
-    isVerified=enum.EnumField(truefalse_enum,null=True)
-
-
+class agg_hhc_professional_location(models.Model):#53
+	prof_loc_id=models.AutoField(primary_key=True)
+	srv_prof_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
+	location_name=models.CharField(max_length=100,null=True)
+	added_date=models.DateTimeField(default=timezone.now,null=True)
 
 class agg_hhc_professional_location_details(models.Model):#54
-	prof_loc_dt_id=models.AutoField(primary_key=True)
-	prof_avaib_dt_id=models.ForeignKey('agg_hhc_professional_availability_detail',on_delete=models.CASCADE,null=True)
-	lattitude=models.FloatField(null=True)
-	longitude=models.FloatField(null=True)
-	#location_name=models.TextField(null=True)
-	#prof_zone_id=models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
+    prof_loc_dt_id=models.AutoField(primary_key=True)
+    lattitude=models.FloatField(null=True)
+    longitude=models.FloatField(null=True)
+    # location_name=models.TextField(null=True)
+    prof_loc_id=models.ForeignKey('agg_hhc_professional_location',on_delete=models.CASCADE,null=True)
 
 class agg_hhc_professional_location_preferences(models.Model):#55
     prof_loc_pref_id=models.AutoField(primary_key=True)
-    #srv_prof_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
-    prof_zone_id=models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
+    srv_prof_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
+    prof_loc_id=models.ForeignKey('agg_hhc_professional_location',on_delete=models.CASCADE,null=True)
     max_latitude=models.FloatField(null=True)
     min_latitude=models.FloatField(null=True)
     max_longitude=models.FloatField(null=True)
@@ -1763,7 +1809,7 @@ class agg_hhc_cancellation_history(models.Model):#67
 	event_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
 	event_code=models.CharField(max_length=50,null=True)
 	cancellation_by = enum.EnumField(cancel_from,null=True)
-	cancelled_date=models.DateTimeField(null=True)
+	cancelled_date = models.DateTimeField(default=timezone.now, null=True)
 	can_amt=models.IntegerField(null=True)
 	remark=models.CharField(max_length=100,null=True)
 	reason = models.ForeignKey('agg_hhc_enquiry_follow_up_cancellation_reason', on_delete=models.CASCADE,null=True)
@@ -1883,9 +1929,9 @@ class agg_hhc_doctors_consultants(models.Model):#76
     last_modified_by=models.IntegerField(null=True,blank=True)
     last_modified_date=models.DateTimeField(null=True,blank=True)
 
-class agg_hhc_documetns_list(models.Model):#77
+class agg_hhc_documents_list(models.Model):#77
     doc_li_id=models.AutoField(primary_key=True)
-    professional_type=models.IntegerField(null=True)
+    professional_role=models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True)  # Remane Field professional_type to professional_role # Sandip Shimpi
     Documents_name=models.CharField(max_length=50,null=True)
     Added_date=models.DateTimeField(default=timezone.now,null=True)
     isManadatory=enum.EnumField(truefalse_enum,null=True)
@@ -2152,15 +2198,22 @@ class agg_hhc_payment_details(models.Model):#94
 	pay_dt_id=models.AutoField(primary_key=True)
 	eve_id=models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
 	#event_requrement_id=models.ForeignKey(agg_hhc_event_requirements,on_delete=models.CASCADE,null=True)
-	Total_cost=models.IntegerField(null=True) # change field name amount to this by Sandip
+	Total_cost=models.DecimalField(max_digits=10, decimal_places=2,null=True) # change field name amount to this by Sandip
 	paid_by = models.CharField(max_length=50, null = True)    #mayank
-	amount_paid = models.IntegerField(null=True)    #mayank
-	amount_remaining  = models.IntegerField(null=True)   #mayank
+	amount_paid = models.DecimalField(max_digits=10, decimal_places=2,null=True)    #mayank
+	amount_remaining  = models.DecimalField(max_digits=10, decimal_places=2,null=True)   #mayank
 	pay_recived_by_prof_id= models.ForeignKey(agg_hhc_payments,on_delete=models.CASCADE,null=True)
 	# hosp_id=models.ForeignKey(agg_hhc_hospitals,on_delete=models.CASCADE,null=True)
 	date = models.DateTimeField(auto_now_add=True, null=True)
 	status=enum.EnumField(is_delet_enum,null=True)
 	mode  = enum.EnumField(Payment_mode_enum, null=True) #mayank
+	order_id = models.CharField(max_length=100,null=True)
+	order_currency = models.CharField(max_length=10,null=True)
+	order_note = models.CharField(max_length=255, null=True, blank=True)
+	customer_email = models.EmailField(max_length=100,null=True)
+	customer_phone = models.CharField(max_length=20,null=True)
+	payment_status = models.CharField(max_length=20, blank=True, null=True)
+	created_at = models.DateTimeField(default=timezone.now)
 
 """
 class sp_payment_response(models.Model):#95
@@ -2444,7 +2497,7 @@ class agg_hhc_professional_zone(models.Model):#53 Zones
 	#prof_srv_id=models.ForeignKey(agg_hhc_professional_services,on_delete=models.CASCADE,null=True)
     Name=models.CharField(max_length=50,null=True,unique=True)
     def __str__(self):
-	    return f'{self.Name}'
+	    return f'{self.prof_zone_id , self.Name}'
 
 
 class  agg_hhc_professional_cancelled_reason(models.Model):
@@ -2691,18 +2744,19 @@ class agg_hhc_enquiry_follow_up_cancellation_reason(models.Model):
 	cancelation_reason = models.CharField(max_length=300,null=True)
 	cancel_by_id= enum.EnumField(cancel_from,null=True)
 #----------------------------------- Mayank Bhatt -------------------------------------------------------------
-class PaymentRecord(models.Model):
-	order_id = models.CharField(max_length=100,null=True)
-	order_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True)
-	Remaining_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True)
-	total_amo = models.DecimalField(max_digits=10, decimal_places=2,null=True)
-	order_currency = models.CharField(max_length=10,null=True)
-	order_note = models.CharField(max_length=255, null=True, blank=True)
-	customer_name = models.CharField(max_length=100,null=True)
-	customer_email = models.EmailField(max_length=100,null=True)
-	customer_phone = models.CharField(max_length=20,null=True)
-	payment_status = models.CharField(max_length=20, blank=True, null=True)
-	created_at = models.DateTimeField(default=timezone.now)
+
+# class PaymentRecord(models.Model):
+# 	order_id = models.CharField(max_length=100,null=True)
+# 	order_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+# 	Remaining_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+# 	total_amo = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+# 	order_currency = models.CharField(max_length=10,null=True)
+# 	order_note = models.CharField(max_length=255, null=True, blank=True)
+# 	customer_name = models.CharField(max_length=100,null=True)
+# 	customer_email = models.EmailField(max_length=100,null=True)
+# 	customer_phone = models.CharField(max_length=20,null=True)
+# 	payment_status = models.CharField(max_length=20, blank=True, null=True)
+# 	created_at = models.DateTimeField(default=timezone.now)
     
-	def __str__(self):
-		return f"Payment: {self.order_amount} INR for Order ID: {self.order_id}"
+# 	def __str__(self):
+# 		return f"Payment: {self.order_amount} INR for Order ID: {self.order_id}"

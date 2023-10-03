@@ -63,7 +63,9 @@ urlpatterns = [
     path('service_reschedule/<int:eve_id>/',views.service_reschedule_view.as_view()),
     path('prof_reschedule/<int:eve_id>/', views.Professional_Reschedule_Apiview.as_view()),
     path('service_cancellation/<int:eve_id>', views.ServiceCancellationView.as_view()),
-    path('professional_availability_api/<int:srv_id>/',views.get_all_avail_professionals.as_view()),    
+    path('professional_availability_api/<int:srv_id>/',views.get_all_avail_professionals.as_view()), 
+    path('srv_cancel_count_dashbord/<int:id>', views.srv_canc_count.as_view()), 
+    path('srv_dtl_dash/<int:id>', views.srv_dtl_dash.as_view()),
 
     #-------------------------------------------Amit---------------------------------------------------------
     path('Follow_Up_combined_table/', views.agg_hhc_service_enquiry_list_combined_table_view.as_view()),
@@ -73,7 +75,6 @@ urlpatterns = [
     path('cancel_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_APIView.as_view()),
     path('create_service_follow_up/', views.agg_hhc_enquiry_Add_follow_up_create_service_APIView.as_view()),
     # path('previous_follow_up/', views.agg_hhc_enquiry_previous_follow_up_APIView.as_view()),
-    
 
     # path('cancel_spero_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Spero_APIView.as_view()),
     # path('cancel_patent_follow_up/', views.agg_hhc_enquiry_Add_follow_up_Cancel_by_Patent_APIView.as_view()),    

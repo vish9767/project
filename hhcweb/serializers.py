@@ -163,7 +163,15 @@ class agg_hhc_city(serializers.ModelSerializer):
         model = models.agg_hhc_city
         fields = ['city_id','city_name']
 
+class hospital_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_hospitals
+        fields = ['hosp_id', 'hospital_name']
+
+
+
 class patient_detail_serializer(serializers.ModelSerializer):
+    preferred_hosp_id=hospital_serializer()
     doct_cons_id=preffered_proffesional()
     prof_zone_id=patient_get_zone_serializer()
     state_id = agg_hhc_state()
@@ -178,10 +186,7 @@ class update_patient_detail_serializer(serializers.ModelSerializer):
         fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'phone_no', 'patient_email_id','doct_cons_id','Age', 'state_id' ,'city_id' ,'address' ,'pincode' ,'prof_zone_id']
         # fields = ['agg_sp_pt_id','name', 'gender_id', 'Suffered_from', 'preferred_hosp_id', 'phone_no', 'patient_email_id','doct_cons_id','Age','state_id' ,'city_id' ,'address' ,'pincode' ,'prof_zone_id']
 
-class hospital_serializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.agg_hhc_hospitals
-        fields = ['hosp_id', 'hospital_name']
+
 
 class payment_status(serializers.Serializer):
     class Meta:
@@ -285,6 +290,7 @@ class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
 #______________________________________agg_hhc_callers_serializer_____________
 class agg_hhc_callers_details_serializer(serializers.ModelSerializer):#20
     # fullname = serializers.SerializerMethodField()
+    caller_rel_id=relation_serializer()
     class Meta:
         model=models.agg_hhc_callers
         fields=('caller_fullname','caller_id','phone','caller_rel_id','Age','gender','email','contact_no','alter_contact','Address','save_this_add','profile_pic')
@@ -510,7 +516,7 @@ class AggHhcPaymentsSerializer(serializers.ModelSerializer):
         fields = ['event_id', 'amount']
 
 
-
+from django.db.models import Sum
 class OngoingServiceSerializer(serializers.ModelSerializer):
     agg_sp_pt_id = PatientSerializer()
     srv_prof_id = ProfesNameSerializer(many=True, source = 'event_id')
@@ -530,18 +536,23 @@ class OngoingServiceSerializer(serializers.ModelSerializer):
         status = instance.status
         if status == 1 and event_status == 2:
             return super().to_representation(instance)
-   
+
     
     def get_Pending_amount(self, instance):
         total_cost = instance.Total_cost
         event_id = instance.eve_id
         try:
-            # payment = models.agg_hhc_payments.objects.get(event_id=event_id)
-            payment = models.agg_hhc_payment_details.objects.get(eve_id=event_id).latest()
-            # amount = payment.amount
-            amount = payment.amount_paid
-            return total_cost - amount
-        except models.agg_hhc_payments.DoesNotExist:
+            
+
+            payment_sum = models.agg_hhc_payment_details.objects.filter(eve_id=event_id).aggregate(total_amount_paid=Sum('amount_paid'))['total_amount_paid']
+            print(payment_sum,'=================')
+            if payment_sum is not None:
+                return total_cost - payment_sum
+            else:
+                return total_cost
+
+        
+        except models.agg_hhc_payment_details.DoesNotExist:
             return total_cost
 
 # -------------------------------------Amit Rasale------------------------------------------------------------
@@ -555,6 +566,13 @@ class agg_hhc_enquiry_Add_follow_up_serializer(serializers.ModelSerializer):
         model=models.agg_hhc_enquiry_follow_up
         fields=('enq_follow_up_id', 'event_id', 'follow_up', 'follow_up_date_time', 'previous_follow_up_remark')
         # fields = '__all__'
+
+class agg_hhc_enquiry_create_follow_up_serializer(serializers.ModelSerializer):   
+    class Meta:
+        model=models.agg_hhc_enquiry_follow_up
+        fields=('enq_follow_up_id', 'event_id','follow_up')
+
+
 class agg_hhc_enquiry_follow_up_cancellation_reason_spero_serializer(serializers.ModelSerializer):   
     class Meta:
         model=models.agg_hhc_enquiry_follow_up_cancellation_reason
@@ -579,8 +597,8 @@ class agg_hhc_enquiry_Add_follow_up_create_service_serializer(serializers.ModelS
 
 class enquiries_service_serializer(serializers.ModelSerializer):   
     class Meta:
-        model=models.agg_hhc_enquiry_follow_up
-        fields=('enq_follow_up_id', 'event_id', 'follow_up')
+        model= models.agg_hhc_enquiry_follow_up
+        fields=('enq_follow_up_id', 'event_id', 'follow_up','added_date','last_modified_date')
 class services(serializers.ModelSerializer):
     class Meta:
         model = models.agg_hhc_services
@@ -602,10 +620,10 @@ class AggHhcPatientListEnquirySerializer(serializers.ModelSerializer):
         model = models.agg_hhc_patient_list_enquiry
         fields = [ 'pt_id',  'name', 'phone_no', 'Suffered_from', 'prof_zone_id']    #sandip
 
+from django.db.models import Max, Q
 class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
     srv_id = ServiceNameSerializer(many=True, source = 'event_id')
     pt_id = AggHhcPatientListEnquirySerializer()
-    # enq_follow_up_id = enquiries_service_serializer(many=True)
     folloup_id = serializers.SerializerMethodField()
 
     class Meta:
@@ -613,8 +631,21 @@ class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
         fields = ('eve_id','event_code', 'patient_service_status', 'pt_id','srv_id', 'folloup_id')     #amit
 
     def get_folloup_id(self, obj):
-        queryset = models.agg_hhc_enquiry_follow_up.objects.filter(event_id = obj.eve_id)
-        print(queryset)
+        latest_follow_up_date = models.agg_hhc_enquiry_follow_up.objects.filter(
+            event_id=obj.eve_id
+        ).aggregate(latest_date=Max('follow_up_date_time'))['latest_date']
+
+        has_follow_up_1 = models.agg_hhc_enquiry_follow_up.objects.filter(
+            event_id=obj.eve_id,
+            follow_up='1'
+        ).exists()
+        if has_follow_up_1:
+            return []
+        if latest_follow_up_date is None:
+            return []
+        queryset = models.agg_hhc_enquiry_follow_up.objects.filter(
+            event_id=obj.eve_id
+        ).exclude(Q(follow_up='1') | Q(follow_up_date_time__lt=latest_follow_up_date))
         serializer = enquiries_service_serializer(queryset, many=True)
         respose_data = {
             'data': serializer.data
@@ -891,7 +922,23 @@ class add_service_get_caller_serializer(serializers.ModelSerializer):
         model = models.agg_hhc_callers
         fields = ['caller_id','caller_fullname','purp_call_id','phone']
 
+class agg_hhc_get_state_serializers(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_state
+        fields = ['state_id','state_name']
+
+class agg_hhc_get_city(serializers.ModelSerializer):
+    class Meta:
+        model = models.agg_hhc_city
+        fields = ['city_id','city_name']
+
 class add_service_get_patient_serializer(serializers.ModelSerializer):
+    gender_id = get_gender()
+    preferred_hosp_id=hospital_serializer()
+    doct_cons_id = agg_hhc_doctors_consultants_serializer()
+    state_id = agg_hhc_get_state_serializers()
+    city_id = agg_hhc_get_city()
+    prof_zone_id = patient_professional_zone_serializer()
     class Meta:
         model = models.agg_hhc_patient_list_enquiry
         fields = ['pt_id','name','gender_id','Age','preferred_hosp_id','Suffered_from','phone_no','patient_email_id','doct_cons_id','state_id','city_id','prof_zone_id','address']
