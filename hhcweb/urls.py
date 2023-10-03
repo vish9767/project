@@ -48,7 +48,7 @@ urlpatterns = [
     #--------------------------------------------Dashboard------------Api--------------------------------------
     path('service_details_today_total_services',views.service_details_today_total_services.as_view()),
     #-----------------------------------------nikita_p--------------------------------------
-    path('agg_hhc_zone_api/<int:pk>',views.agg_hhc_zone_api.as_view()),# Display List of Zones
+    path('agg_hhc_zone_api/<int:pk>',views.agg_hhc_zone_api.as_view()),# Display List of Zones    
     path('agg_hhc_sub_srv/',views.agg_hhc_sub_srv.as_view()),# Display List of Sub Services
     path('agg_hhc_event_professional_api/',views.agg_hhc_service_professional_api.as_view()), # Display List of Professionals (all) OR (with filter:- Services, Zones)
     path('agg_hhc_detailed_event_plan_of_care/',views.agg_hhc_detailed_event_plan_of_care_api.as_view()), # Display All Events against perticular professional 

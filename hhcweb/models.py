@@ -782,7 +782,7 @@ class agg_hhc_events(models.Model):#9
 	event_code = models.CharField(max_length=640,null=True,blank=True)
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
 	caller_id = models.ForeignKey('agg_hhc_callers',on_delete=models.CASCADE,null=True)
-	enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)    # AMIT
+	# enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)    # AMIT  # remove field with discussion with amit by sandip
 	# relation = models.CharField(max_length=64,null=True)
 	pt_id = models.ForeignKey(agg_hhc_patient_list_enquiry,on_delete=models.CASCADE,null=True)
 	agg_sp_pt_id= models.ForeignKey(agg_hhc_patients,on_delete=models.CASCADE, null=True)
