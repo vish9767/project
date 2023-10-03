@@ -237,7 +237,10 @@ class agg_hhc_patinet_list_enquiry_serializer(serializers.ModelSerializer):
         model=models.agg_hhc_patient_list_enquiry
         fields='__all__'
 
-
+class agg_hhc_get_state_serializer(serializers.ModelSerializer):    
+    class Meta:
+        model = models.agg_hhc_state
+        fields = ['state_id','state_name']
 
 #_____________________________agg_hhc_service_professional_details____##
 class agg_hhc_service_professional_details_serializer(serializers.ModelSerializer):
@@ -253,9 +256,36 @@ class agg_hhc_callers_seralizer(serializers.ModelSerializer):
         fields='__all__'
 
 class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
+    state= serializers.SerializerMethodField()
+    city=serializers.SerializerMethodField()
+    zone=serializers.SerializerMethodField()
+    gender=serializers.SerializerMethodField()
     class Meta:
         model=models.agg_hhc_patients
         fields='__all__'
+    def get_state(self, instance):
+        state_id_is = instance.state_id
+        state_name_serializer = agg_hhc_get_state_serializer(state_id_is)
+        return state_name_serializer.data
+    def get_city(self,instance):
+        city_id_is=instance.city_id
+        city_id_serializer=agg_hhc_get_city_serializer(city_id_is)
+        return city_id_serializer.data
+    def get_zone(self,instance):
+        zone_id_is=instance.prof_zone_id
+        zone_id_serializer=agg_hhc_professional_zone_serializer(zone_id_is)
+        return zone_id_serializer.data
+    def get_gender(self,instance):
+        gender_id_is=instance.gender_id
+        gender_id_serializer=agg_hhc_gender_serializer(gender_id_is)
+        return gender_id_serializer.data
+    # def to_representation(self, instance):
+    #     data = super().to_representation(instance)
+    #     print(instance)
+    #     state_data = models.agg_hhc_state.objects.get(state_id=instance.state_id)
+    #     state_data_serialized =agg_hhc_get_state_serializer(state_data).data
+    #     data['state'] = state_data_serialized
+    #     return data
 
 #______________________________________agg_hhc_callers_serializer_____________
 class agg_hhc_callers_details_serializer(serializers.ModelSerializer):#20
@@ -330,7 +360,7 @@ class agg_hhc_recived_hospitals_serializer(serializers.ModelSerializer):
 class JobTypeCountSerializer(serializers.ModelSerializer):
     class Meta :
         model  = agg_hhc_service_professionals
-        fields = ['Job_type']
+        fields = ['Job_type','status']
 # class Services_data(serializers.ModelSerializer)
 class AggHHCServiceProfessionalSerializer(serializers.ModelSerializer):
 #     full_name = serializers.SerializerMethodField()
@@ -659,11 +689,6 @@ class agg_hhc_coupon_code_serializers(serializers.ModelSerializer):
     class Meta:
         model=models.agg_hhc_coupon_codes
         fields="__all__"
-
-class agg_hhc_get_state_serializer(serializers.ModelSerializer):    
-    class Meta:
-        model = models.agg_hhc_state
-        fields = ['state_id','state_name']
 
 class agg_hhc_get_city_serializer(serializers.ModelSerializer):    
     class Meta:

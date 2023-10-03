@@ -497,6 +497,7 @@ class agg_hhc_add_service_details_api(APIView):
             # callerID = caller.first().caller_id 
             callerSerializer= agg_hhc_callers_serializer(caller,data= request.data)
             if callerSerializer.is_valid():
+                print(';;;;;;;;;;;')
                 callerID=callerSerializer.save().caller_id
             else:
                 return Response(callerSerializer.errors)
@@ -709,38 +710,12 @@ class agg_hhc_callers_phone_no(APIView):
             record = agg_hhc_patients.objects.filter(caller_id=snippet)
             serialized_caller = agg_hhc_callers_details_serializer(caller_record)
             serialized = agg_hhc_app_patient_by_caller_phone_no(record, many=True)
+            # for i in serialized.data:
+            #     print(i)
             return Response({"caller": serialized_caller.data, "patients": serialized.data})
         except Http404 as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
-#----------patients from callers_enum status---------------------
-class agg_hhc_callers_phone_no_status_mobile_api(APIView):#staus=1
-    def get(self,request):
-        record= agg_hhc_callers.objects.filter(caller_status=1)
-        print(record)
-        serialized= agg_hhc_patients_serializer(record,many=True)
-        return Response(serialized.data)
-
-class agg_hhc_callers_phone_no_status_web_api(APIView):#staus=2
-    def get(self,request):
-        record= agg_hhc_callers.objects.filter(caller_status=2)
-        print(record)
-        serialized= agg_hhc_patients_serializer(record,many=True)
-        return Response(serialized.data)
-
-class agg_hhc_callers_phone_no_status_walking_api(APIView):#staus=3
-    def get(self,request):
-        record= agg_hhc_callers.objects.filter(caller_status=3)
-        print(record)
-        serialized= agg_hhc_patients_serializer(record,many=True)
-        return Response(serialized.data)
-
-class agg_hhc_callers_phone_no_status_calling_api(APIView):#staus=4
-    def get(self,request):
-        record= agg_hhc_callers.objects.filter(caller_status=4)
-        print(record)
-        serialized= agg_hhc_patients_serializer(record,many=True)
-        return Response(serialized.data)
 
 #---------------------------get all hospital names-----------------------------------
 
@@ -751,23 +726,6 @@ class agg_hhc_hospitals_api(APIView):
         return Response(hospital_names.data)
 
 #-------------------------get address by pincode-------------------------------------
-class agg_hhc_pincode_api(APIView):
-    def get(self,request):
-        pincode= agg_hhc_pincode.objects.all()
-        serialized= agg_hhc_pincode_serializer(pincode,many=True)
-        return Response(serialized.data)
-
-class agg_hhc_pincode_number_api(APIView):
-    def get_object(self,pin):
-        try:
-            return  agg_hhc_pincode.objects.get(pincode_number=pin)
-        except  agg_hhc_pincode.DoesNotExist:
-            raise Response(status.HTTP_404_NOT_FOUND)
-    def get(self,request,pin):
-        obj=self.get_object(pin)
-        serialized= agg_hhc_pincode_serializer(obj)
-        return Response(serialized.data)
-
 class agg_hhc_city_from_state_api(APIView):
     def get_object(self,state,formate=None):
         try:
@@ -794,9 +752,6 @@ class agg_hhc_pincode_from_city_api(APIView):
 class Caller_details_api(APIView):
     def get_object(self,pk):
         return  agg_hhc_callers.objects.get(caller_id=pk)
-            
-    # def get_relation(self,pk):
-    #     return  agg_hhc_caller_relation.objects.get(caller_rel_id=pk)
              
     def get(self,request,pk):  
         caller = self.get_object(pk)
@@ -891,16 +846,16 @@ class calculate_total_amount(APIView):
             end_date = datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').date() 
             end_time = datetime.strptime(str(end_date_string), '%Y-%m-%d %H:%M').time() 
 
-            if start_date>end_date or (start_date==end_date and start_time>end_time):
-                return Response({'days_difference':0})           
-            diff = (end_time.hour)-(start_time.hour)
-            day = (end_date - start_date).days
-            total = (diff * cost)*(day+1)
-
-            # if start_date>end_date:
+            # if start_date>end_date or (start_date==end_date and start_time>end_time):
             #     return Response({'days_difference':0})           
-            # diff = (end_date - start_date).days 
-            # total = (diff+1) * cost          
+            # diff = (end_time.hour)-(start_time.hour)
+            # day = (end_date - start_date).days
+            # total = (diff * cost)*(day+1)
+
+            if start_date>end_date:
+                return Response({'days_difference':0})           
+            diff = (end_date - start_date).days 
+            total = (diff+1) * cost          
             return Response({'days_difference': total})
         except ValueError:
             return Response({'error': 'Invalid date format'}, status=400)
@@ -947,14 +902,6 @@ class agg_hhc_professional_time_availability_api(APIView):
     def get(self,request,prof_sche_id):
         dateobject=self.get_object(prof_sche_id)
         serialized= agg_hhc_professional_scheduled_serializer(dateobject,many=True)
-        return Response(serialized.data)
-    
-#-------------------------agg_hhc_service_professional_zone_api-------------------
-
-class agg_hhc_professional_zone_api(APIView):
-    def get(self,request):
-        zones = agg_hhc_professional_zone.objects.all()
-        serialized=  agg_hhc_professional_zone_serializer(zones, many=True)
         return Response(serialized.data)
     
 #-------------------------agg_hhc_feedback_answers----------------------------
@@ -1100,31 +1047,19 @@ from datetime import timedelta
 
 
 class JjobTypeCountAPIView(APIView):
-    def get(self, request, period, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         try:
-            # Define a dictionary to map period values to date ranges
-            period_to_date_range = {
-                1: (timezone.now(), timezone.now() - timedelta(days=1)),
-                2: (timezone.now(), timezone.now() - timedelta(weeks=1)),
-                3: (timezone.now(), timezone.now() - timedelta(days=30)),
-            }
-
-            # Get the date range based on the provided period
-            start_date, end_date = period_to_date_range.get(period, (timezone.now(), timezone.now()))
-
-            # Query the database to get job types for the specified period
-            job_types = agg_hhc_service_professionals.objects.filter(
-                added_date__gte=start_date, added_date__lte=end_date
-            ).values_list('Job_type', flat=True)
-
-            # Count the occurrences of each job type using Counter
-            job_type_counts = dict(Counter(job_types))
-
             # Define a list of job types to include in the response
             job_type_list = ['ONCALL', 'FULLTIME', 'PARTTIME']
 
+            # Query the database to get job types with status=1
+            job_type_integers = agg_hhc_service_professionals.objects.filter(status=1).values_list('Job_type', flat=True)
+
+            # Count the occurrences of each job type using Counter
+            job_type_counts = dict(Counter(job_type_integers))
+
             # Create a response dictionary with counts for each job type
-            response_data = {job_type: job_type_counts.get(job_type, 0) for job_type in job_type_list}
+            response_data = {job_type: job_type_counts.get(JOB_type[job_type].value, 0) for job_type in job_type_list}
 
             return Response(response_data)
         except Exception as e:
@@ -1132,37 +1067,37 @@ class JjobTypeCountAPIView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class JjobTypeCountAPIView(APIView):
-    def get(self, request, period, *args, **kwargs):
-        try:
-            # Define a dictionary to map period values to date ranges
-            period_to_date_range = {
-                1: (timezone.now(), timezone.now() - timedelta(days=1)),
-                2: (timezone.now(), timezone.now() - timedelta(weeks=1)),
-                3: (timezone.now(), timezone.now() - timedelta(days=30)),
-            }
+# class JjobTypeCountAPIView(APIView):
+#     def get(self, request, period, *args, **kwargs):
+#         try:
+#             # Define a dictionary to map period values to date ranges
+#             period_to_date_range = {
+#                 1: (timezone.now(), timezone.now() - timedelta(days=1)),
+#                 2: (timezone.now(), timezone.now() - timedelta(weeks=1)),
+#                 3: (timezone.now(), timezone.now() - timedelta(days=30)),
+#             }
 
-            # Get the date range based on the provided period
-            start_date, end_date = period_to_date_range.get(period, (timezone.now(), timezone.now()))
+#             # Get the date range based on the provided period
+#             start_date, end_date = period_to_date_range.get(period, (timezone.now(), timezone.now()))
 
-            # Query the database to get job types for the specified period
-            job_types = agg_hhc_service_professionals.objects.filter(
-                added_date__gte=start_date, added_date__lte=end_date
-            ).values_list('Job_type', flat=True)
+#             # Query the database to get job types for the specified period
+#             job_types = agg_hhc_service_professionals.objects.filter(
+#                 added_date__gte=start_date, added_date__lte=end_date
+#             ).values_list('Job_type', flat=True)
 
-            # Count the occurrences of each job type using Counter
-            job_type_counts = dict(Counter(job_types))
+#             # Count the occurrences of each job type using Counter
+#             job_type_counts = dict(Counter(job_types))
 
-            # Define a list of job types to include in the response
-            job_type_list = ['ONCALL', 'FULLTIME', 'PARTTIME']
+#             # Define a list of job types to include in the response
+#             job_type_list = ['ONCALL', 'FULLTIME', 'PARTTIME']
 
-            # Create a response dictionary with counts for each job type
-            response_data = {job_type: job_type_counts.get(job_type, 0) for job_type in job_type_list}
+#             # Create a response dictionary with counts for each job type
+#             response_data = {job_type: job_type_counts.get(job_type, 0) for job_type in job_type_list}
 
-            return Response(response_data)
-        except Exception as e:
-            # Handle any exceptions or errors
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#             return Response(response_data)
+#         except Exception as e:
+#             # Handle any exceptions or errors
+#             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 #----------------------------------------------Payment----------------------------------------------------
 import requests
@@ -1314,7 +1249,6 @@ class agg_hhc_zone_api(APIView): # List of Zones
 
 
 class agg_hhc_sub_srv(APIView): # List of Sub-Services
-
     def get(self, request, format=None):
         sub_srvs =  agg_hhc_sub_services.objects.all()
         if sub_srvs:

@@ -23,12 +23,6 @@ urlpatterns = [
     path('agg_hhc_patient_from_callers_phone_no/<int:pk>/',views.agg_hhc_callers_phone_no.as_view()),#find all patients from caller number 
     path('agg_hhc_add_service_details_api', views.agg_hhc_add_service_details_api.as_view()),
     path('agg_hhc_hospitals_api',views.agg_hhc_hospitals_api.as_view()),#done
-    path('agg_hhc_callers_phone_no_status_mobile_api',views.agg_hhc_callers_phone_no_status_mobile_api.as_view()),
-    path('agg_hhc_callers_phone_no_status_web_api',views.agg_hhc_callers_phone_no_status_web_api.as_view()),
-    path('agg_hhc_callers_phone_no_status_walking_api',views.agg_hhc_callers_phone_no_status_walking_api.as_view()),
-    path('agg_hhc_callers_phone_no_status_calling_api',views.agg_hhc_callers_phone_no_status_calling_api.as_view()),
-    path('agg_hhc_pincode_api',views.agg_hhc_pincode_api.as_view()),#all pincode get api
-    path('agg_hhc_pincode_api/<str:pin>',views.agg_hhc_pincode_number_api.as_view()),#find state and city from pincode number
     path('agg_hhc_city_from_state_api/<str:state>',views.agg_hhc_city_from_state_api.as_view()),#find all city from state name
     path('agg_hhc_city_state_from_zone_api/<int:city_id>',views.agg_hhc_city_state_from_zone_api.as_view()),#this table is used to get city name and state name
     path('agg_hhc_pincode_from_city_api/<str:city>',views.agg_hhc_pincode_from_city_api.as_view()),#find all findcode from city name 
@@ -40,7 +34,6 @@ urlpatterns = [
     path('calculate_discount_api/<int:dtype>/<int:damount>/<int:total_amt>',views.calculate_discount_api.as_view()),
     path('agg_hhc_feedback_answers_api/<int:agg_sp_pt_id>',views.agg_hhc_feedback_answers_api.as_view()),#this display rating and review from patient id
     path('last_patient_service_info/<int:pt_id>',views.last_patient_service_info.as_view()),#this is to display patient last service name and last start and end service date
-    path('agg_hhc_professional_zone_api',views.agg_hhc_professional_zone_api.as_view()),
     path('agg_hhc_professional_scheduled_api/<int:prof_sche_id>',views.agg_hhc_professional_scheduled_api.as_view()),#To display professional time in calander as well as in professional availability
     path('agg_hhc_professional_time_availability_api/<int:prof_sche_id>',views.agg_hhc_professional_time_availability_api.as_view()),#used to display professional booked services in professional Avalibility
     path('total_services/<int:service_professional_id>/', views.total_services, name='total_services'),#this display total services for Professionals
@@ -61,7 +54,7 @@ urlpatterns = [
     path('create_payment/', views.create_payment_url, name='create_payment_url'),
     path('cashfree-webhook/', views.cashfree_webhook, name='cashfree_webhook'),
     path('payment-detail/',views.PaymentDetailAPIView.as_view(), name='payment-detail-api'),
-    path('jjob-type-count/<int:period>/', views.JjobTypeCountAPIView.as_view(), name='job-type-count'),
+    path('jjob-type-count/', views.JjobTypeCountAPIView.as_view(), name='job-type-count'),
 
 
     # -------------------- vinayak ------------------

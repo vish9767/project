@@ -1241,7 +1241,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	city = models.ForeignKey('agg_hhc_city', on_delete=models.CASCADE, null=True)
 	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
 	# cv_file = models.FileField(upload_to='uploads/')
-	cv_file = models.FileField(upload_to='pdfs/')
+	cv_file = models.FileField(upload_to='pdfs/',null=True)
 	# uploaded_at = models.DateTimeField(auto_now_add=True)
 	designation = enum.EnumField(Designation, null=True)
 	availability = models.DateTimeField(auto_now=False, auto_now_add=False,null=True)
