@@ -54,7 +54,7 @@ urlpatterns = [
     path('create_payment/', views.create_payment_url, name='create_payment_url'),
     path('cashfree-webhook/', views.cashfree_webhook, name='cashfree_webhook'),
     path('payment-detail/',views.PaymentDetailAPIView.as_view(), name='payment-detail-api'),
-    path('jjob-type-count/<int:period>/', views.JjobTypeCountAPIView.as_view(), name='job-type-count'),
+    path('jjob-type-count/', views.JjobTypeCountAPIView.as_view(), name='job-type-count'),
 
 
     # -------------------- vinayak ------------------
