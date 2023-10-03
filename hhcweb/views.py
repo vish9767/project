@@ -700,38 +700,12 @@ class agg_hhc_callers_phone_no(APIView):
             record = agg_hhc_patients.objects.filter(caller_id=snippet)
             serialized_caller = agg_hhc_callers_details_serializer(caller_record)
             serialized = agg_hhc_app_patient_by_caller_phone_no(record, many=True)
+            # for i in serialized.data:
+            #     print(i)
             return Response({"caller": serialized_caller.data, "patients": serialized.data})
         except Http404 as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
-#----------patients from callers_enum status---------------------
-class agg_hhc_callers_phone_no_status_mobile_api(APIView):#staus=1
-    def get(self,request):
-        record= agg_hhc_callers.objects.filter(caller_status=1)
-        print(record)
-        serialized= agg_hhc_patients_serializer(record,many=True)
-        return Response(serialized.data)
-
-class agg_hhc_callers_phone_no_status_web_api(APIView):#staus=2
-    def get(self,request):
-        record= agg_hhc_callers.objects.filter(caller_status=2)
-        print(record)
-        serialized= agg_hhc_patients_serializer(record,many=True)
-        return Response(serialized.data)
-
-class agg_hhc_callers_phone_no_status_walking_api(APIView):#staus=3
-    def get(self,request):
-        record= agg_hhc_callers.objects.filter(caller_status=3)
-        print(record)
-        serialized= agg_hhc_patients_serializer(record,many=True)
-        return Response(serialized.data)
-
-class agg_hhc_callers_phone_no_status_calling_api(APIView):#staus=4
-    def get(self,request):
-        record= agg_hhc_callers.objects.filter(caller_status=4)
-        print(record)
-        serialized= agg_hhc_patients_serializer(record,many=True)
-        return Response(serialized.data)
 
 #---------------------------get all hospital names-----------------------------------
 
@@ -742,23 +716,6 @@ class agg_hhc_hospitals_api(APIView):
         return Response(hospital_names.data)
 
 #-------------------------get address by pincode-------------------------------------
-class agg_hhc_pincode_api(APIView):
-    def get(self,request):
-        pincode= agg_hhc_pincode.objects.all()
-        serialized= agg_hhc_pincode_serializer(pincode,many=True)
-        return Response(serialized.data)
-
-class agg_hhc_pincode_number_api(APIView):
-    def get_object(self,pin):
-        try:
-            return  agg_hhc_pincode.objects.get(pincode_number=pin)
-        except  agg_hhc_pincode.DoesNotExist:
-            raise Response(status.HTTP_404_NOT_FOUND)
-    def get(self,request,pin):
-        obj=self.get_object(pin)
-        serialized= agg_hhc_pincode_serializer(obj)
-        return Response(serialized.data)
-
 class agg_hhc_city_from_state_api(APIView):
     def get_object(self,state,formate=None):
         try:
@@ -785,9 +742,6 @@ class agg_hhc_pincode_from_city_api(APIView):
 class Caller_details_api(APIView):
     def get_object(self,pk):
         return  agg_hhc_callers.objects.get(caller_id=pk)
-            
-    # def get_relation(self,pk):
-    #     return  agg_hhc_caller_relation.objects.get(caller_rel_id=pk)
              
     def get(self,request,pk):  
         caller = self.get_object(pk)
@@ -929,14 +883,6 @@ class agg_hhc_professional_time_availability_api(APIView):
     def get(self,request,prof_sche_id):
         dateobject=self.get_object(prof_sche_id)
         serialized= agg_hhc_professional_scheduled_serializer(dateobject,many=True)
-        return Response(serialized.data)
-    
-#-------------------------agg_hhc_service_professional_zone_api-------------------
-
-class agg_hhc_professional_zone_api(APIView):
-    def get(self,request):
-        zones = agg_hhc_professional_zone.objects.all()
-        serialized=  agg_hhc_professional_zone_serializer(zones, many=True)
         return Response(serialized.data)
     
 #-------------------------agg_hhc_feedback_answers----------------------------
@@ -1254,7 +1200,6 @@ class agg_hhc_zone_api(APIView): # List of Zones
 
 
 class agg_hhc_sub_srv(APIView): # List of Sub-Services
-
     def get(self, request, format=None):
         sub_srvs =  agg_hhc_sub_services.objects.all()
         if sub_srvs:

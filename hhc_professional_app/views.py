@@ -99,3 +99,12 @@ class add_professional_avb(APIView):
     def post(self,request):
         print("data is not ")
         print("data inside ",request.data)
+
+class date_wise_location_details(APIView):
+    def get_data(self,da):
+        date=webmodel
+        return date
+    def get(self,request,da):
+        record=self.get_data(da)
+        print(record)
+    
