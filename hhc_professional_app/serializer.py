@@ -81,12 +81,12 @@ class agg_hhc_document_list_serializer(serializers.ModelSerializer):
         model = agg_hhc_documents_list
         fields = ['doc_li_id','Documents_name','professional_role']
 
-class agg_hhc_add_location(serializers.ModelSerializer):
+class agg_hhc_add_location_serializer(serializers.ModelSerializer):
     class Meta:
         model = agg_hhc_professional_location
         fields = ['prof_loc_id','srv_prof_id','location_name']
 
-class agg_hhc_add_dtl_location(serializers.ModelSerializer):
+class agg_hhc_add_dtl_location_serializer(serializers.ModelSerializer):
     class Meta:
         model = agg_hhc_professional_location_details
-        fields = ['lattitude','longitude','prof_loc_id']
+        fields = ['prof_loc_dt_id','lattitude','longitude','prof_loc_id']

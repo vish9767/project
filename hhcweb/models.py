@@ -819,7 +819,7 @@ class agg_hhc_events(models.Model):#9
 	event_code = models.CharField(max_length=640,null=True,blank=True)
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
 	caller_id = models.ForeignKey('agg_hhc_callers',on_delete=models.CASCADE,null=True)
-	enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)    # AMIT
+	# enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)    # AMIT  # remove field with discussion with amit by sandip
 	# relation = models.CharField(max_length=64,null=True)
 	pt_id = models.ForeignKey(agg_hhc_patient_list_enquiry,on_delete=models.CASCADE,null=True)
 	agg_sp_pt_id= models.ForeignKey(agg_hhc_patients,on_delete=models.CASCADE, null=True)
@@ -1284,7 +1284,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	city = models.ForeignKey('agg_hhc_city', on_delete=models.CASCADE, null=True)
 	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
 	# cv_file = models.FileField(upload_to='uploads/')
-	cv_file = models.FileField(upload_to='pdfs/')  # added by vinayak
+	cv_file = models.FileField(upload_to='pdfs/',null=True)
 	# uploaded_at = models.DateTimeField(auto_now_add=True)
 	designation = enum.EnumField(Designation, null=True)
 	availability = models.DateTimeField(auto_now=False, auto_now_add=False,null=True) # added by vinayak
