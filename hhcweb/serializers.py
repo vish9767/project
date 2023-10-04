@@ -580,7 +580,6 @@ class agg_hhc_enquiry_create_follow_up_serializer(serializers.ModelSerializer):
         model=models.agg_hhc_enquiry_follow_up
         fields=('enq_follow_up_id', 'event_id','follow_up')
 
-
 class agg_hhc_enquiry_follow_up_cancellation_reason_spero_serializer(serializers.ModelSerializer):   
     class Meta:
         model=models.agg_hhc_enquiry_follow_up_cancellation_reason

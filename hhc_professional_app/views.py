@@ -167,7 +167,7 @@ class Register_professioanl_for_interview(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-# ---------------------------------Sandip Shimpi -------------------------------------------------------------------------
+# --------------------------------- Sandip Shimpi -------------------------------------------------------------------------
 # ---------------------------- Professional document upload and check ----------------------------------------------------
 
 

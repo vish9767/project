@@ -365,10 +365,10 @@ class follow_up_cancel_by(models.TextChoices):
     
 
 class follow_up(models.TextChoices):
-    Follow_up_Reschedule = 4
-    Cancel = 1
+    Follow_up_Reschedule = 1
+    Cancel = 2
     Create_Service = 3
-    follow_up_pending = 2
+    follow_up_pending = 4
 	
     __deafult__ = follow_up_pending
 	
@@ -441,7 +441,7 @@ class agg_hhc_patient_list_enquiry(models.Model):#1  demos
 	patient_email_id = models.EmailField(null=True)
 	srv_id=models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)#added by vishal
 	Patient_status_at_present=enum.EnumField(patient_present_at_enum,null=True)#added by vishal
-	enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)    # AMIT
+	# enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)    # AMIT
 	# sub_service = models.CharField(max_length=11,null=True)
 	Start_Date_and_Time=models.DateTimeField(null=True)
 	# End_Date_and_Time=models.DateTimeField(null=True)
@@ -825,8 +825,8 @@ class agg_hhc_events(models.Model):#9
 	event_code = models.CharField(max_length=640,null=True,blank=True)
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
 	caller_id = models.ForeignKey('agg_hhc_callers',on_delete=models.CASCADE,null=True)
-	# enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)    # AMIT  # remove field with discussion with amit by sandip
-	# relation = models.CharField(max_length=64,null=True)
+	# enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)    # AMIT
+	# relation = models.CharField(max_length=64,null=True)	
 	pt_id = models.ForeignKey(agg_hhc_patient_list_enquiry,on_delete=models.CASCADE,null=True)
 	agg_sp_pt_id= models.ForeignKey(agg_hhc_patients,on_delete=models.CASCADE, null=True)
 	purp_call_id = models.BigIntegerField(null=True)
@@ -2722,7 +2722,7 @@ class agg_com_colleague(AbstractBaseUser):
     clg_mid_name =	models.CharField(max_length=15, null=True, blank=True)
     clg_last_name =	models.CharField(max_length=15, null=True, blank=True)
     grp_id = models.IntegerField(null=True)
-    #grp_id = models.ForeignKey(agg_mas_group,related_name='clg_group', on_delete=models.CASCADE, null=True, default=None, blank=True)
+    # grp_id = models.ForeignKey(agg_mas_group,related_name='clg_group', on_delete=models.CASCADE, null=True, default=None, blank=True)
     clg_gender = models.CharField(max_length=15, null=True, blank=True)
     clg_mobile_no =	models.BigIntegerField(unique=True, null=True, blank=True)
     clg_Work_phone_number =	models.BigIntegerField(null=True, blank=True)
