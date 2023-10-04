@@ -455,7 +455,7 @@ class agg_hhc_add_service_details_api(APIView):
 
         else:
             request.data['event_id']=eventID
-            request.data['follow_up']=2
+            request.data['follow_up']=4
 
             create_follow_up= agg_hhc_enquiry_create_follow_up_serializer(data= request.data)
             if create_follow_up.is_valid():
@@ -661,6 +661,13 @@ class agg_hhc_add_service_form_api(APIView):
             service=add_service.save().eve_poc_id
         else:
             return Response([add_service.errors])
+        request.data['event_id']=eventID
+        request.data['follow_up']=4
+
+        create_follow_up= agg_hhc_enquiry_create_follow_up_serializer(data= request.data)
+        if create_follow_up.is_valid():
+            # callers.validated_data['caller_status']=3
+            create_follow_up.save()
         plan_O_C= agg_hhc_event_plan_of_care.objects.filter(eve_poc_id=service)
         plan_O_C.update(eve_id=eventID)
         return Response({"Service Created Event Code":eventID})
@@ -966,7 +973,29 @@ class last_patient_service_info(APIView):
         return Response({'Date':patient_date_serialized.data,'service':patient_service_serialized.service_title})
         
 
-
+class previous_patient_pending_amount(APIView):
+    def get_object(self, pt_id):
+        try:
+            event = agg_hhc_events.objects.filter(agg_sp_pt_id=pt_id).first()
+            if event is not None:
+                return event
+            else:
+                raise agg_hhc_events.DoesNotExist
+        except agg_hhc_events.DoesNotExist:
+            return None
+    def get(self, request, pt_id):
+        try:
+            patient_objects = self.get_object(pt_id)
+            if patient_objects is None:
+                return Response({"error": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
+            eve_id = patient_objects.eve_id
+            patient_remaining_payment = agg_hhc_payment_details.objects.filter(eve_id=eve_id).first()
+            if patient_remaining_payment:
+                return Response({'Remaining_payment': patient_remaining_payment.amount_remaining})
+            else:
+                return Response({"error": "Payment details not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 #---------------------------------------------------mayank------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------
 
@@ -1538,11 +1567,14 @@ class agg_hhc_enquiry_Add_follow_up_Cancel_by_APIView(APIView):
     
 class agg_hhc_enquiry_Add_follow_up_create_service_APIView(APIView):
     def post(self, request):
-        serializer =  agg_hhc_enquiry_Add_follow_up_create_service_serializer(data=request.data)
+        serializer = agg_hhc_enquiry_Add_follow_up_create_service_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # Get the event_id from the saved instance
+            event_id = serializer.data.get('event_id')
+            return Response({'event_id': event_id}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class agg_hhc_service_enquiry_list_combined_table_view(APIView):
     def get(self, request, eve_id=None,event_id=None, *args, **kwargs):
