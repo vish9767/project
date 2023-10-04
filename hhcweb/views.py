@@ -1538,11 +1538,14 @@ class agg_hhc_enquiry_Add_follow_up_Cancel_by_APIView(APIView):
     
 class agg_hhc_enquiry_Add_follow_up_create_service_APIView(APIView):
     def post(self, request):
-        serializer =  agg_hhc_enquiry_Add_follow_up_create_service_serializer(data=request.data)
+        serializer = agg_hhc_enquiry_Add_follow_up_create_service_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # Get the event_id from the saved instance
+            event_id = serializer.data.get('event_id')
+            return Response({'event_id': event_id}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class agg_hhc_service_enquiry_list_combined_table_view(APIView):
     def get(self, request, eve_id=None,event_id=None, *args, **kwargs):
