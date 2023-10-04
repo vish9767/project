@@ -636,7 +636,7 @@ class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
 
         has_follow_up_1 = models.agg_hhc_enquiry_follow_up.objects.filter(
             event_id=obj.eve_id,
-            follow_up='1'
+            follow_up='2'
         ).exists()
         if has_follow_up_1:
             return []
@@ -644,7 +644,7 @@ class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
             return []
         queryset = models.agg_hhc_enquiry_follow_up.objects.filter(
             event_id=obj.eve_id
-        ).exclude(Q(follow_up='1') | Q(follow_up_date_time__lt=latest_follow_up_date))
+        ).exclude(Q(follow_up='2') | Q(follow_up_date_time__lt=latest_follow_up_date))
         serializer = enquiries_service_serializer(queryset, many=True)
         respose_data = {
             'data': serializer.data

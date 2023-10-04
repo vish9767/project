@@ -1585,7 +1585,7 @@ class agg_hhc_service_enquiry_list_combined_table_view(APIView):
                 queryset = queryset.filter(eve_id=eve_id)
             except (TypeError, ValueError):
                 pass
-        queryset = queryset.exclude(agg_hhc_enquiry_follow_up__follow_up='1')
+        queryset = queryset.exclude(agg_hhc_enquiry_follow_up__follow_up='2')
         serializer = agg_hhc_service_enquiry_list_serializer(queryset, many=True)
 
         if not serializer.data:
