@@ -455,7 +455,7 @@ class agg_hhc_add_service_details_api(APIView):
 
         else:
             request.data['event_id']=eventID
-            request.data['follow_up']=2
+            request.data['follow_up']=4
 
             create_follow_up= agg_hhc_enquiry_create_follow_up_serializer(data= request.data)
             if create_follow_up.is_valid():
@@ -661,6 +661,13 @@ class agg_hhc_add_service_form_api(APIView):
             service=add_service.save().eve_poc_id
         else:
             return Response([add_service.errors])
+        request.data['event_id']=eventID
+        request.data['follow_up']=4
+
+        create_follow_up= agg_hhc_enquiry_create_follow_up_serializer(data= request.data)
+        if create_follow_up.is_valid():
+            # callers.validated_data['caller_status']=3
+            create_follow_up.save()
         plan_O_C= agg_hhc_event_plan_of_care.objects.filter(eve_poc_id=service)
         plan_O_C.update(eve_id=eventID)
         return Response({"Service Created Event Code":eventID})
