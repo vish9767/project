@@ -2716,7 +2716,7 @@ class agg_com_colleague(AbstractBaseUser):
     clg_mid_name =	models.CharField(max_length=15, null=True, blank=True)
     clg_last_name =	models.CharField(max_length=15, null=True, blank=True)
     grp_id = models.IntegerField(null=True)
-    #grp_id = models.ForeignKey(agg_mas_group,related_name='clg_group', on_delete=models.CASCADE, null=True, default=None, blank=True)
+    # grp_id = models.ForeignKey(agg_mas_group,related_name='clg_group', on_delete=models.CASCADE, null=True, default=None, blank=True)
     clg_gender = models.CharField(max_length=15, null=True, blank=True)
     clg_mobile_no =	models.BigIntegerField(unique=True, null=True, blank=True)
     clg_Work_phone_number =	models.BigIntegerField(null=True, blank=True)
