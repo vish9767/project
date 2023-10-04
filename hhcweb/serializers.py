@@ -654,13 +654,14 @@ class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
             return []
         if latest_follow_up_date is None:
             return []
+
+        # Additional filter to get only one record (latest)
         queryset = models.agg_hhc_enquiry_follow_up.objects.filter(
             event_id=obj.eve_id
         ).exclude(Q(follow_up='2') | Q(follow_up_date_time__lt=latest_follow_up_date))
-        serializer = enquiries_service_serializer(queryset, many=True)
-        respose_data = {
-            'data': serializer.data
-        }
+        latest_follow_up = queryset.latest('follow_up_date_time')
+        serializer = enquiries_service_serializer(instance=latest_follow_up)
+        
         return serializer.data
 
 
