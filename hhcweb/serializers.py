@@ -261,6 +261,7 @@ class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
     zone=serializers.SerializerMethodField()
     gender=serializers.SerializerMethodField()
     doct_cons=serializers.SerializerMethodField()
+    preferred_hosp=serializers.SerializerMethodField()
     class Meta:
         model=models.agg_hhc_patients
         fields='__all__'
@@ -284,7 +285,10 @@ class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
         doct_cons_id_is=instance.doct_cons_id
         gender_id_serializer=preffered_proffesional(doct_cons_id_is)
         return gender_id_serializer.data
-
+    def get_preferred_hosp(self,instance):
+        pref_hospital_id_is=instance.preferred_hosp_id
+        pref_hospital_serializer=hospital_serializer(pref_hospital_id_is)
+        return pref_hospital_serializer.data
 
 
     # def to_representation(self, instance):
@@ -650,13 +654,14 @@ class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
             return []
         if latest_follow_up_date is None:
             return []
+
+        # Additional filter to get only one record (latest)
         queryset = models.agg_hhc_enquiry_follow_up.objects.filter(
             event_id=obj.eve_id
         ).exclude(Q(follow_up='2') | Q(follow_up_date_time__lt=latest_follow_up_date))
-        serializer = enquiries_service_serializer(queryset, many=True)
-        respose_data = {
-            'data': serializer.data
-        }
+        latest_follow_up = queryset.latest('follow_up_date_time')
+        serializer = enquiries_service_serializer(instance=latest_follow_up)
+        
         return serializer.data
 
 

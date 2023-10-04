@@ -453,7 +453,7 @@ class agg_hhc_patient_list_enquiry(models.Model):#1  demos
 	address = models.CharField(max_length=500,null=True)
 	city_id = models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)   	#sandip
 	state_id=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)		#sandip
-	pincode = models.IntegerField(null=True,blank=True)		#sandip
+	pincode = models.CharField(max_length=10,null=True,blank=True)		#sandip
 	refer_by = enum.EnumField(refer_by_enum,null=True)  #sandip
 	sub_location = models.CharField(max_length=50,null=True)
 	prof_zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)   #Amit
@@ -716,7 +716,7 @@ class agg_hhc_patients(models.Model):#6    demo
 	name = models.CharField(max_length=255,null=True)
 	# name = models.CharField(max_length=50,null=True)
 	# middle_name = models.CharField(max_length=50,null=True)
-	pincode=models.PositiveIntegerField(null=True)
+	# pincode=models.PositiveIntegerField(null=True)
 	Age = models.BigIntegerField(null=True)
 	# age = models.BigIntegerField(null=True)
 	# Gender = models.CharField(max_length=10,null=True)
@@ -729,7 +729,7 @@ class agg_hhc_patients(models.Model):#6    demo
 	city_id = models.ForeignKey('agg_hhc_city',on_delete=models.CASCADE,null=True)
 	address = models.CharField(max_length=500,null=True)
 	prof_zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)
-	pincode=models.IntegerField(null=True)
+	pincode=models.CharField(max_length=10,null=True,blank=True)
 	otp=models.IntegerField(null=True)
 	otp_expire_time=models.DateTimeField(null=True)
 	google_location = models.CharField(max_length=240,null=True)
@@ -844,7 +844,7 @@ class agg_hhc_events(models.Model):#9
 	Total_cost = models.DecimalField(max_digits=50, decimal_places=2,null=True)
 	discount_type = enum.EnumField(discount_type_enum,null=True)
 	discount_value = models.FloatField(null=True)
-	final_amount = models.FloatField(null=True)
+	final_amount = models.FloatField(blank=True,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	# inc_call_id = models.CharField(max_length=100,null=True)
 	# event_status = enum.EnumField(event_status_enum,null=True)
@@ -979,7 +979,7 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
 	added_date = models.DateField(default=timezone.now,null=True)
-	remark = models.CharField(max_length=200, null=True)# newly added
+	remark = models.CharField(max_length=200, null=True,blank=True)# newly added
 	last_modified_by = models.BigIntegerField(null=True)
 	last_modified_date = models.DateField(null=True)
 	service_status = enum.EnumField(service_status_enum1,null=True)
