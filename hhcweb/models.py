@@ -416,6 +416,7 @@ class agg_hhc_patient_list_enquiry(models.Model):#1  demos
 	sub_location = models.CharField(max_length=50,null=True)
 	prof_zone_id = models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True)   #Amit
 
+
 class agg_hhc_assessment_patient(models.Model):#2
 	ass_pt_id = models.AutoField(primary_key = True)
 	ass_pt_li_id = models.BigIntegerField(null=True)

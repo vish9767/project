@@ -2272,7 +2272,7 @@ class srv_dtl_dash(APIView):
             }
 
             response_data = {
-                'Total_cases': tatal_count if 'tatal_count' in locals() else 0,
+                'Total_services': tatal_count if 'tatal_count' in locals() else 0,
                 'Completed_services': Completed_services,
                 'Pending_services': Pending_services,
                 'ongoing_services': Ongoing_services,
@@ -2387,7 +2387,7 @@ class srv_dtl_dash(APIView):
             }
 
             response_data = {
-                'Total_cases': tatal_count if 'tatal_count' in locals() else 0,
+                'Total_services': tatal_count if 'tatal_count' in locals() else 0,
                 'Completed_services': Completed_services,
                 'Pending_services': Pending_services,
                 'ongoing_services': Ongoing_services,
