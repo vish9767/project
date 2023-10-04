@@ -53,7 +53,7 @@ class reg_prof_api_serializer(serializers.ModelSerializer):
     class Meta:
         model = agg_hhc_service_professionals
         fields = ['srv_id', 'title','prof_fullname','dob','gender','email_id','phone_no','alt_phone_no','eme_contact_no','eme_contact_relation',
-                  'eme_conact_person_name','availability_status','prof_zone_id','state_name','city','pin_code_id',
+                  'eme_conact_person_name','mode_of_service','availability_status','prof_zone_id','state_name','city','pin_code_id',
                   'prof_sub_srv_id','Education_level','cv_file','certificate_registration_no','availability']
     
     def create(self, validated_data):

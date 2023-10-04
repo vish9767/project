@@ -1517,15 +1517,18 @@ def total_services(request):
 # from . models import agg_hhc_event_professional,agg_hhc_events,agg_hhc_payments
 # from . serializers import OngoingServiceSerializer
 
+import logging
 
 class OngoingServiceView(APIView):
     serializer_class = OngoingServiceSerializer
+    logger = logging.getLogger(__name__)
 
     def get(self, request, format=None):
         data =  agg_hhc_events.objects.all()
         serializer = self.serializer_class(data, many=True)  
         filtered_data = [item for item in serializer.data if item is not None]
         print(serializer.data)
+        # logger.info("Ongoing services HD module GET request received") 
         return Response(filtered_data)
     
 # -------------------------------------Amit Rasale---------------------------------------------------------------

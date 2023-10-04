@@ -260,6 +260,7 @@ class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
     city=serializers.SerializerMethodField()
     zone=serializers.SerializerMethodField()
     gender=serializers.SerializerMethodField()
+    doct_cons=serializers.SerializerMethodField()
     class Meta:
         model=models.agg_hhc_patients
         fields='__all__'
@@ -279,6 +280,13 @@ class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
         gender_id_is=instance.gender_id
         gender_id_serializer=agg_hhc_gender_serializer(gender_id_is)
         return gender_id_serializer.data
+    def get_doct_cons(self,instance):
+        doct_cons_id_is=instance.doct_cons_id
+        gender_id_serializer=preffered_proffesional(doct_cons_id_is)
+        return gender_id_serializer.data
+
+
+
     # def to_representation(self, instance):
     #     data = super().to_representation(instance)
     #     print(instance)
