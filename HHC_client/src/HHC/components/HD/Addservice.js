@@ -28,10 +28,6 @@ import Footer from '../../Footer';
 import ViewService from "./Viewservice";
 import Header from '../../Header';
 
-// const Alert = React.forwardRef(function Alert(props, ref) {
-//     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-// });
-
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
     ...theme.typography.body2,
@@ -115,9 +111,9 @@ const Addservice = () => {
     const [calculatedAmount, setCalculatedAmount] = useState('');
     const [getCost, setGetCost] = useState('');
 
-    const [selectedDiscountId, setSelectedDiscountId] = useState('');
+    const [selectedDiscountId, setSelectedDiscountId] = useState('3');
     // const [totalDiscount, setTotalDiscount] = useState(0);
-    const [discountValue, setDiscountValue] = useState('');
+    const [discountValue, setDiscountValue] = useState(0);
 
     const [coupon, setCoupon] = useState([]);
     const [selectedCoupon, setSelectedCoupon] = useState('');
@@ -707,6 +703,8 @@ const Addservice = () => {
                 } catch (error) {
                     console.error("Error fetching Calculated Amount with Discount:", error);
                 }
+            } else {
+                setTotalDiscount(calculatedAmount);
             }
         };
         calculateDiscount();
@@ -873,12 +871,10 @@ const Addservice = () => {
             start_date: convertedStartDate,
             end_date: convertedEndDate,
             prof_prefered: selectedProfGender,
-
             remark: remark,
             Total_cost: calculatedAmount,
             discount_type: selectedDiscountId,
             discount_value: discountValue,
-
             final_amount: totalDiscount
             // getCost,
             // selectedDiscountId,
@@ -2160,7 +2156,32 @@ const Addservice = () => {
 
                                     <Grid item lg={12} sm={12} xs={12}>
                                         <Grid container spacing={1}>
-                                            <Grid xs={selectedDiscountId ? 6 : 12} sx={{ marginTop: 1, }}>
+                                            {/* <Grid xs={selectedDiscountId ? 6 : 12} sx={{ marginTop: 1, }}>
+                                                <TextField
+                                                    id="outlined-select-percentage"
+                                                    name="discount_type"
+                                                    select
+                                                    label="Discount Type"
+                                                    value={selectedDiscountId}
+                                                    onChange={(e) => setSelectedDiscountId(e.target.value)}
+                                                    size="small"
+                                                    fullWidth
+                                                    sx={{
+                                                        textAlign: "left",
+                                                        '& input': {
+                                                            fontSize: '12px',
+                                                        },
+                                                    }}
+                                                >
+                                                    {discount.map((option) => (
+                                                        <MenuItem key={option.discount_id} value={option.discount_id}>
+                                                            {option.label}
+                                                        </MenuItem>
+                                                    ))}
+                                                </TextField>
+                                            </Grid> */}
+
+                                            <Grid xs={selectedDiscountId === '3' ? 12 : 6} sx={{ marginTop: 1 }}>
                                                 <TextField
                                                     id="outlined-select-percentage"
                                                     name="discount_type"
@@ -2223,26 +2244,6 @@ const Addservice = () => {
                                                         }}
                                                     />
                                                 )}
-
-                                                {/* {selectedDiscountId === '3' && (
-                                                    <TextField
-                                                        id="discount-currency"
-                                                        name="discount_value"
-                                                        label="None"
-                                                        size="small"
-                                                        type="number"
-                                                        fullWidth
-                                                        value={selectedDiscountId === '3' ? 0 : discountValue}
-                                                        onChange={(e) => setDiscountValue(e.target.value)}
-                                                        disabled
-                                                        sx={{
-                                                            textAlign: "left",
-                                                            '& input': {
-                                                                fontSize: '16px',
-                                                            },
-                                                        }}
-                                                    />
-                                                )} */}
                                             </Grid>
                                         </Grid>
                                         {/* <TextField

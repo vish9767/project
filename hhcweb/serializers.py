@@ -260,6 +260,7 @@ class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
     city=serializers.SerializerMethodField()
     zone=serializers.SerializerMethodField()
     gender=serializers.SerializerMethodField()
+    doct_cons=serializers.SerializerMethodField()
     class Meta:
         model=models.agg_hhc_patients
         fields='__all__'
@@ -279,6 +280,13 @@ class agg_hhc_app_patient_by_caller_phone_no(serializers.ModelSerializer):
         gender_id_is=instance.gender_id
         gender_id_serializer=agg_hhc_gender_serializer(gender_id_is)
         return gender_id_serializer.data
+    def get_doct_cons(self,instance):
+        doct_cons_id_is=instance.doct_cons_id
+        gender_id_serializer=preffered_proffesional(doct_cons_id_is)
+        return gender_id_serializer.data
+
+
+
     # def to_representation(self, instance):
     #     data = super().to_representation(instance)
     #     print(instance)
@@ -636,7 +644,7 @@ class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
 
         has_follow_up_1 = models.agg_hhc_enquiry_follow_up.objects.filter(
             event_id=obj.eve_id,
-            follow_up='1'
+            follow_up='2'
         ).exists()
         if has_follow_up_1:
             return []
@@ -644,7 +652,7 @@ class agg_hhc_service_enquiry_list_serializer(serializers.ModelSerializer):
             return []
         queryset = models.agg_hhc_enquiry_follow_up.objects.filter(
             event_id=obj.eve_id
-        ).exclude(Q(follow_up='1') | Q(follow_up_date_time__lt=latest_follow_up_date))
+        ).exclude(Q(follow_up='2') | Q(follow_up_date_time__lt=latest_follow_up_date))
         serializer = enquiries_service_serializer(queryset, many=True)
         respose_data = {
             'data': serializer.data

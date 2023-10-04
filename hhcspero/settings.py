@@ -1,6 +1,8 @@
 from pathlib import Path
 from datetime import timedelta
 import os
+import logging
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -78,24 +80,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'hhcspero.wsgi.application'
 
 
+
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
     'default': {
-        'ENGINE' : 'django.db.backends.postgresql',
-        # 'NAME' : 'last',#hhc_database#test5
-        'NAME' : 'test5',#hhc_database#test5#tp,tp1
-        'USER' : 'postgres',
-        'PASSWORD' : 'root',
-        'HOST' : 'localhost',
-        'PORT' : '5432'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
+    # 'default': {
+    #     'ENGINE' : 'django.db.backends.postgresql',
+    #     # 'NAME' : 'last',#hhc_database#test5
+    #     'NAME' : 'test5',#hhc_database#test5#tp,tp1
+    #     'USER' : 'postgres',
+    #     'PASSWORD' : 'root',
+    #     'HOST' : 'localhost',
+    #     'PORT' : '5432'
+    # }
 }
 
 
@@ -183,5 +187,44 @@ CORS_ALLOWED_ORIGINS=[
     "http://localhost:3000",
     "http://127.0.0.1:8000"
 ]
+
+
+
+
+
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath('django_logs/django_logger.log')))
+LOG_FILE_PATH = os.path.join(BASE_DIR, 'logs', 'django_logs/django_logger.log')
+
+if not os.path.exists(os.path.dirname(LOG_FILE_PATH)):
+    os.makedirs(os.path.dirname(LOG_FILE_PATH))
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',  # Adjust the logging level as needed (INFO, WARNING, ERROR, CRITICAL)
+            'class': 'logging.FileHandler',
+            'filename': 'django_logs/django_logger.log',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['file'],
+        'level': 'INFO',  # Set the logging level for the root logger
+    },
+}
 
 

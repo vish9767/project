@@ -973,7 +973,29 @@ class last_patient_service_info(APIView):
         return Response({'Date':patient_date_serialized.data,'service':patient_service_serialized.service_title})
         
 
-
+class previous_patient_pending_amount(APIView):
+    def get_object(self, pt_id):
+        try:
+            event = agg_hhc_events.objects.filter(agg_sp_pt_id=pt_id).first()
+            if event is not None:
+                return event
+            else:
+                raise agg_hhc_events.DoesNotExist
+        except agg_hhc_events.DoesNotExist:
+            return None
+    def get(self, request, pt_id):
+        try:
+            patient_objects = self.get_object(pt_id)
+            if patient_objects is None:
+                return Response({"error": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
+            eve_id = patient_objects.eve_id
+            patient_remaining_payment = agg_hhc_payment_details.objects.filter(eve_id=eve_id).first()
+            if patient_remaining_payment:
+                return Response({'Remaining_payment': patient_remaining_payment.amount_remaining})
+            else:
+                return Response({"error": "Payment details not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 #---------------------------------------------------mayank------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------
 
@@ -1495,15 +1517,18 @@ def total_services(request):
 # from . models import agg_hhc_event_professional,agg_hhc_events,agg_hhc_payments
 # from . serializers import OngoingServiceSerializer
 
+import logging
 
 class OngoingServiceView(APIView):
     serializer_class = OngoingServiceSerializer
+    logger = logging.getLogger(__name__)
 
     def get(self, request, format=None):
         data =  agg_hhc_events.objects.all()
         serializer = self.serializer_class(data, many=True)  
         filtered_data = [item for item in serializer.data if item is not None]
         print(serializer.data)
+        # logger.info("Ongoing services HD module GET request received") 
         return Response(filtered_data)
     
 # -------------------------------------Amit Rasale---------------------------------------------------------------
@@ -1563,7 +1588,7 @@ class agg_hhc_service_enquiry_list_combined_table_view(APIView):
                 queryset = queryset.filter(eve_id=eve_id)
             except (TypeError, ValueError):
                 pass
-        queryset = queryset.exclude(agg_hhc_enquiry_follow_up__follow_up='1')
+        queryset = queryset.exclude(agg_hhc_enquiry_follow_up__follow_up='2')
         serializer = agg_hhc_service_enquiry_list_serializer(queryset, many=True)
 
         if not serializer.data:

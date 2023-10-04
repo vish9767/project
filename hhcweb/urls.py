@@ -96,5 +96,6 @@ urlpatterns = [
     path('allocate_api',views.allocate_api.as_view()),
     path('Dashboard_enquiry_count_api/<int:id>',views.Dashboard_enquiry_count_api.as_view()),
     path('Dashboard_enquiry_status_count_api/<int:id>',views.Dashboard_enquiry_status_count_api.as_view()),
+    path('previous_patient_pending_amount/<int:pt_id>',views.previous_patient_pending_amount.as_view())
 ]
 
