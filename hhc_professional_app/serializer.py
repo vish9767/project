@@ -118,6 +118,9 @@ class Upcoming_service_app(serializers.ModelSerializer):
 
 # ----------------------------PROfessional app feedback----------------------
 
+
+
+
 class Pro_app_feedback_serializer(serializers.ModelSerializer):
     models = agg_hhc_Professional_app_feedback
     fields = "__all__"
