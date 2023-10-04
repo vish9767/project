@@ -35,6 +35,10 @@ class Title(enum.Enum):      # Added by mayank
 
 
 
+class mode_of_srv(enum.Enum):      # Added by Vinayak
+	Employment = 1
+	Consultant = 2
+	
 
 class Professional_status(enum.Enum):  # Added by Vinayak
 	Info_Submitted = 1
@@ -109,6 +113,7 @@ class level(enum.Enum):
 class yes_no_enum(enum.Enum):
 	yes = 1
 	no = 2
+
 
 class last_modified_by_enum(enum.Enum):
 	System = 1
@@ -1231,7 +1236,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	# middle_name = models.CharField(max_length=50,null=True)
 	email_id = models.EmailField(max_length=254, null=True)
 	phone_no = models.BigIntegerField(null=True)
-	alt_phone_no = models.BigIntegerField(null=True) # added by vinayak
+	alt_phone_no = models.BigIntegerField(blank=True,null=True) # added by vinayak
 	eme_contact_no = models.BigIntegerField(null=True) # added by vinayak
 	eme_contact_relation = enum.EnumField(relations_professional, null=True) # added by vinayak
 	eme_conact_person_name = models.CharField(max_length=100) # added by vinayak
@@ -1268,7 +1273,8 @@ class agg_hhc_service_professionals(models.Model):#32
 	Description = models.CharField(max_length=200,null=True)
 	OTP_verification = enum.EnumField(yes_no_enum,null=True)
 	reg_source = enum.EnumField(reg_source_enum,null=True)
-	availability_status = enum.EnumField(yes_no_enum,null=True)
+	availability_status = enum.EnumField(JOB_type,null=True, blank=True)
+	mode_of_service = enum.EnumField(mode_of_srv, null=True, blank=True)
 	location_status = enum.EnumField(yes_no_enum,null=True)
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True,to_field="service_title")# rename by vishal
 	# prof_srv_id = models.IntegerField(null=True)
@@ -1285,7 +1291,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	city = models.ForeignKey('agg_hhc_city', on_delete=models.CASCADE, null=True)
 	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
 	# cv_file = models.FileField(upload_to='uploads/')
-	cv_file = models.FileField(upload_to='pdfs/',null=True)
+	cv_file = models.FileField(upload_to='pdfs/',null=True, blank=True)
 	# uploaded_at = models.DateTimeField(auto_now_add=True)
 	designation = enum.EnumField(Designation, null=True)
 	availability = models.DateTimeField(auto_now=False, auto_now_add=False,null=True) # added by vinayak
