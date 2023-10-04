@@ -1528,7 +1528,7 @@ class OngoingServiceView(APIView):
         serializer = self.serializer_class(data, many=True)  
         filtered_data = [item for item in serializer.data if item is not None]
         print(serializer.data)
-        # logger.info("Ongoing services HD module GET request received") 
+        #logger.info("Ongoing services HD module GET request received") 
         return Response(filtered_data)
     
 # -------------------------------------Amit Rasale---------------------------------------------------------------
