@@ -213,6 +213,15 @@ class date_wise_location_details(APIView):
         return Response(response_data)
 # --------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------- add professional zone -------------------------------------------------------
-# class Add_Prof_location(APIView):
-#     def post(self,request):
-#         loc=
+class Add_Prof_location_api(APIView):
+    def post(self,request):
+        loc_serializer=agg_hhc_add_location_serializer(data=request.data)
+        if loc_serializer.is_valid():
+            loc_id=loc_serializer.save().prof_loc_id
+            for i in range(len(request.data['lattitude'])):
+                data={"lattitude":request.data['lattitude'][i],"longitude":request.data['longitude'][i],"prof_loc_id":loc_id}
+                lat_long_serializer = agg_hhc_add_dtl_location_serializer(data=data)
+                if lat_long_serializer.is_valid():
+                    lat_long_serializer.save()
+            return Response(loc_serializer.data)
+        return Response(loc_serializer.errors)

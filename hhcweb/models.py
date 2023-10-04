@@ -33,6 +33,43 @@ class Title(enum.Enum):      # Added by mayank
 	MR = 2
 	MRS = 3	
 
+
+
+
+class Professional_status(enum.Enum):  # Added by Vinayak
+	Info_Submitted = 1
+	In_process_with_HR = 2
+	Interview_schedule = 3
+	On_Board = 4
+	Document_varified = 5
+
+
+
+class relations_professional(enum.Enum): # Added by Vinayak
+	Spouse = 1
+	Wife = 2 
+	Father = 3 
+	Mother = 4
+	Grand_Father = 5
+	Grand_Mother = 6
+	Sister = 7
+	Brother = 8
+	Relative = 9
+	Friend = 10
+	Child = 11
+	Other = 12
+	
+	
+
+class Education_level(enum.Enum):  # Added by Vinayak
+	Tenthpass = 0
+	Twelthpass = 1
+	Highschool = 2
+	Diploma = 3
+	Bachelor = 4
+	Master= 5
+	Doctorate= 6
+
 class JOB_type(enum.Enum):         # Added by mayank
 	ONCALL = 1
 	FULLTIME = 2
@@ -783,7 +820,7 @@ class agg_hhc_events(models.Model):#9
 	event_code = models.CharField(max_length=640,null=True,blank=True)
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
 	caller_id = models.ForeignKey('agg_hhc_callers',on_delete=models.CASCADE,null=True)
-	enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)    # AMIT
+	# enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)    # AMIT  # remove field with discussion with amit by sandip
 	# relation = models.CharField(max_length=64,null=True)
 	pt_id = models.ForeignKey(agg_hhc_patient_list_enquiry,on_delete=models.CASCADE,null=True)
 	agg_sp_pt_id= models.ForeignKey(agg_hhc_patients,on_delete=models.CASCADE, null=True)
@@ -1185,8 +1222,8 @@ class agg_hhc_service_professionals(models.Model):#32
 	srv_prof_id = models.AutoField(primary_key = True)
 	professional_code = models.CharField(max_length=255,null=True)
 	reference_type = enum.EnumField(reference_type_enum,null=True)
-	title = enum.EnumField(Title, null=True) 
-	skill_set=models.CharField(max_length=200,null=True)#BHMS
+	title = enum.EnumField(Title, null=True)
+	skill_set=models.CharField(max_length=200,null=True)#BHMS	
 	Job_type = enum.EnumField(JOB_type, null = True)
 	prof_fullname = models.CharField(max_length=200,null=True)
 	# first_name = models.CharField(max_length=255,null=True)
@@ -1194,11 +1231,14 @@ class agg_hhc_service_professionals(models.Model):#32
 	# middle_name = models.CharField(max_length=50,null=True)
 	email_id = models.EmailField(max_length=254, null=True)
 	phone_no = models.BigIntegerField(null=True)
-	mobile_no = models.BigIntegerField(null=True) #Alternate number
+	alt_phone_no = models.BigIntegerField(null=True) # added by vinayak
+	eme_contact_no = models.BigIntegerField(null=True) # added by vinayak
+	eme_contact_relation = enum.EnumField(relations_professional, null=True) # added by vinayak
+	eme_conact_person_name = models.CharField(max_length=100) # added by vinayak
 	dob = models.DateField(null=True)
 	doj = models.DateField(null=True)
 	address = models.CharField(max_length=500,null=True)
-	work_email_id = models.EmailField(max_length=255,null=True)
+	work_email_id = models.EmailField(max_length=254, null=True)
 	work_phone_no = models.BigIntegerField(null=True)
 	work_address = models.CharField(max_length=500,null=True)
 	prof_zone_id= models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True, to_field="Name")
@@ -1219,25 +1259,28 @@ class agg_hhc_service_professionals(models.Model):#32
 	apron_charges = models.FloatField(null=True)
 	document_status = enum.EnumField(document_status_enum,null=True)
 	APP_password = models.CharField(max_length=350,null=True)
-	OTP = models.IntegerField(null=True)
-	OTP_count = models.IntegerField(null=True)
+	OTP = models.CharField(max_length=4,null=True)
+	OTP_count = models.BigIntegerField(null=True)
 	otp_expire_time = models.DateTimeField(null=True)
 	Profile_pic = models.ImageField(null=True,max_length=None)
 	Ratings = models.FloatField(null=True)
 	Reviews = models.IntegerField(null=True)
-	Description = models.CharField(max_length=400,null=True)
+	Description = models.CharField(max_length=200,null=True)
 	OTP_verification = enum.EnumField(yes_no_enum,null=True)
 	reg_source = enum.EnumField(reg_source_enum,null=True)
 	availability_status = enum.EnumField(yes_no_enum,null=True)
 	location_status = enum.EnumField(yes_no_enum,null=True)
 	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True,to_field="service_title")# rename by vishal
 	# prof_srv_id = models.IntegerField(null=True)
-	# prof_sub_srv_id = models.ForeignKey('agg_hhc_professional_sub_services',on_delete=models.CASCADE,null=True)
+	# prof_sub_srv_id = models.ForeignKey('agg_hhc_professional_sub_services',on_delete=models.CASCADE,null=True) agg_hhc_sub_services
+	prof_sub_srv_id = models.ForeignKey('agg_hhc_sub_services',on_delete=models.CASCADE,null=True)
+	# Experience = models.IntegerField(null=True)
 	Calendar = models.DateField(auto_now=False, auto_now_add=False, null=True)
-	# srv_id = models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True)#added by mayank
+	certificate_registration_no = models.CharField(max_length=100, null= True) # added by vinayak
+	# srv_id = models.ForeignKey(agg_hhc_services,on_delete=models.CASCADE,null=True) #added by mayank
 	Experience = models.FloatField(null=True)#added by mayank
 	gender = enum.EnumField(pt_gender_enum, null = True)
-	Education_level = enum.EnumField(Education_level, null = True)
+	Education_level = enum.EnumField(Education_level, null = True) # added by vinayak
 	pin_code_id = models.CharField(max_length=50,null=True)
 	city = models.ForeignKey('agg_hhc_city', on_delete=models.CASCADE, null=True)
 	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
@@ -1245,9 +1288,8 @@ class agg_hhc_service_professionals(models.Model):#32
 	cv_file = models.FileField(upload_to='pdfs/',null=True)
 	# uploaded_at = models.DateTimeField(auto_now_add=True)
 	designation = enum.EnumField(Designation, null=True)
-	availability = models.DateTimeField(auto_now=False, auto_now_add=False,null=True)
-	professinal_status = enum.EnumField(Professional_status, null=True)
-
+	availability = models.DateTimeField(auto_now=False, auto_now_add=False,null=True) # added by vinayak
+	professinal_status = enum.EnumField(Professional_status, null=True) # added by vinayak
 
 
 class agg_hhc_service_professional_details(models.Model):#33
