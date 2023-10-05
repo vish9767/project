@@ -110,13 +110,13 @@ class agg_hhc_locations_api(APIView):
 
 class agg_hhc_services_api(APIView):
     def get(self,request):
-        call= agg_hhc_services.objects.filter(status=1)
+        call= agg_hhc_services.objects.filter(status=1).order_by('service_title')
         serializer=agg_hhc_services_serializer(call,many=True)
         return Response(serializer.data)
 
 class agg_hhc_sub_services_api(APIView):
     def get(self,request,pk,format=None):
-        sub_service= agg_hhc_sub_services.objects.filter(srv_id=pk)
+        sub_service= agg_hhc_sub_services.objects.filter(srv_id=pk).order_by('recommomded_service')
         serializer= agg_hhc_sub_services_serializer(sub_service,many=True)
         return Response(serializer.data)
     
@@ -676,19 +676,19 @@ class agg_hhc_add_service_form_api(APIView):
     
 class agg_hhc_state_api(APIView):
     def get(self,request,format=None):
-        reason= agg_hhc_state.objects.all()
+        reason= agg_hhc_state.objects.all().order_by('state_name')
         serializer= agg_hhc_get_state_serializer(reason,many=True)
         return Response(serializer.data)
     
 class agg_hhc_city_api(APIView):
     def get(self,request,pk,format=None):
-        reason= agg_hhc_city.objects.filter(state_id=pk)
+        reason= agg_hhc_city.objects.filter(state_id=pk).order_by('city_name')
         serializer= agg_hhc_get_city_serializer(reason,many=True)
         return Response(serializer.data)
 
 class agg_hhc_consultant_api(APIView):
     def get(self,request):
-        consultant= agg_hhc_doctors_consultants.objects.filter(status=1)
+        consultant= agg_hhc_doctors_consultants.objects.filter(status=1).order_by('cons_fullname')
         consultantSerializer= agg_hhc_doctors_consultants_serializer(consultant,many=True)
         return Response(consultantSerializer.data)
 # ---------------------------------------------------------------------------------------------------- 
@@ -714,7 +714,7 @@ class agg_hhc_callers_phone_no(APIView):
         try:
             snippet = self.get_object(pk)
             caller_record = agg_hhc_callers.objects.get(pk=snippet)
-            record = agg_hhc_patients.objects.filter(caller_id=snippet)
+            record = agg_hhc_patients.objects.filter(caller_id=snippet).order_by('name')
             serialized_caller = agg_hhc_callers_details_serializer(caller_record)
             serialized = agg_hhc_app_patient_by_caller_phone_no(record, many=True)
             # for i in serialized.data:
@@ -728,7 +728,7 @@ class agg_hhc_callers_phone_no(APIView):
 
 class agg_hhc_hospitals_api(APIView):
     def get(self,request):
-        hospital= agg_hhc_hospitals.objects.filter(status=1)
+        hospital= agg_hhc_hospitals.objects.filter(status=1).order_by('hospital_name')
         hospital_names=agg_hhc_hospitals_serializer(hospital,many=True)
         return Response(hospital_names.data)
 
@@ -1269,7 +1269,7 @@ class agg_hhc_zone_api(APIView): # List of Zones
 
     def get(self, request, pk, format=None):
         print(pk)
-        groups =  agg_hhc_professional_zone.objects.filter(city_id=pk)
+        groups =  agg_hhc_professional_zone.objects.filter(city_id=pk).order_by('Name')
         print(groups)
         if groups:
             serializer = agg_hhc_professional_zone_serializer(groups, many=True)
