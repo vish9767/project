@@ -90,3 +90,37 @@ class agg_hhc_add_dtl_location_serializer(serializers.ModelSerializer):
     class Meta:
         model = agg_hhc_professional_location_details
         fields = ['prof_loc_dt_id','lattitude','longitude','prof_loc_id']
+# -----------------------mayank-----------------------------app----------------------
+
+class Upcoming_service_app(serializers.ModelSerializer):
+    # service_title = serializers.CharField(source='agg_hhc_services.service_title')
+
+    class Meta:
+        model= agg_hhc_event_plan_of_care
+        fields = ['start_date','end_date','srv_prof_id', 'eve_id','status','srv_id','pt_id']
+
+    def to_representation(self, instance):
+       # Serialize the instance using the default representation
+       data = super().to_representation(instance)
+       
+       # Add the "service_title" field from the related "agg_hhc_services" instance
+       data['service_title'] = instance.srv_id.service_title
+       data['address'] = instance.pt_id.address
+       data['name'] = instance.pt_id.name
+       return data
+    
+    # def to_representation(self, instance):
+    #    # Serialize the instance using the default representation
+    #    data = super().to_representation(instance)
+       
+    #    data['address'] = instance.pt_id.address
+    #    return data
+
+# ----------------------------PROfessional app feedback----------------------
+
+
+
+
+class Pro_app_feedback_serializer(serializers.ModelSerializer):
+    models = agg_hhc_Professional_app_feedback
+    fields = "__all__"

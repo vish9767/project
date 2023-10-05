@@ -207,3 +207,5 @@ admin.site.register(agg_hhc_gender)#112
 admin.site.register(agg_hhc_pincode)
 admin.site.register(agg_hhc_enquiry_follow_up_cancellation_reason)
 admin.site.register(agg_hhc_coupon_codes)
+admin.site.register(agg_hhc_Professional_app_feedback)
+
