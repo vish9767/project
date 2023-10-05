@@ -861,7 +861,7 @@ class agg_hhc_events(models.Model):#9
 	last_modified_date = models.DateField(null=True)
 	# purpose_event_id = models.BigIntegerField(null=True)
 	branch_code = models.CharField(max_length=50,null=True)
-	hosp_id = models.BigIntegerField(null=True)
+	#hosp_id = models.BigIntegerField(null=True)
 	suffer_from = models.CharField(max_length=200,null=True)
 	hosp_id = models.CharField(max_length=30,null=True)
 	ref_hos_nm = models.CharField(max_length=50,null=True)
