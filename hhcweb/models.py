@@ -861,7 +861,7 @@ class agg_hhc_events(models.Model):#9
 	last_modified_date = models.DateField(null=True)
 	# purpose_event_id = models.BigIntegerField(null=True)
 	branch_code = models.CharField(max_length=50,null=True)
-	hosp_id = models.BigIntegerField(null=True)
+	#hosp_id = models.BigIntegerField(null=True)
 	suffer_from = models.CharField(max_length=200,null=True)
 	hosp_id = models.CharField(max_length=30,null=True)
 	ref_hos_nm = models.CharField(max_length=50,null=True)
@@ -965,6 +965,7 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 	sub_srv_id = models.ForeignKey('agg_hhc_sub_services', on_delete=models.CASCADE,null=True)
 	hosp_id = models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# new added
 	doct_cons_id = models.ForeignKey('agg_hhc_doctors_consultants',on_delete=models.CASCADE,null=True)# new added
+	pt_id = models.ForeignKey('agg_hhc_patient_list_enquiry',on_delete=models.CASCADE,null=True)# new added(mayank)
 	# eve_req_id = models.BigIntegerField(null=True)
 	srv_prof_id = models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
 	# service_date = models.DateField(null=True)# this field for fields stor  time
@@ -2809,3 +2810,19 @@ class agg_hhc_enquiry_follow_up_cancellation_reason(models.Model):
     
 # 	def __str__(self):
 # 		return f"Payment: {self.order_amount} INR for Order ID: {self.order_id}"
+
+#------------------------------------(added by mayank)----------------------------------------------------------------------------
+class agg_hhc_Professional_app_feedback(models.Model):
+	feedbk_id = models.AutoField(primary_key=True)
+	srv_prof_id = models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
+	pt_id = models.IntegerField(null = True)
+	eve_id = models.ForeignKey(agg_hhc_events,on_delete=models.CASCADE,null=True)
+	rating = models.FloatField(null = True)
+	comment =models.CharField( max_length=100, null =True, blank=True)
+	date_time =models.DateField(default=timezone.now,null=True)
+	q1 = models.IntegerField(null = True,blank=True)
+	q2 = models.IntegerField(null = True,blank=True)
+	q3 =models.IntegerField(null = True,blank=True)
+	image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=None,blank=True,null = True)
+	vedio = models.FileField( upload_to=None, max_length=100,blank=True,null = True)
+	audio = models.FileField(upload_to=None, max_length=100 , blank=True,null = True)

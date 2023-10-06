@@ -6,12 +6,19 @@ from rest_framework import status, permissions
 from rest_framework.parsers import JSONParser
 from django.core.exceptions import ObjectDoesNotExist
 from hhc_professional_app.serializer import *
+from hhcweb.models import*
 from hhcspero.settings import AUTH_KEY
 import random
 import requests,random,pytz,io
 from django.utils import timezone
 from datetime import datetime, timedelta
 from rest_framework_simplejwt.tokens import RefreshToken
+# from .serializers import *
+from datetime import date, timedelta
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
+from datetime import date, timedelta
+from hhcweb.models import*
 
 # Generate Token Manually
 def get_tokens_for_user(user):
@@ -229,3 +236,81 @@ class Add_Prof_location_api(APIView):
                     lat_long_serializer.save()
             return Response(loc_serializer.data)
         return Response(loc_serializer.errors)
+
+
+#-------------------upcoming service(mayank)-----------------------
+
+
+
+class UpcomingServiceAPI(APIView):
+    def get(self, request, srv_prof_id, *args, **kwargs):
+        # Get tomorrow's date
+        tomorrow = date.today() + timedelta(days=1)
+
+        # Filter the records with status=1, start_date on or after tomorrow, and matching srv_prof_id
+        filtered_records = agg_hhc_event_plan_of_care.objects.filter(
+            status=1,
+            start_date__gte=tomorrow,
+            srv_prof_id=srv_prof_id
+        )
+
+        # Serialize the filtered records using your serializer
+        serializer = Upcoming_service_app(filtered_records, many=True)
+
+        return Response({'data':serializer.data},status=status.HTTP_200_OK)
+    
+#---------------------Completed services(mayank)--------------------------------------
+
+
+class CompletedServiceAPI(APIView):
+    def get(self, request, srv_prof_id, *args, **kwargs):
+        # Get tomorrow's date
+        yesterday = date.today() - timedelta(days=1)
+
+        # Retrieve the agg_hhc_event_plan_of_care record for srv_prof_id
+        record = get_object_or_404(agg_hhc_event_plan_of_care, srv_prof_id=srv_prof_id)
+
+        # Convert record.end_date to a datetime.date object
+        end_date_as_date = record.end_date.date()
+
+        if yesterday >= end_date_as_date:
+            # Filter the records with status=1, start_date on or after tomorrow, and matching srv_prof_id
+            filtered_records = agg_hhc_event_plan_of_care.objects.filter(
+                status=1,
+                srv_prof_id=srv_prof_id
+            )
+
+            # Serialize the filtered records using your serializer
+            serializer = Upcoming_service_app(filtered_records, many=True)
+            # patient_info = agg_hhc_patient_list_enquiry.objects.get(pt_id=record.pt_id)
+
+            # service_title = record.srv_id.service_title
+
+            data = {
+                
+                    'data': serializer.data
+                    # 'pt_id': patient_info.pt_id,
+                    # 'name': patient_info.name,
+                    # 'address': patient_info.address
+                    # 'service_title': service_title
+                    
+            }
+
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            # Handle the case where yesterday is not greater than or equal to end_date
+            return Response({'error': 'End date not reached or record not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+#----------------(mayank)(pro_app_feedback)--------------------------------
+
+
+class ProAppFeedbackAPIView(APIView):
+    def post(self, request, format=None):
+        serializer = Pro_app_feedback_serializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()  # Save the validated data to create a new instance
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
