@@ -974,7 +974,7 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 	start_date = models.DateTimeField(null=True)
 	end_date = models.DateTimeField(null=True)
 	service_cost = models.FloatField(null=True)
-	prof_prefered = enum.EnumField(pt_gender_enum,null=True) # updated
+	prof_prefered = enum.EnumField(pt_gender_enum,null=True,blank=True) # updated
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
 	added_date = models.DateField(default=timezone.now,null=True)

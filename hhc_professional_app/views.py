@@ -183,9 +183,13 @@ class agg_hhc_document_list(APIView):
         return Response(response_data)
 
 class agg_hhc_add_document(APIView):    
+    
     def post(self,request):
-        print("data is not ")
-        print("data inside ",request.data)
+        serialized= agg_hhc_add_document_serializer(data=request.data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response({'message':'sucessful'},status=status.HTTP_201_CREATED)
+        return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class date_wise_location_details(APIView):
     def get_data(self,da):
