@@ -949,34 +949,44 @@ class service_details_today_total_services(APIView):
 #----------------------------------last patient service name and start date end date--------------------------
 
 class last_patient_service_info(APIView):
-    def get_object(self,pt_id):
-        return  agg_hhc_events.objects.filter(agg_sp_pt_id=pt_id)#.latest('added_date')
-    def get(self, request,pt_id):
+    def get_object(self, pt_id):
+        try:
+            return agg_hhc_events.objects.filter(agg_sp_pt_id=pt_id)
+        except Exception as e:
+            return None
+    def get(self, request, pt_id):
         try:
             patient_objects = self.get_object(pt_id)
-        except  agg_hhc_events.DoesNotExist:
-             return Response({"error": "Patient not found"},status=404)
-        latest_patient_object = patient_objects.first()  # Get the latest object from the queryset
-        eve_id = latest_patient_object.eve_id
-        patient_date= agg_hhc_event_plan_of_care.objects.filter(eve_id=eve_id)
-        patient_date=patient_date.first()
-        patient_date_serialized= agg_hhc_event_plan_of_care_serializer(patient_date)
-        print('this is patient _sat',patient_date)
-        print('this is patient',str(patient_date.srv_id))
-        patient_service_serialized= agg_hhc_services.objects.filter(srv_id=str(patient_date.srv_id)).first()
-        print(';;;;;;',patient_service_serialized.service_title)
-
-        # print('this is latest patient service',latest_patient_service)
-        # print('this is service ',latest_patient_service.srv_id)
-        # patient_obj= agg_hhc_services.objects.get(srv_id=latest_patient_service)
-        # patient_obj_serialized= agg_hhc_services_serializer(patient_obj)
-        return Response({'Date':patient_date_serialized.data,'service':patient_service_serialized.service_title})
+            if patient_objects is None:
+                return Response({"error": "Error fetching patient data"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            if not patient_objects:
+                return Response({"error": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
+            latest_patient_object = patient_objects.last()  # Get the latest object from the queryset
+            eve_id = latest_patient_object.eve_id
+            print("this is patient_object",eve_id)
+            try:
+                patient_date = agg_hhc_event_plan_of_care.objects.filter(eve_id=eve_id).last()
+                print("patient data",patient_date)
+            except agg_hhc_event_plan_of_care.DoesNotExist:
+                return Response({"error": "Patient date not found"}, status=status.HTTP_404_NOT_FOUND)
+            try:
+                patient_date_serialized = agg_hhc_event_plan_of_care_serializer(patient_date)
+                print("patient_date_serialized",patient_date_serialized.data.get('srv_id'))
+            except Exception as e:
+                return Response({"error": "Error serializing patient date"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            try:
+                patient_service = agg_hhc_services.objects.filter(srv_id=patient_date_serialized.data.get('srv_id')).last()
+            except agg_hhc_services.DoesNotExist:
+                return Response({"error": "Service not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'Date': patient_date_serialized.data, 'service': patient_service.service_title})
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
 class previous_patient_pending_amount(APIView):
     def get_object(self, pt_id):
         try:
-            event = agg_hhc_events.objects.filter(agg_sp_pt_id=pt_id).first()
+            event = agg_hhc_events.objects.filter(agg_sp_pt_id=pt_id).last()
             if event is not None:
                 return event
             else:
@@ -989,7 +999,7 @@ class previous_patient_pending_amount(APIView):
             if patient_objects is None:
                 return Response({"error": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
             eve_id = patient_objects.eve_id
-            patient_remaining_payment = agg_hhc_payment_details.objects.filter(eve_id=eve_id).first()
+            patient_remaining_payment = agg_hhc_payment_details.objects.filter(eve_id=eve_id).last()
             if patient_remaining_payment:
                 return Response({'Remaining_payment': patient_remaining_payment.amount_remaining})
             else:
@@ -1266,7 +1276,6 @@ def cashfree_webhook(request):
 
 #--------------------------------------Nikita P-----------------------------------------------
 class agg_hhc_zone_api(APIView): # List of Zones
-
     def get(self, request, pk, format=None):
         print(pk)
         groups =  agg_hhc_professional_zone.objects.filter(city_id=pk).order_by('Name')
@@ -1292,10 +1301,8 @@ class agg_hhc_service_professional_api(APIView): # List of professionals
         title = request.GET.get('title')
         pro = request.GET.get('pro')
         sub_srv = request.GET.get('sub_srv')
-
         print(zones, title, pro, sub_srv)
         # zone = agg_hhc_service_professionals.objects.filter(prof_zone_id=zone)
-
         if zones or title:
             print(zones, title)
             zones = agg_hhc_professional_zone.objects.get(prof_zone_id=zones)
@@ -1350,7 +1357,6 @@ class agg_hhc_detailed_event_plan_of_care_per_day_api(APIView):
     
 
 class CashfreeCreateOrder(APIView):
-
     def post(self, request, format=None):
         # serializer = PatientSerializer(data=request.data)
         # if serializer.is_valid(raise_exception=True):
@@ -1753,9 +1759,6 @@ class Professional_Reschedule_Apiview(APIView):
 
 class ServiceCancellationView(APIView):
     serializer_class = ServiceCancellationSerializer
-
-   
-
     serilizer_class2 = Event_Staus
     ev_serializer_class = Event_Plan_of_Care_Staus
     def get(self, request, eve_id):
