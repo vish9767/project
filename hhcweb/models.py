@@ -374,6 +374,128 @@ class follow_up(models.TextChoices):
 	
 # ------------------------------------------------------------------------
 
+class prof_enum(enum.Enum): 
+    Pending=1
+    Accepted=2
+    Rejected=3
+    Expired=4
+
+class Package_status_enum(enum.Enum):
+    Servcie=1
+    Package=2
+
+class flag_enum(enum.Enum):
+    HD_systems=1
+    Mobile_App=2
+
+class is_delet_enum(enum.Enum):
+    Yes=1
+    No=2
+
+class active_enum(enum.Enum):
+	Active=0
+	
+class type_enum(enum.Enum):
+    Doctor=1
+    Consultant=2
+
+class consultant_status_enum(enum.Enum):
+    Active=1
+    Inactive=2
+    Delete=3
+    Pending=4
+
+
+class documents_enum(enum.Enum):
+	Verified=1
+	need_more_details=2
+	Rejected=3
+	In_Progress=4
+	__default__ = In_Progress
+	
+class truefalse_enum(enum.Enum):
+    true=1
+    false=2
+
+class pic_enum(enum.Enum):
+    Photo=1
+    Video=2
+class Leave_Conflit_enum(enum.Enum):
+    Conflit=1
+    Not_conflite=2
+
+class Leave_status_enum(enum.Enum):
+    Applied=1
+    Approve=2
+    pending=3
+    Rejected=4
+    Cancle=5
+class desk_type_enum(enum.Enum):
+    SuperAdmin=1
+    Admin=2
+    HRManager=3
+class patient_bed_location_enum(enum.Enum):
+    hall1=1
+    hall2=2
+    bedroom1=3
+    bedroom2=4
+
+class Facility_type_enum(enum.Enum):
+    Day_care=1
+    Reguler=2
+    Luxury=3
+
+class consumable_type_enum(enum.Enum):
+    Unit=1
+    NonUnit=2
+
+class content_type_enum(enum.Enum):
+    header=1
+    footer=2
+
+class employee_type_enum(enum.Enum):
+    HCM=1
+    HD=2
+    Accountant=3
+    Office_Assistant=4
+    Trainer=5
+    Hospital=6
+    dashbaord=7
+    caller = 8
+
+class event_by_professional_enum(enum.Enum):
+    Started_Route=1
+    Started_Session=2
+    Completed_Session=3
+
+class Add_through_enum(enum.Enum):
+    HD=1
+    Professional=2
+    Community_App=3
+
+class Pause_Ready_enum(enum.Enum):
+    Pause=1
+    Ready=2
+class session_status_enum(enum.Enum):
+    Active=1
+    inactive=2
+    Device_removed=3
+
+class reciver_enum(enum.Enum):
+    Patient=1
+    Prof=2
+    Consultant=3
+    Caller=4
+
+class user_admin_enum(enum.Enum):
+    User=1
+    Admin=2
+
+class added_by_type_enum(enum.Enum):
+    Employee=1
+    Professional=2
+    Admin=3
+
 class agg_hhc_callers(models.Model):#113 this table is used for app register user as well as for web caller register
 	caller_id=models.AutoField(primary_key=True)
 	phone=models.BigIntegerField(null=True)#this will used to store otp
@@ -386,10 +508,10 @@ class agg_hhc_callers(models.Model):#113 this table is used for app register use
 	Age=models.IntegerField(null=True)
 	gender=models.CharField(max_length=20,null=True)
 	email=models.EmailField(null=True)
-	contact_no=models.BigIntegerField(null=True)
-	alter_contact=models.BigIntegerField(null=True)
+	# contact_no=models.BigIntegerField(null=True)
+	# alter_contact=models.BigIntegerField(null=True)
 	Address=models.CharField(max_length=50,null=True)
-	save_this_add=models.CharField(max_length=50,null=True)
+	# save_this_add=models.CharField(max_length=50,null=True)
 	added_date=models.DateField(null=True,auto_now=True)
 	emp_id=models.BigIntegerField(null=True)
 	last_modified_by=models.BigIntegerField(null=True)
@@ -712,7 +834,7 @@ class agg_hhc_patients(models.Model):#6    demo
 	#app_user_id=models.ForeignKey(agg_hhc_app_caller_register,on_delete=models.CASCADE,null=True)
 	caller_id=models.ForeignKey(agg_hhc_callers,on_delete=models.CASCADE,null=True)
 	hhc_code = models.CharField(max_length=50,null=True, blank=True)
-	membership_id = models.CharField(max_length=50,null=True)
+	# membership_id = models.CharField(max_length=50,null=True)
 	name = models.CharField(max_length=255,null=True)
 	# name = models.CharField(max_length=50,null=True)
 	# middle_name = models.CharField(max_length=50,null=True)
@@ -739,7 +861,7 @@ class agg_hhc_patients(models.Model):#6    demo
 	phone_no = models.BigIntegerField(null=True)
 	# mobile_no = models.CharField(max_length=20,null=True)
 	dob = models.DateField(null=True)
-	patient_ref_name = models.CharField(max_length=50,null=True)
+	# patient_ref_name = models.CharField(max_length=50,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	isDelStatus = models.BigIntegerField(null=True)
 	isVIP = enum.EnumField(yes_no_enum,null=True)
@@ -769,6 +891,7 @@ class agg_hhc_patients(models.Model):#6    demo
 			last_sequence = int(last_pt.hhc_code[-4:]) + 1 if last_pt else 1
 			self.hhc_code = f"{prefix}HC{last_sequence:05d}"
 		return super().save(*args, **kwargs)
+	
 	# class Meta:
 	# 	db_table='agg_hhc_patients'
 	
@@ -788,15 +911,15 @@ class agg_hhc_detailed_event_plan_of_care(models.Model):#8
 	eve_poc_id = models.ForeignKey('agg_hhc_event_plan_of_care',on_delete=models.CASCADE,null=True)
 	#pt_id= models.ForeignKey(agg_hhc_patient_list_enquiry, on_delete=models.CASCADE, null=True)
 	eve_id = models.ForeignKey('agg_hhc_events',on_delete = models.CASCADE, null=True)
-	eve_req_id = models.BigIntegerField(null=True)
-	index_of_Session = models.BigIntegerField(null=True)
+	# eve_req_id = models.BigIntegerField(null=True)
+	index_of_Session = models.IntegerField(null=True)
 	srv_prof_id = models.ForeignKey('agg_hhc_service_professionals', related_name='relation_id',on_delete=models.CASCADE, null=True, blank=True, default=None)
-	ext_srv_id = models.CharField(max_length=11,null=True)
-	service_date = models.DateField(null=True)
-	service_date_to = models.DateField(null=True)
-	Actual_Service_date = models.DateField(null=True)
-	start_date = models.DateTimeField(null=True)
-	end_date = models.DateTimeField(null=True)
+	# ext_srv_id = models.CharField(max_length=11,null=True)
+	# service_date = models.DateField(null=True)
+	# service_date_to = models.DateField(null=True)
+	# Actual_Service_date = models.DateField(null=True)
+	# start_date = models.DateTimeField(null=True)
+	# end_date = models.DateTimeField(null=True)
 	actual_StartDate_Time = models.DateTimeField(null=True)
 	actual_EndDate_Time = models.DateTimeField(null=True)
 	service_cost = models.FloatField(null=True)
@@ -823,7 +946,7 @@ class agg_hhc_detailed_event_plan_of_care(models.Model):#8
 class agg_hhc_events(models.Model):#9
 	eve_id = models.AutoField(primary_key = True)
 	event_code = models.CharField(max_length=640,null=True,blank=True)
-	srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
+	# srv_id = models.ForeignKey('agg_hhc_services',on_delete=models.CASCADE,null=True)
 	caller_id = models.ForeignKey('agg_hhc_callers',on_delete=models.CASCADE,null=True)
 	# enq_follow_up_id = models.ForeignKey('agg_hhc_enquiry_follow_up',on_delete=models.CASCADE,null=True)    # AMIT
 	# relation = models.CharField(max_length=64,null=True)	
@@ -833,14 +956,13 @@ class agg_hhc_events(models.Model):#9
 	bill_no_ref_no = models.BigIntegerField(null=True)
 	event_date = models.DateTimeField(auto_now_add=True,null=True)
 	note = models.CharField(max_length=500,null=True)
-	service_date_of_Enquiry = models.DateField(null=True)
+	# service_date_of_Enquiry = models.DateField(null=True)
 	enquiry_added_date = models.DateField(default=timezone.now,null=True)
 	enquiry_status = enum.EnumField(enquiry_status_enum,null=True)
-	enquiry_cancel_from = models.BigIntegerField(null=True)
+	# enquiry_cancel_from = models.BigIntegerField(null=True)
 	enquiry_cancellation_reason = models.CharField(max_length=500,null=True)
 	enquiry_cancel_date = models.DateField(null=True)
-	description = models.CharField(max_length=500,null=True)
-	# Total_cost = models.CharField(max_length=240,null=True)
+	# description = models.CharField(max_length=500,null=True)
 	Total_cost = models.DecimalField(max_digits=50, decimal_places=2,null=True)
 	discount_type = enum.EnumField(discount_type_enum,null=True)
 	discount_value = models.FloatField(null=True)
@@ -861,16 +983,16 @@ class agg_hhc_events(models.Model):#9
 	last_modified_date = models.DateField(null=True)
 	# purpose_event_id = models.BigIntegerField(null=True)
 	branch_code = models.CharField(max_length=50,null=True)
-	hosp_id = models.BigIntegerField(null=True)
+	#hosp_id = models.BigIntegerField(null=True)
 	suffer_from = models.CharField(max_length=200,null=True)
-	hosp_id = models.CharField(max_length=30,null=True)
-	ref_hos_nm = models.CharField(max_length=50,null=True)
+	hosp_id = models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)
+	# ref_hos_nm = models.CharField(max_length=50,null=True)
 	# Tally_Remark = models.BigIntegerField(null=True)
 	# Payment_type = enum.EnumField(Payment_type_enum,null=True)
 	OTP = models.CharField(max_length=11,null=True)
 	OTP_count = models.IntegerField(null=True)
 	otp_expire_time = models.DateField(null=True)
-	sor_of_enq_id = models.BigIntegerField(null=True)
+	# sor_of_enq_id = models.BigIntegerField(null=True)
 	event_status=enum.EnumField(valid_event_enum,null=True)
 	patient_service_status = enum.EnumField(patient_richedBy_status_enum,null=True)
 
@@ -965,17 +1087,17 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 	sub_srv_id = models.ForeignKey('agg_hhc_sub_services', on_delete=models.CASCADE,null=True)
 	hosp_id = models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# new added
 	doct_cons_id = models.ForeignKey('agg_hhc_doctors_consultants',on_delete=models.CASCADE,null=True)# new added
-	pt_id = models.ForeignKey('agg_hhc_patient_list_enquiry',on_delete=models.CASCADE,null=True)# new added(mayank)
+	# pt_id = models.ForeignKey('agg_hhc_patient_list_enquiry',on_delete=models.CASCADE,null=True)# new added(mayank)
 	# eve_req_id = models.BigIntegerField(null=True)
 	srv_prof_id = models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
 	# service_date = models.DateField(null=True)# this field for fields stor  time
 	# service_date_to = models.DateField(null=True)# this field for fields stor time
-	actual_StartDate_Time = models.DateTimeField(null=True)
-	actual_EndDate_Time = models.DateTimeField(null=True)
+	# actual_StartDate_Time = models.DateTimeField(null=True)
+	# actual_EndDate_Time = models.DateTimeField(null=True)
 	start_date = models.DateTimeField(null=True)
 	end_date = models.DateTimeField(null=True)
-	service_cost = models.FloatField(null=True)
-	prof_prefered = enum.EnumField(pt_gender_enum,null=True) # updated
+	# service_cost = models.FloatField(null=True)
+	prof_prefered = enum.EnumField(pt_gender_enum,null=True,blank=True) # updated
 	status = enum.EnumField(status_enum,null=True)
 	added_by = models.BigIntegerField(null=True)
 	added_date = models.DateField(default=timezone.now,null=True)
@@ -1158,7 +1280,8 @@ class agg_hhc_services(models.Model):#30
 	info_image_path = models.CharField(max_length=300,null=True)
 	ser_order = models.CharField(max_length=10,null=True)
 	dash_order = models.CharField(max_length=10,null=True)
-
+	is_role = enum.EnumField(truefalse_enum,null=True) # added by sandip
+	
 	def __str__(self):
 	    return f"{self.srv_id}"
 	
@@ -1180,6 +1303,7 @@ class agg_hhc_sub_services(models.Model):#34
 	tf = enum.EnumField(Tf_enum,null=True)
 	Instruction = models.CharField(max_length=500,null=True)
 	Specimen = models.CharField(max_length=100,null=True)
+	
 	
 	def __str__(self):
 	    return f"{self.recommomded_service}"
@@ -1248,7 +1372,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	work_phone_no = models.BigIntegerField(null=True)
 	work_address = models.CharField(max_length=500,null=True)
 	prof_zone_id= models.ForeignKey('agg_hhc_professional_zone',on_delete=models.CASCADE,null=True, to_field="Name")
-	loc_id = models.CharField(max_length=240,null=True)
+	# loc_id = models.CharField(max_length=240,null=True)
 	set_location = enum.EnumField(set_location_enum,null=True)
 	status = enum.EnumField(status_enum,null=True)
 	isDelStatus = models.BigIntegerField(null=True)
@@ -1264,16 +1388,16 @@ class agg_hhc_service_professionals(models.Model):#32
 	police_varification = models.CharField(max_length=10,null=True)
 	apron_charges = models.FloatField(null=True)
 	document_status = enum.EnumField(document_status_enum,null=True)
-	APP_password = models.CharField(max_length=350,null=True)
+	# APP_password = models.CharField(max_length=350,null=True)
 	OTP = models.CharField(max_length=4,null=True)
 	OTP_count = models.BigIntegerField(null=True)
 	otp_expire_time = models.DateTimeField(null=True)
 	Profile_pic = models.ImageField(null=True,max_length=None)
 	Ratings = models.FloatField(null=True)
 	Reviews = models.IntegerField(null=True)
-	Description = models.CharField(max_length=200,null=True)
+	# Description = models.CharField(max_length=200,null=True)
 	OTP_verification = enum.EnumField(yes_no_enum,null=True)
-	reg_source = enum.EnumField(reg_source_enum,null=True)
+	# reg_source = enum.EnumField(reg_source_enum,null=True)
 	availability_status = enum.EnumField(JOB_type,null=True, blank=True)
 	mode_of_service = enum.EnumField(mode_of_srv, null=True, blank=True)
 	location_status = enum.EnumField(yes_no_enum,null=True)
@@ -1554,127 +1678,7 @@ class agg_hhc_professional_availability(models.Model):#49
 	srv_prof_id=models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
 
 # ------------------------------------------------------------------------------------------------------------------
-class prof_enum(enum.Enum): 
-    Pending=1
-    Accepted=2
-    Rejected=3
-    Expired=4
 
-class Package_status_enum(enum.Enum):
-    Servcie=1
-    Package=2
-
-class flag_enum(enum.Enum):
-    HD_systems=1
-    Mobile_App=2
-
-class is_delet_enum(enum.Enum):
-    Yes=1
-    No=2
-
-class active_enum(enum.Enum):
-	Active=0
-	
-class type_enum(enum.Enum):
-    Doctor=1
-    Consultant=2
-
-class consultant_status_enum(enum.Enum):
-    Active=1
-    Inactive=2
-    Delete=3
-    Pending=4
-
-
-class documents_enum(enum.Enum):
-	Verified=1
-	need_more_details=2
-	Rejected=3
-	In_Progress=4
-	__default__ = In_Progress
-	
-class truefalse_enum(enum.Enum):
-    true=1
-    false=2
-
-class pic_enum(enum.Enum):
-    Photo=1
-    Video=2
-class Leave_Conflit_enum(enum.Enum):
-    Conflit=1
-    Not_conflite=2
-
-class Leave_status_enum(enum.Enum):
-    Applied=1
-    Approve=2
-    pending=3
-    Rejected=4
-    Cancle=5
-class desk_type_enum(enum.Enum):
-    SuperAdmin=1
-    Admin=2
-    HRManager=3
-class patient_bed_location_enum(enum.Enum):
-    hall1=1
-    hall2=2
-    bedroom1=3
-    bedroom2=4
-
-class Facility_type_enum(enum.Enum):
-    Day_care=1
-    Reguler=2
-    Luxury=3
-
-class consumable_type_enum(enum.Enum):
-    Unit=1
-    NonUnit=2
-
-class content_type_enum(enum.Enum):
-    header=1
-    footer=2
-
-class employee_type_enum(enum.Enum):
-    HCM=1
-    HD=2
-    Accountant=3
-    Office_Assistant=4
-    Trainer=5
-    Hospital=6
-    dashbaord=7
-    caller = 8
-
-class event_by_professional_enum(enum.Enum):
-    Started_Route=1
-    Started_Session=2
-    Completed_Session=3
-
-class Add_through_enum(enum.Enum):
-    HD=1
-    Professional=2
-    Community_App=3
-
-class Pause_Ready_enum(enum.Enum):
-    Pause=1
-    Ready=2
-class session_status_enum(enum.Enum):
-    Active=1
-    inactive=2
-    Device_removed=3
-
-class reciver_enum(enum.Enum):
-    Patient=1
-    Prof=2
-    Consultant=3
-    Caller=4
-
-class user_admin_enum(enum.Enum):
-    User=1
-    Admin=2
-
-class added_by_type_enum(enum.Enum):
-    Employee=1
-    Professional=2
-    Admin=3
 
 class agg_hhc_professional_availability_detail(models.Model):#50
 	prof_avaib_dt_id=models.AutoField(primary_key=True)

@@ -177,22 +177,35 @@ class Register_professioanl_for_interview(APIView):
 # --------------------------------- Sandip Shimpi -------------------------------------------------------------------------
 # ---------------------------- Professional document upload and check ----------------------------------------------------
 
+class agg_hhc_get_role(APIView):
 
+    def get_queryset(self):
+        return webmodel.agg_hhc_services.objects.filter(is_role=True)
+
+    def get(self, request):
+        role = self.get_queryset()
+        print(role)
+        role_serializer = agg_hhc_get_role_serializer(role,many=True)
+        return Response(role_serializer.data)
+    
 class agg_hhc_document_list(APIView):
     def get(self,request,pk):
         call= webmodel.agg_hhc_documents_list.objects.filter(professional_role=pk)
         serializers=agg_hhc_document_list_serializer(call,many=True)
         doc_list_ID = [{'doc_list_ID': item['doc_li_id'],'Documents_name':item['Documents_name'],'professional_role':item['professional_role']} for item in serializers.data]
-
         response_data={
             'doc_list_ID':doc_list_ID
         }
         return Response(response_data)
 
 class agg_hhc_add_document(APIView):    
+    
     def post(self,request):
-        print("data is not ")
-        print("data inside ",request.data)
+        serialized= agg_hhc_add_document_serializer(data=request.data)
+        if serialized.is_valid():
+            serialized.save()
+            return Response({'message':'sucessful'},status=status.HTTP_201_CREATED)
+        return Response(serialized.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class date_wise_location_details(APIView):
     def get_data(self,da):
@@ -310,3 +323,19 @@ class ProAppFeedbackAPIView(APIView):
             serializer.save()  # Save the validated data to create a new instance
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+# ---------------------------- Vinayak - Professional Services and session ---------------------------
+
+class get_professional_srv_dtl_apiview(APIView):
+    serializer_class = Ongoing_srv_sess_serializer
+    def get(self, request, srv_prof_id):
+        get_professional_srv_data = agg_hhc_event_plan_of_care.objects.filter(srv_prof_id=srv_prof_id)
+        # print(get_professional_srv_data)
+        serializer = self.serializer_class(get_professional_srv_data, many=True)
+        return Response({'message':serializer.data})
+    
