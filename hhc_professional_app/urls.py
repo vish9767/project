@@ -11,9 +11,10 @@ urlpatterns=[
 
 
 # --------------------------------- Sandip Shimpi -----------------------------------------------
+    path('agg_hhc_get_role/',views.agg_hhc_get_role.as_view()),
     path('agg_hhc_document_list/<int:pk>/',views.agg_hhc_document_list.as_view()),
     path('agg_hhc_add_document/',views.agg_hhc_add_document.as_view()),
-    path('agg_hhc_add_document/<int:pk>/',views.agg_hhc_add_document.as_view()),
+    # path('agg_hhc_add_document/<int:pk>/',views.agg_hhc_add_document.as_view()),
     path('Add_Prof_location_api/',views.Add_Prof_location_api.as_view()),
 
     

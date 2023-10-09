@@ -177,13 +177,22 @@ class Register_professioanl_for_interview(APIView):
 # --------------------------------- Sandip Shimpi -------------------------------------------------------------------------
 # ---------------------------- Professional document upload and check ----------------------------------------------------
 
+class agg_hhc_get_role(APIView):
 
+    def get_queryset(self):
+        return webmodel.agg_hhc_services.objects.filter(is_role=True)
+
+    def get(self, request):
+        role = self.get_queryset()
+        print(role)
+        role_serializer = agg_hhc_get_role_serializer(role,many=True)
+        return Response(role_serializer.data)
+    
 class agg_hhc_document_list(APIView):
     def get(self,request,pk):
         call= webmodel.agg_hhc_documents_list.objects.filter(professional_role=pk)
         serializers=agg_hhc_document_list_serializer(call,many=True)
         doc_list_ID = [{'doc_list_ID': item['doc_li_id'],'Documents_name':item['Documents_name'],'professional_role':item['professional_role']} for item in serializers.data]
-
         response_data={
             'doc_list_ID':doc_list_ID
         }

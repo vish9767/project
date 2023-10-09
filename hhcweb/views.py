@@ -111,7 +111,7 @@ class agg_hhc_locations_api(APIView):
 class agg_hhc_services_api(APIView):
     def get(self,request):
         call= agg_hhc_services.objects.filter(status=1).order_by('service_title')
-        serializer=agg_hhc_services_serializer(call,many=True)
+        serializer=get_service_name(call,many=True)
         return Response(serializer.data)
 
 class agg_hhc_sub_services_api(APIView):
@@ -331,19 +331,23 @@ class agg_hhc_add_service_details_api(APIView):
                 patientSerializer = agg_hhc_patients_serializer(patient,data=request.data)
                 if patientSerializer.is_valid():
                     # patientSerializer.validated_data['caller_id']=callerID
+
                     patientID=patientSerializer.save().agg_sp_pt_id
                     # print('5')
                 else: return Response(patientSerializer.errors)
             else:
-                patient = agg_hhc_patients_serializer(data=request.data)
+                Patient = agg_hhc_patients_serializer(data=request.data)
+                
                 request.data['caller_id']=callerID
-                if patient.is_valid():
+                if Patient.is_valid():
                     # print(patient,'pppppppppppppp')
                     # patient.validated_data['caller_id']=callerID
-                    patientID=patient.save().agg_sp_pt_id
+                    patientID=Patient.save().agg_sp_pt_id
+                    # Patient.save()
+                    # print(patient.data)
                     # patientID=patientID.agg_sp_pt_id
                 else:
-                    return Response([patient.errors])
+                    return Response([Patient.errors])
                 # print('4.6')   
         elif request.data['purp_call_id']==2:
             patient= agg_hhc_patient_list_enquiry.objects.filter(phone_no=request.data['phone_no']).first()

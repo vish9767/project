@@ -118,7 +118,10 @@ class Upcoming_service_app(serializers.ModelSerializer):
 
 # ----------------------------PROfessional app feedback----------------------
 
-
+class agg_hhc_get_role_serializer(serializers.ModelSerializer):
+   class Meta:
+        model = agg_hhc_services
+        fields = ['srv_id','service_title']
 
 
 class Pro_app_feedback_serializer(serializers.ModelSerializer):

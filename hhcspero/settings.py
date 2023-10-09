@@ -90,6 +90,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'user_db':{
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'user.db.sqlite3',
     }
     # 'default': {
     #     'ENGINE' : 'django.db.backends.postgresql',
@@ -228,3 +232,4 @@ LOGGING = {
 }
 
 
+DATABASE_ROUTERS = ['router.db_routers.AuthRouter',]

@@ -68,10 +68,10 @@ class agg_hhc_sub_services_serializer(serializers.ModelSerializer):
         fields = ['sub_srv_id','recommomded_service','srv_id','cost']
 
 
-class agg_hhc_services_serializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.agg_hhc_services
-        fields = ['srv_id','service_title']
+# class agg_hhc_services_serializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.agg_hhc_services
+#         fields = ['srv_id','service_title']
 
 class agg_hhc_event_serializer(serializers.ModelSerializer):
     class Meta:
@@ -209,7 +209,8 @@ class agg_hhc_gender_serializer(serializers.ModelSerializer):#112
 class agg_hhc_patients_serializer(serializers.ModelSerializer):#6
     class Meta:
         model=models.agg_hhc_patients
-        fields='__all__'
+        # fields='__all__'
+        fields=['name','Age','gender_id','preferred_hosp_id','Suffered_from','phone_no','patient_email_id','doct_cons_id','state_id','city_id','prof_zone_id','address','pincode']
         
 #############______________get patient details from caller id but latest record_______#
 
@@ -224,7 +225,7 @@ class agg_hhc_callers_serializer(serializers.ModelSerializer):#20
     # fullname=serializers.SerializerMethodField()
     class Meta:
         model=models.agg_hhc_callers
-        fields=('caller_fullname','caller_id','phone','caller_rel_id','gender','email','contact_no','alter_contact','Address','save_this_add','profile_pic','purp_call_id')
+        fields=('caller_fullname','caller_id','phone','caller_rel_id','gender','email','Address','profile_pic','purp_call_id')
     # def get_name(self,obj):
     #     return f"{obj.fname} {obj.lname}".strip()
 
