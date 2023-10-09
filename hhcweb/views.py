@@ -26,6 +26,8 @@ from django.views.decorators.csrf import csrf_exempt # mayank
 from django.http import JsonResponse  # mayank
 from urllib.parse import quote # mayank
 import requests as Req #mayank
+from django.views.decorators.cache import cache_page #mayank
+
 
 
 
@@ -1013,13 +1015,13 @@ class previous_patient_pending_amount(APIView):
 #---------------------------------------------------mayank------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------
 
-@api_view(['GET'])
-def total_services(request, service_professional_id):  # Adjust the parameter name here
-    try:
-        total_services =  agg_hhc_event_plan_of_care.objects.filter(srv_prof_id=service_professional_id).count()  # Adjust the field name here
-        return Response({"total_services": total_services}, status=status.HTTP_200_OK)
-    except agg_hhc_event_plan_of_care.DoesNotExist:
-        return Response({"error": "Service Professional not found."}, status=status.HTTP_404_NOT_FOUND)
+# @api_view(['GET'])
+# def total_services1(request, service_professional_id):  # Adjust the parameter name here
+#     try:
+#         total_services =  agg_hhc_event_plan_of_care.objects.filter(srv_prof_id=service_professional_id).count()  # Adjust the field name here
+#         return Response({"total_services": total_services}, status=status.HTTP_200_OK)
+#     except agg_hhc_event_plan_of_care.DoesNotExist:
+#         return Response({"error": "Service Professional not found."}, status=status.HTTP_404_NOT_FOUND)
     
 class AggHHCServiceProfessionalListAPIView(generics.ListAPIView):
     queryset = agg_hhc_service_professionals.objects.all()
@@ -1083,12 +1085,13 @@ class get_payment_details(APIView):
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.utils.decorators import method_decorator
 from .models import agg_hhc_service_professionals
 from collections import Counter
 from django.utils import timezone
 from datetime import timedelta
 
-
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class JjobTypeCountAPIView(APIView):
     def get(self, request, *args, **kwargs):
         try:
@@ -1500,8 +1503,8 @@ class LogoutView(APIView):
 # from rest_framework import status
 # from .models import agg_hhc_service_professionals, agg_hhc_event_plan_of_care
 # from .serializers import AggHHCServiceProfessionalSerializer
-
 @api_view(['GET'])
+@cache_page(60 * 15)
 def total_services(request):
     try:
         service_professionals = agg_hhc_service_professionals.objects.all()
