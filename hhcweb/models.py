@@ -1087,6 +1087,7 @@ class agg_hhc_event_plan_of_care(models.Model):#15
 	sub_srv_id = models.ForeignKey('agg_hhc_sub_services', on_delete=models.CASCADE,null=True)
 	hosp_id = models.ForeignKey('agg_hhc_hospitals',on_delete=models.CASCADE,null=True)# new added
 	doct_cons_id = models.ForeignKey('agg_hhc_doctors_consultants',on_delete=models.CASCADE,null=True)# new added
+	# pt_id = models.ForeignKey('agg_hhc_patient_list_enquiry',on_delete=models.CASCADE,null=True)# new added(mayank)
 	# eve_req_id = models.BigIntegerField(null=True)
 	srv_prof_id = models.ForeignKey('agg_hhc_service_professionals',on_delete=models.CASCADE,null=True)
 	# service_date = models.DateField(null=True)# this field for fields stor  time
