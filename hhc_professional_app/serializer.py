@@ -93,7 +93,7 @@ class agg_hhc_add_dtl_location_serializer(serializers.ModelSerializer):
 # -----------------------mayank-----------------------------app----------------------
 
 class Upcoming_service_app(serializers.ModelSerializer):
-    # service_title = serializers.CharField(source='agg_hhc_services.service_title')
+    pt_id = agg_hhc_patients
 
     class Meta:
         model= agg_hhc_event_plan_of_care
@@ -117,7 +117,6 @@ class Upcoming_service_app(serializers.ModelSerializer):
     #    return data
 
 # ----------------------------PROfessional app feedback----------------------
-
 
 
 
