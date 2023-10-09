@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from hhcweb.models import *
+from django.db.models import Sum, F, ExpressionWrapper, DecimalField
+from decimal import Decimal
+
 
 class agg_hhc_service_professionals_serializer(serializers.Serializer):
     class Meta:
@@ -124,3 +127,54 @@ class Upcoming_service_app(serializers.ModelSerializer):
 class Pro_app_feedback_serializer(serializers.ModelSerializer):
     models = agg_hhc_Professional_app_feedback
     fields = "__all__"
+
+
+
+
+
+
+
+    # ----------------------------  Professional Ongoing service and session  --------------
+class get_total_amt(serializers.ModelSerializer):
+    class Meta:
+        model = agg_hhc_events
+        fields = []
+
+
+class Ongoing_srv_sess_serializer(serializers.ModelSerializer):
+    srv_id = professional_role()
+    Total_amount = serializers.SerializerMethodField()
+    Pending_amount = serializers.SerializerMethodField()
+    
+
+    class Meta:
+        model = agg_hhc_event_plan_of_care
+        fields = ['srv_prof_id', 'eve_id', 'srv_id', 'start_date', 'end_date', 'Total_amount',
+                  'Pending_amount']
+
+    def get_Total_amount(self, obj):
+       
+        event_id = obj.eve_id_id 
+        total_amt = agg_hhc_events.objects.filter(eve_id=event_id).aggregate(Sum('final_amount'))['final_amount__sum']
+
+        return total_amt if total_amt is not None else 0
+    
+    def get_Pending_amount(self, obj):
+      
+        event_id = obj.eve_id_id 
+
+        total_amt_agg = agg_hhc_events.objects.filter(eve_id=event_id).aggregate(Sum('final_amount'))
+        total_paid_agg = agg_hhc_payment_details.objects.filter(eve_id=event_id).aggregate(Sum('amount_paid'))
+
+        total_amt = total_amt_agg['final_amount__sum']
+        total_paid = total_paid_agg['amount_paid__sum']
+
+        if total_amt is None:total_amt = 0.0 
+
+        if total_paid is None:total_paid = 0.0  
+        print(total_amt)
+        print(total_paid)
+        
+        Pending_amt = total_amt - total_paid
+        return Pending_amt
+        

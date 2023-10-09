@@ -22,6 +22,8 @@ urlpatterns=[
 # --------------------------------  Mayank / Vinayak  -------------------------------------------
 
     path('reg_prof_Apiview/<int:srv_prof_id>', views.Register_professioanl_for_interview.as_view()),
+    path('prof_ongoing_srv_sesson/<int:srv_prof_id>', views.get_professional_srv_dtl_apiview.as_view()),
+    
     path('upcoming-service/<int:srv_prof_id>/',views.UpcomingServiceAPI.as_view(), name='upcoming-service'),
     path('completed-service/<int:srv_prof_id>/',views.CompletedServiceAPI.as_view(), name='completed-service'),
     path('pro_app_feedback/', views.ProAppFeedbackAPIView.as_view(), name='pro_app_feedback-api'),

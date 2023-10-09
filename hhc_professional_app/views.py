@@ -314,3 +314,19 @@ class ProAppFeedbackAPIView(APIView):
             serializer.save()  # Save the validated data to create a new instance
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+# ---------------------------- Vinayak - Professional Services and session ---------------------------
+
+class get_professional_srv_dtl_apiview(APIView):
+    serializer_class = Ongoing_srv_sess_serializer
+    def get(self, request, srv_prof_id):
+        get_professional_srv_data = agg_hhc_event_plan_of_care.objects.filter(srv_prof_id=srv_prof_id)
+        # print(get_professional_srv_data)
+        serializer = self.serializer_class(get_professional_srv_data, many=True)
+        return Response({'message':serializer.data})
+    
