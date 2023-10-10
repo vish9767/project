@@ -130,6 +130,8 @@ class Session_status_enum(enum.Enum):
 	Started_Session = 8
 	Completed_Session = 9
 
+	__default__ = Pending
+
 class Reason_for_no_serivce_enum(enum.Enum):
 	Session_added = 1
 	Patient_Hospitalized = 2
@@ -1704,7 +1706,7 @@ class agg_hhc_professional_documents(models.Model):#52
 	def nameField(instance,filename):
 		return "/".join(['media',str(instance.professional_id.prof_fullname),filename])
 	prof_doc_id=models.AutoField(primary_key=True)
-	professional_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
+	srv_prof_id=models.ForeignKey(agg_hhc_service_professionals,on_delete=models.CASCADE,null=True)
 	doc_li_id=models.ForeignKey('agg_hhc_documents_list',on_delete=models.CASCADE,null=True)
 	professional_document=models.FileField(upload_to=nameField,null=True)  #change urp_path to professional_document and char to filefield #sandip shimpi
 	rejection_reason=models.CharField(max_length=200,null=True,blank=True)
