@@ -1415,6 +1415,7 @@ class agg_hhc_service_professionals(models.Model):#32
 	gender = enum.EnumField(pt_gender_enum, null = True)
 	Education_level = enum.EnumField(Education_level, null = True) # added by vinayak
 	pin_code_id = models.CharField(max_length=50,null=True)
+	prof_address = models.CharField(max_length=100, null=True)
 	city = models.ForeignKey('agg_hhc_city', on_delete=models.CASCADE, null=True)
 	state_name=models.ForeignKey('agg_hhc_state',on_delete=models.CASCADE,null=True)
 	# cv_file = models.FileField(upload_to='uploads/')

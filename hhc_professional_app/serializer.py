@@ -56,13 +56,12 @@ class reg_prof_api_serializer(serializers.ModelSerializer):
     class Meta:
         model = agg_hhc_service_professionals
         fields = ['srv_id', 'title','prof_fullname','dob','gender','email_id','phone_no','alt_phone_no','eme_contact_no','eme_contact_relation',
-                  'eme_conact_person_name','mode_of_service','availability_status','prof_zone_id','state_name','city','pin_code_id',
+                  'eme_conact_person_name','mode_of_service','availability_status','prof_zone_id','state_name','prof_address','city','pin_code_id',
                   'prof_sub_srv_id','Education_level','cv_file','certificate_registration_no','availability']
     
     def create(self, validated_data):
         # You can set the enum value you want here
         validated_data['professinal_status'] = Professional_status.Info_Submitted
-
         instance = super(reg_prof_api_serializer, self).create(validated_data)
         return instance
     
@@ -163,20 +162,32 @@ class Ongoing_srv_sess_serializer(serializers.ModelSerializer):
     
     def get_Pending_amount(self, obj):
       
-        event_id = obj.eve_id_id 
+        # event_id = obj.eve_id_id 
+
+        # total_amt_agg = agg_hhc_events.objects.filter(eve_id=event_id).aggregate(Sum('final_amount'))
+        # total_paid_agg = agg_hhc_payment_details.objects.filter(eve_id=event_id).aggregate(Sum('amount_paid'))
+        # print(f"Total Paid Aggregate: {total_paid_agg}")
+
+        # total_amt = total_amt_agg['final_amount__sum']
+        # total_paid = total_paid_agg['amount_paid__sum']
+        # print(f"Total Amount: {total_amt}, Total Paid: {total_paid}")
+
+        # if total_amt is None:
+        #     total_amt = 0.0
+
+        # if total_paid is None:
+        #     total_paid = 0.0
+
+        # Pending_amt = total_amt - total_paid
+        # return Pending_amt
+
+        event_id = obj.eve_id_id
 
         total_amt_agg = agg_hhc_events.objects.filter(eve_id=event_id).aggregate(Sum('final_amount'))
         total_paid_agg = agg_hhc_payment_details.objects.filter(eve_id=event_id).aggregate(Sum('amount_paid'))
 
-        total_amt = total_amt_agg['final_amount__sum']
-        total_paid = total_paid_agg['amount_paid__sum']
+        total_amt = total_amt_agg['final_amount__sum'] or Decimal('0.0')
+        total_paid = total_paid_agg['amount_paid__sum'] or Decimal('0.0')
 
-        if total_amt is None:total_amt = 0.0 
-
-        if total_paid is None:total_paid = 0.0  
-        print(total_amt)
-        print(total_paid)
-        
-        Pending_amt = total_amt - total_paid
+        Pending_amt = float(total_amt) - float(total_paid)
         return Pending_amt
-        
