@@ -236,14 +236,14 @@ DATABASE_ROUTERS = ['router.db_routers.AuthRouter',]
 
 
 # Enable caching
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:8000',  # Use your Memcached server address
-    }
-}
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+#         'LOCATION': '127.0.0.1:8000',  # Use your Memcached server address
+#     }
+# }
 
-# Use cache for the database queries
+# # Use cache for the database queries
 # CACHES = {
 #     'default': {
 #         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',

@@ -1091,7 +1091,7 @@ from collections import Counter
 from django.utils import timezone
 from datetime import timedelta
 
-@method_decorator(cache_page(60 * 15), name='dispatch')
+# @method_decorator(cache_page(60 * 15), name='dispatch')
 class JjobTypeCountAPIView(APIView):
     def get(self, request, *args, **kwargs):
         try:
@@ -1504,7 +1504,7 @@ class LogoutView(APIView):
 # from .models import agg_hhc_service_professionals, agg_hhc_event_plan_of_care
 # from .serializers import AggHHCServiceProfessionalSerializer
 @api_view(['GET'])
-@cache_page(60 * 15)
+# @cache_page(60 * 15)
 def total_services(request):
     try:
         service_professionals = agg_hhc_service_professionals.objects.all()
